@@ -1,1 +1,29 @@
-export class Product {}
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { ProductStatus } from './create-product.dto';
+
+@Entity('products')
+export class Product {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ type: 'varchar', length: 255 })
+  product_name: string;
+
+  @Column({ type: 'text' })
+  product_detail: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  product_price: number;
+
+  @Column({ type: 'varchar', length: 500 })
+  product_image: string;
+
+  @Column({ type: 'enum', enum: ProductStatus, default: ProductStatus.IN_STOCK })
+  product_status: ProductStatus;
+
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  updated_at: Date;
+}
