@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { ProductStatus } from './create-product.dto';
+import { ProductStatus } from '../dto/create-product.dto';
 
 @Entity('products')
 export class Product {
