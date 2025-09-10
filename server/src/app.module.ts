@@ -9,17 +9,24 @@ import { UserModule } from './user/user.module';
 import { AddressOptionModule } from './address_option/address_option.module';
 import { AddressModule } from './address/address.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Product } from './product/entities/product.entity';
+import { Payment } from './payment/entities/payment.entity';
+import { Address } from './address/entities/address.entity';
+import { AddressOption } from './address_option/entities/address_option.entity';
+import { User } from './user/entities/user.entity';
+import { Auth } from './auth/entities/auth.entity';
+import { Order } from './order/entities/order.entity';
 
 @Module({
   imports: [
-     TypeOrmModule.forRoot({
+    TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
       port: 3306,
       username: 'root',
       password: '',
       database: 'somaricha',
-      // entities: [Product,Category],
+      entities: [Product, Payment, Address, AddressOption, User, Auth, Order],
       synchronize: true,
     }),
     ProductModule,

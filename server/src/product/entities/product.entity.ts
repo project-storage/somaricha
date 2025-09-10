@@ -1,5 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { ProductStatus } from '../dto/create-product.dto';
+import { Order } from 'src/order/entities/order.entity';
 
 @Entity('products')
 export class Product {
@@ -18,12 +26,23 @@ export class Product {
   @Column({ type: 'varchar', length: 500 })
   product_image: string;
 
-  @Column({ type: 'enum', enum: ProductStatus, default: ProductStatus.IN_STOCK })
+  @Column({
+    type: 'enum',
+    enum: ProductStatus,
+    default: ProductStatus.IN_STOCK,
+  })
   product_status: ProductStatus;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
+
+  @OneToMany(() => Order, (order) => order.product)
+  orders: Order[];
 }
