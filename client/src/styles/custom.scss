@@ -34,3 +34,64 @@ html, body {
     transform: scale(1.05);
   }
 }
+.image-card-product {
+  height: 308px;;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+.btn-many-product {
+  background-color:#333333;
+  height: 15px;
+  width: 100%;
+  color: white  ;
+  padding: 20px 15px;
+  border: none;
+  border-radius: 10000px;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+
+  &:hover {
+    background-color: #f2f2f2;
+    transform: scale(1.05);
+  }
+}
+.btn-add-cart {
+  background-color: #8C6E63;
+  height: 35px;
+  width: 60px;
+  color: white  ;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+
+  &:hover {
+    background-color: #D6C0B3;
+    transform: scale(1.05);
+  }
+}
+.image-hover {
+  overflow: hidden;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
