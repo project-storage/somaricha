@@ -16,9 +16,13 @@ import { AddressOption } from './address_option/entities/address_option.entity';
 import { User } from './user/entities/user.entity';
 import { Auth } from './auth/entities/auth.entity';
 import { Order } from './order/entities/order.entity';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, // ✅ ทำให้ทุก Module ใช้ ENV ได้
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
