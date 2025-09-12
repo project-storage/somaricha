@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -18,10 +22,14 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const existUsername = await this.authRepo.findOne({ where: { username: dto.username } });
+    const existUsername = await this.authRepo.findOne({
+      where: { username: dto.username },
+    });
     if (existUsername) throw new BadRequestException('Username already exists');
 
-    const existEmail = await this.userRepo.findOne({ where: { email: dto.email } });
+    const existEmail = await this.userRepo.findOne({
+      where: { email: dto.email },
+    });
     if (existEmail) throw new BadRequestException('Email already exists');
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -45,10 +53,14 @@ export class AuthService {
   }
 
   async registerOwer(dto: RegisterDto) {
-    const existUsername = await this.authRepo.findOne({ where: { username: dto.username } });
+    const existUsername = await this.authRepo.findOne({
+      where: { username: dto.username },
+    });
     if (existUsername) throw new BadRequestException('Username already exists');
 
-    const existEmail = await this.userRepo.findOne({ where: { email: dto.email } });
+    const existEmail = await this.userRepo.findOne({
+      where: { email: dto.email },
+    });
     if (existEmail) throw new BadRequestException('Email already exists');
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -57,7 +69,7 @@ export class AuthService {
       user_name: dto.user_name,
       user_lastname: dto.user_lastname,
       email: dto.email,
-      user_role: UserRole.OWER, 
+      user_role: UserRole.OWER,
     });
     await this.userRepo.save(user);
 
@@ -82,7 +94,11 @@ export class AuthService {
     const isMatch = await bcrypt.compare(dto.password, auth.password);
     if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
-    const payload = { sub: auth.user.id, username: auth.username, role: auth.user.user_role };
+    const payload = {
+      sub: auth.user.id,
+      username: auth.username,
+      role: auth.user.user_role,
+    };
     const token = await this.jwtService.signAsync(payload);
 
     return { access_token: token, user: auth.user };

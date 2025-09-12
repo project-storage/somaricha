@@ -12,21 +12,21 @@ import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { UserRole } from 'src/user/dto/create-user.dto';
-import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.OWER)
   @Post()
   create(@Body() dto: CreateProductDto) {
     return this.productService.create(dto);
   }
 
-  @UseGuards(JwtStrategy, RolesGuard)
-  @Roles(UserRole.OWER)
   @Get()
   findAll() {
     return this.productService.findAll();
@@ -37,13 +37,15 @@ export class ProductController {
     return this.productService.findOne(+id);
   }
 
-  @UseGuards(JwtStrategy, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.OWER)
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.productService.update(+id, dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.OWER)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productService.remove(+id);
