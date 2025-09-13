@@ -1,4 +1,4 @@
-import LogowhiteImag from "../../assets/SomariChawhite.png";
+const LogowhiteImag = "/assets/SomariChawhite.png";
 import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
 
 

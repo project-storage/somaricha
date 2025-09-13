@@ -1,16 +1,14 @@
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
-import type { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 
-type MainLayoutProps = {
-  children: ReactNode;
-};
-
-const MainLayout = ({ children }: MainLayoutProps) => {
+const MainLayout = () => {
   return (
     <>
       <Navbar />
-      <main>{children}</main>
+      <main>
+        <Outlet />
+      </main>
       <Footer />
     </>
   );

@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Grapetea from "../../assets/products/Grapetea.png";
-import Peachtea from "../../assets/products/Peachtea.png";
-import Lemontea from "../../assets/products/Lemontea.png";
-import Berrytea from "../../assets/products/Berrytea.png";
-import Lycheetea from "../../assets/products/Lycheetea.png";
-import Strawberrytea from "../../assets/products/Strawberrytea.png";
-import Kiwitea from "../../assets/products/Kiwitea.png";
-import { CarTaxiFront } from "lucide-react";
+
+const Grapetea = "/assets/products/Grapetea.png";
+const Peachtea = "/assets/products/Peachtea.png";
+const Lemontea = "/assets/products/Lemontea.png";
+const Berrytea = "/assets/products/Berrytea.png";
+const Lycheetea = "/assets/products/Lycheetea.png";
+const Strawberrytea = "/assets/products/Strawberrytea.png";
+const Kiwitea = "/assets/products/Kiwitea.png";
+
+import { FaShoppingCart } from "react-icons/fa";
 
 interface Product {
   id: number;
@@ -59,7 +61,7 @@ const ProductSlider: React.FC = () => {
 
   return (
     <>
-      <div style={{ boxShadow: "0px 13px 19px 0px rgba(0,0,0,0.25)",}}>
+      <div style={{ boxShadow: "0px 13px 19px 0px rgba(0,0,0,0.25)", }}>
         <div style={{ padding: "20px", marginTop: "0px", backgroundColor: "#D6C0B3" }}></div>
         <div className="flex justify-center items-center mb-4 gap-6">
           <h1 className="text-[55px] font-bold">เมนู</h1>
@@ -70,9 +72,9 @@ const ProductSlider: React.FC = () => {
             {products.map((product) => (
               <div key={product.id} style={{ padding: "0", textAlign: "center", width: "308px", margin: "0 auto" }}>
                 <img className="image-hover " src={product.image} alt={product.nameTH} style={{ width: "auto", height: "308px", marginBottom: "10px" }} />
-                <div style={{ width: "308px",fontSize:"46px" }}>{product.nameTH}</div>
-                <div style={{ width: "308px",fontSize:"22px" }}>{product.nameEN}</div>
-              
+                <div style={{ width: "308px", fontSize: "46px" }}>{product.nameTH}</div>
+                <div style={{ width: "308px", fontSize: "22px" }}>{product.nameEN}</div>
+
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0px", marginTop: "10px", width: "308px" }}>
                   {/* ปุ่มเพิ่ม/ลดจำนวน */}
                   <div style={{ display: "flex", alignItems: "center", padding: "0px", gap: "10px" }}>
@@ -82,13 +84,14 @@ const ProductSlider: React.FC = () => {
                   </div>
 
                   {/* ราคาสินค้า */}
-                  <p style={{ margin: 0, fontWeight: "bold", minWidth: "40px", textAlign: "center" }}>{product.price}฿</p>
+                  <p style={{ margin: 0, fontWeight: "bold", minWidth: "40px", textAlign: "center", fontSize: "22px" }}>{product.price}฿</p>
 
                   {/* ปุ่มเพิ่มเข้าตระกร้า */}
                   <button
                     className="btn-add-cart"
-                    onClick={() => addToCart(product)}>
-                    <CarTaxiFront />
+                    onClick={() => addToCart(product)}
+                  >
+                    <FaShoppingCart size={22} />
                   </button>
                 </div>
 

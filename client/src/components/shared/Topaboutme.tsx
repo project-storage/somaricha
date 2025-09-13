@@ -1,7 +1,8 @@
 import React from 'react'
-import Videopresent from "../../assets/VideoCha.mp4"
-import Chapeach from "../../assets/Chapeach.png"
-import Imagepage from "../../assets/Imagepage.png"
+
+const Videopresent = "/assets/VideoCha.mp4"
+const Chapeach = "/assets/Chapeach.png"
+const Imagepage = "/assets/Imagepage.png"
 
 const Topaboutme = () => {
   return (
