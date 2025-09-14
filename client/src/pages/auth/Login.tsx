@@ -1,31 +1,57 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../contexts/UserContext";
 import { FaUser, FaKey, FaFacebook, FaGoogle } from "react-icons/fa";
+import authService from "../../services/authService";
+
+interface LoginData {
+  username: string;
+  password: string;
+}
+
+interface AuthResponse {
+  data: {
+    user_role: string;
+    access_token: string;
+  };
+}
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const { login } = useContext(UserContext);
+  const [loginData, setLoginData] = useState<LoginData>({
+    username: "",
+    password: "",
+  });
+
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!username || !password) {
+    if (!loginData.username || !loginData.password) {
       alert("กรุณากรอก username และ password");
       return;
     }
 
-    const role = username.toLowerCase() === "admin" ? "admin" : "user";
+    try {
+      const res = (await authService.login(loginData)) as AuthResponse;
+      const { user_role, access_token } = res.data;
+      console.log(res.data)
+      // เก็บ token
+      localStorage.setItem("access_token", access_token);
 
-    login(username, role); 
-
-    // redirect ตาม role
-    if (role === "admin") {
-      navigate("/admin/dashboard");
-    } else {
-      navigate("/");
+      // redirect ตาม role
+      switch (user_role) {
+        case "OWNER":
+          navigate("/admin");
+          break;
+        case "customer":
+          navigate("/customer");
+          break;
+        default:
+          navigate("/");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("เข้าสู่ระบบล้มเหลว กรุณาลองอีกครั้ง");
     }
   };
 
@@ -33,14 +59,19 @@ const Login = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
       <h1 className="text-4xl font-bold mb-10">Login</h1>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full max-w-md">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-6 w-full max-w-md"
+      >
         <div className="relative">
           <FaUser className="absolute left-0 top-1/2 transform -translate-y-1/2 text-black text-xl" />
           <input
             type="text"
             placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={loginData.username}
+            onChange={(e) =>
+              setLoginData({ ...loginData, username: e.target.value })
+            }
             className="pl-10 pb-2 pt-2 w-full border-b-2 border-black focus:border-black outline-none text-lg bg-transparent"
           />
         </div>
@@ -50,15 +81,22 @@ const Login = () => {
           <input
             type="password"
             placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={loginData.password}
+            onChange={(e) =>
+              setLoginData({ ...loginData, password: e.target.value })
+            }
             className="pl-10 pb-2 pt-2 w-full border-b-2 border-black focus:border-black outline-none text-lg bg-transparent"
           />
         </div>
         <div className="flex justify-end">
-          <button className="text-[18px] text-black-500 hover:underline">ลืมรหัสผ่าน?</button>
+          <button
+            type="button"
+            className="text-[18px] text-black-500 hover:underline"
+          >
+            ลืมรหัสผ่าน?
+          </button>
         </div>
-        
+
         <button
           type="submit"
           className="bg-[#8C6E63] hover:bg-[#3E2522] text-white py-3 rounded-[30px] text-lg font-semibold transition-colors shadow-md"
@@ -66,7 +104,6 @@ const Login = () => {
           ยืนยัน
         </button>
       </form>
-
 
       <div className="flex items-center my-6 w-full max-w-md">
         <hr className="flex-grow border-gray-300" />

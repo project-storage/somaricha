@@ -16,7 +16,7 @@ interface RegisterData {
 const baseUrl = "api/auth";
 
 const login = (LoginData: LoginData) => {
-  return http.post(`${baseUrl}/auth`, LoginData);
+  return http.post(`${baseUrl}/login`, LoginData);
 };
 
 const register = (RegisterData: RegisterData) => {

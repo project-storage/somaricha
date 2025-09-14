@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { UserProvider } from './contexts/UserContext';
 
 // Layouts
 import MainLayout from './components/layouts/web/MainLayout';
@@ -26,7 +25,6 @@ import './components/styles/custom.scss';
 
 function App() {
   return (
-    <UserProvider>
       <Router>
         <Routes>
           {/* ================= USER LAYOUT ================= */}
@@ -51,7 +49,6 @@ function App() {
           </Route>
         </Routes>
       </Router>
-    </UserProvider>
   );
 }
 
