@@ -2,7 +2,7 @@ import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
 
 const defaultOptions: AxiosRequestConfig = {
-  baseURL: "http://localhost:3000/",
+  baseURL: "http://localhost:8081/",
   headers: {
     "Content-Type": "application/json",
   },

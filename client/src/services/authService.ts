@@ -13,5 +13,19 @@ interface RegisterData {
   email: string;
 }
 
-const baseUrl = 'api/'
+const baseUrl = "api/auth";
 
+const login = (LoginData: LoginData) => {
+  return http.post(`${baseUrl}/auth`, LoginData);
+};
+
+const register = (RegisterData: RegisterData) => {
+  return http.post(`${baseUrl}/register`, RegisterData);
+};
+
+const authService = {
+  login,
+  register,
+};
+
+export default authService;
