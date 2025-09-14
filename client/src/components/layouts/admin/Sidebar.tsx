@@ -19,12 +19,12 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
   const sidebarItems: SidebarItem[] = [
-    { path: '/dashboard', icon: Home, label: 'แดชบอร์ด' },
-    { path: '/users', icon: Users, label: 'ผู้ใช้งาน' },
-    { path: '/orders', icon: ShoppingCart, label: 'ออเดอร์' },
-    { path: '/products', icon: Box, label: 'สินค้า' }, 
-    { path: '/analytics', icon: BarChart3, label: 'สถิติ' },
-    { path: '/settings', icon: Settings, label: 'การตั้งค่า' },
+    { path: '/admin/dashboard', icon: Home, label: 'แดชบอร์ด' },
+    { path: '/admin/users', icon: Users, label: 'ผู้ใช้งาน' },
+    { path: '/admin/orders', icon: ShoppingCart, label: 'ออเดอร์' },
+    { path: '/admin/products', icon: Box, label: 'สินค้า' }, 
+    { path: '/admin/analytics', icon: BarChart3, label: 'สถิติ' },
+    { path: '/admin/settings', icon: Settings, label: 'การตั้งค่า' },
   ];
 
   const handleLogout = async () => {

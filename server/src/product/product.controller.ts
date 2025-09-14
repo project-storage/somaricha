@@ -5,8 +5,8 @@ import {
   Body,
   Param,
   Delete,
-  Patch,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -39,7 +39,7 @@ export class ProductController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.OWNER)
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.productService.update(+id, dto);
   }
