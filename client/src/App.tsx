@@ -22,6 +22,7 @@ import Analytics from './pages/admin/Analytics';
 import Settings from './pages/admin/Settings';
 
 import './components/styles/custom.scss';
+import Product from './pages/admin/Product';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
           <Route  element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/products" element={<Product />} />
             <Route path="/admin/orders" element={<Orders />} />
             <Route path="/admin/analytics" element={<Analytics />} />
             <Route path="/admin/settings" element={<Settings />} />

@@ -1,6 +1,7 @@
 import React from 'react';
-import { NavLink } from 'react-router';
-import { X, Home, Users, ShoppingCart, BarChart3, Settings } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { X, Home, Users, ShoppingCart, BarChart3, Settings, Box } from 'lucide-react';
+import authService from '../../../services/authService';
 
 // กำหนด type สำหรับ props
 interface SidebarProps {
@@ -8,7 +9,6 @@ interface SidebarProps {
   setSidebarOpen: (open: boolean) => void;
 }
 
-// กำหนด type สำหรับ sidebar items
 interface SidebarItem {
   path: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -16,18 +16,27 @@ interface SidebarItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
+  const navigate = useNavigate();
+
   const sidebarItems: SidebarItem[] = [
-    { path: '/dashboard', icon: Home, label: 'Dashboard' },
-    { path: '/users', icon: Users, label: 'Users' },
-    { path: '/orders', icon: ShoppingCart, label: 'Orders' },
-    { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-    { path: '/settings', icon: Settings, label: 'Settings' },
+    { path: '/dashboard', icon: Home, label: 'แดชบอร์ด' },
+    { path: '/users', icon: Users, label: 'ผู้ใช้งาน' },
+    { path: '/orders', icon: ShoppingCart, label: 'ออเดอร์' },
+    { path: '/products', icon: Box, label: 'สินค้า' }, 
+    { path: '/analytics', icon: BarChart3, label: 'สถิติ' },
+    { path: '/settings', icon: Settings, label: 'การตั้งค่า' },
   ];
+
+  const handleLogout = async () => {
+    await authService.logout();
+    navigate('/');
+    setSidebarOpen(false);
+  };
 
   return (
     <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
       <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
+        <h1 className="text-xl font-bold text-gray-800">แผงควบคุม</h1>
         <button
           onClick={() => setSidebarOpen(false)}
           className="lg:hidden p-2 rounded-md hover:bg-gray-100"
@@ -55,6 +64,12 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
             </NavLink>
           );
         })}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center px-6 py-3 text-left text-red-600 hover:bg-red-50 transition-colors mt-4"
+        >
+          ออกจากระบบ
+        </button>
       </nav>
     </div>
   );
