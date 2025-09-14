@@ -1,41 +1,40 @@
-import { createContext, ReactNode, useState } from "react";
+import { createContext, useState, ReactNode } from "react";
 
-type UserRole = "customer" | "admin" | null;
-
-interface UserContextType {
+type UserContextType = {
   isLoggedIn: boolean;
-  role: UserRole;
-  login: (role: UserRole) => void;
+  role: "user" | "admin" | null;
+  username: string | null;
+  login: (username: string, role: "user" | "admin") => void;
   logout: () => void;
-}
+};
 
 export const UserContext = createContext<UserContextType>({
   isLoggedIn: false,
   role: null,
+  username: null,
   login: () => {},
   logout: () => {},
 });
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [role, setRole] = useState<UserRole>(null);
+  const [role, setRole] = useState<"user" | "admin" | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
 
-  const login = (role: UserRole) => {
+  const login = (username: string, role: "user" | "admin") => {
     setIsLoggedIn(true);
     setRole(role);
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("role", role || "");
+    setUsername(username);
   };
 
   const logout = () => {
     setIsLoggedIn(false);
     setRole(null);
-    localStorage.setItem("isLoggedIn", "false");
-    localStorage.removeItem("role");
+    setUsername(null);
   };
 
   return (
-    <UserContext.Provider value={{ isLoggedIn, role, login, logout }}>
+    <UserContext.Provider value={{ isLoggedIn, role, username, login, logout }}>
       {children}
     </UserContext.Provider>
   );

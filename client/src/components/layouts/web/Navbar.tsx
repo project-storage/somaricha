@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserContext } from "../../contexts/UserContext";
+import { UserContext } from "../../../contexts/UserContext";
 
 const LogoImag = "/assets/SomariChaLogo.jpg";
 
@@ -21,7 +21,6 @@ const Navbar = () => {
         <Link to="/" onClick={() => setIsMenuOpen(false)}>
           <img src={LogoImag} alt="Logo" className="h-[120px] cursor-pointer" />
         </Link>
-
         <button
           className="text-black focus:outline-none"
           onClick={() => setIsMenuOpen(true)}
