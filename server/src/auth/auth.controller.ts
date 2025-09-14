@@ -12,9 +12,9 @@ export class AuthController {
     return this.authService.register(dto);
   }
 
-  @Post('register-ower')
-  registerOwer(@Body() dto: RegisterDto) {
-    return this.authService.registerOwer(dto);
+  @Post('register-onwer')
+  registerOwner(@Body() dto: RegisterDto) {
+    return this.authService.registerOwner(dto);
   }
 
   @Post('login')

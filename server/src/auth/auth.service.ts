@@ -52,7 +52,7 @@ export class AuthService {
     return { message: 'User registered successfully' };
   }
 
-  async registerOwer(dto: RegisterDto) {
+  async registerOwner(dto: RegisterDto) {
     const existUsername = await this.authRepo.findOne({
       where: { username: dto.username },
     });
@@ -69,7 +69,7 @@ export class AuthService {
       user_name: dto.user_name,
       user_lastname: dto.user_lastname,
       email: dto.email,
-      user_role: UserRole.OWER,
+      user_role: UserRole.OWNER,
     });
     await this.userRepo.save(user);
 
