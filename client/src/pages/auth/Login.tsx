@@ -34,13 +34,13 @@ const Login = () => {
     try {
       const res = (await authService.login(loginData)) as AuthResponse;
       const { user_role, access_token } = res.data;
-      console.log(res.data)
+      console.log(res.data.user_role)
       // เก็บ token
       localStorage.setItem("access_token", access_token);
 
       // redirect ตาม role
       switch (user_role) {
-        case "OWNER":
+        case "OWER":
           navigate("/admin");
           break;
         case "customer":
