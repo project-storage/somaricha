@@ -19,7 +19,7 @@ const Login = () => {
 
     const role = username.toLowerCase() === "admin" ? "admin" : "user";
 
-    login(username, role); // บันทึก context
+    login(username, role); 
 
     // redirect ตาม role
     if (role === "admin") {
