@@ -101,6 +101,12 @@ export class AuthService {
     };
     const token = await this.jwtService.signAsync(payload);
 
-    return { access_token: token, user: auth.user };
+    return {
+      data: {
+        access_token: token,
+        user_role: auth.user.user_role,
+        user: auth.user,
+      },
+    };
   }
 }
