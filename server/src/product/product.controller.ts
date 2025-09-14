@@ -21,7 +21,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWER)
+  @Roles(UserRole.OWNER)
   @Post()
   create(@Body() dto: CreateProductDto) {
     return this.productService.create(dto);
@@ -38,14 +38,14 @@ export class ProductController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWER)
+  @Roles(UserRole.OWNER)
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.productService.update(+id, dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWER)
+  @Roles(UserRole.OWNER)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productService.remove(+id);
