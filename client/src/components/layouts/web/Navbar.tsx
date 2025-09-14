@@ -97,56 +97,57 @@ const Navbar = () => {
                   </li>
                 </>
               ) : (
-                <>
-                  <li>
-                    <Link
-                      to="/edit-profile"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      แก้ไขโปรไฟล์
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/address"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      ที่อยู่จัดส่ง
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/payment"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      ช่องทางการชำระเงิน
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/tracking"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      ติดตามการสั่งซื้อ
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/history"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      ประวัติการสั่งซื้อ
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/switch-account"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      สลับบัญชี
-                    </Link>
-                  </li>
-                </>
+                null
+                // <>
+                //   <li>
+                //     <Link
+                //       to="/edit-profile"
+                //       onClick={() => setIsMenuOpen(false)}
+                //     >
+                //       แก้ไขโปรไฟล์
+                //     </Link>
+                //   </li>
+                //   <li>
+                //     <Link
+                //       to="/address"
+                //       onClick={() => setIsMenuOpen(false)}
+                //     >
+                //       ที่อยู่จัดส่ง
+                //     </Link>
+                //   </li>
+                //   <li>
+                //     <Link
+                //       to="/payment"
+                //       onClick={() => setIsMenuOpen(false)}
+                //     >
+                //       ช่องทางการชำระเงิน
+                //     </Link>
+                //   </li>
+                //   <li>
+                //     <Link
+                //       to="/tracking"
+                //       onClick={() => setIsMenuOpen(false)}
+                //     >
+                //       ติดตามการสั่งซื้อ
+                //     </Link>
+                //   </li>
+                //   <li>
+                //     <Link
+                //       to="/history"
+                //       onClick={() => setIsMenuOpen(false)}
+                //     >
+                //       ประวัติการสั่งซื้อ
+                //     </Link>
+                //   </li>
+                //   <li>
+                //     <Link
+                //       to="/switch-account"
+                //       onClick={() => setIsMenuOpen(false)}
+                //     >
+                //       สลับบัญชี
+                //     </Link>
+                //   </li>
+                // </>
               )}
               <li>
                 <button onClick={logout} className="text-red-600">

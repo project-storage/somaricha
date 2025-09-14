@@ -15,17 +15,15 @@ interface RegisterData {
 
 const baseUrl = "api/auth";
 
-const login = (LoginData: LoginData) => {
-  return http.post(`${baseUrl}/login`, LoginData);
+const login = (loginData: LoginData) =>
+  http.post(`${baseUrl}/login`, loginData);
+const register = (registerData: RegisterData) =>
+  http.post(`${baseUrl}/register`, registerData);
+const logout = () => {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("user_role");
 };
 
-const register = (RegisterData: RegisterData) => {
-  return http.post(`${baseUrl}/register`, RegisterData);
-};
-
-const authService = {
-  login,
-  register,
-};
+const authService = { login, register, logout };
 
 export default authService;

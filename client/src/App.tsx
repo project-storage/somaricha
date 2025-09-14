@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router';
 
 // Layouts
 import MainLayout from './components/layouts/web/MainLayout';
@@ -39,13 +39,12 @@ function App() {
           </Route>
 
           {/* ================= ADMIN LAYOUT ================= */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />        {/* /admin */}
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="users" element={<Users />} />
-            <Route path="orders" element={<Orders />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="settings" element={<Settings />} />
+          <Route  element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/users" element={<Users />} />
+            <Route path="/admin/orders" element={<Orders />} />
+            <Route path="/admin/analytics" element={<Analytics />} />
+            <Route path="/admin/settings" element={<Settings />} />
           </Route>
         </Routes>
       </Router>
