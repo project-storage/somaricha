@@ -3,7 +3,7 @@ import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Matches } fr
 import { Unique } from 'typeorm';
 
 export enum UserRole {
-  OWER = 'OWER',
+  OWER = 'ower',
   USER = 'user',
 }
 
