@@ -74,6 +74,7 @@ const Topaboutme = () => {
         boxShadow: "0px 13px 19px 0px rgba(0,0,0,0.25)", // shadow y=13, blur=19
           }}
         />
+        <div style={{ padding: "20px", backgroundColor: "#D6C0B3" }}></div>
       </div>
     </>
   )

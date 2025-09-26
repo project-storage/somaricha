@@ -12,8 +12,9 @@ import Menu from "./pages/web/Menu";
 import Contact from "./pages/web/Contact";
 import Branch from "./pages/web/Branch";
 import FAQ from "./pages/web/FAQ";
-import Login from "./pages/auth/Login";
 
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 // Admin Pages
 import Dashboard from "./pages/admin/Dashboard";
 import Users from "./pages/admin/Users";
@@ -23,6 +24,7 @@ import Settings from "./pages/admin/Settings";
 
 import "./components/styles/custom.scss";
 import ProductPage from "./pages/admin/ProductPage";
+
 
 function App() {
   return (
@@ -37,6 +39,7 @@ function App() {
           <Route path="/branch" element={<Branch />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Route>
 
         {/* ================= ADMIN LAYOUT ================= */}

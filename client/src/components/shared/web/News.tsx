@@ -8,6 +8,7 @@ const News: React.FC = () => {
 
   return (
     <>
+    <div style={{ padding: "20px", backgroundColor: "#D6C0B3" }}></div>
       <div className="py-10 bg-[#8C6E63] mb-10 h-[700px]">
         {/* หัวข้อ */}
         <div className="flex justify-center items-center mb-4 gap-6 text-white">

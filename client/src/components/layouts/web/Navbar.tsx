@@ -28,6 +28,10 @@ const Navbar = () => {
     setIsMenuOpen(false);
     navigate("/login");
   };
+  const goToRegister = () => {
+    setIsMenuOpen(false);
+    navigate("/register");
+  };
 
   const logout = () => {
     localStorage.removeItem("access_token");
@@ -162,6 +166,11 @@ const Navbar = () => {
               </button>
             </li>
           )}
+           <li>
+              <button onClick={goToRegister} className="text-black">
+                สมัครสมาชิก
+              </button>
+            </li>
         </ul>
       </div>
 

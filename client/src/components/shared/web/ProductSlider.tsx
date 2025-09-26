@@ -18,35 +18,18 @@ const ProductSlider: React.FC = () => {
   // ดึง cart จาก localStorage
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
-    if (storedCart) setCart(JSON.parse(storedCart));
-  }, []);
-
-  // fetch products จาก backend
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await productService.getAllProducts();
-        const fetchedProducts = res.data.data.map((p: any) => ({
-          id: p.id,
-          nameTH: p.product_name,
-          nameEN: p.product_detail,
-          image: p.product_image || "",
-          price: p.product_price,
-        }));
-        // เริ่มต้น quantity = 1
-        setProducts(fetchedProducts.map((p) => ({ ...p, quantity: 1 })));
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchProducts();
+    try {
+      if (storedCart) setCart(JSON.parse(storedCart));
+    } catch (err) {
+      console.error("Error parsing cart from localStorage:", err);
+    }
   }, []);
 
   // เพิ่ม/ลดจำนวน
   const increaseQty = (id: number) => {
     setProducts(
       products.map((p) =>
-        p.id === id ? { ...p, quantity: (p.quantity || 1) + 1 } : p
+        p.id === id ? { ...p, quantity: (p.quantity ?? 1) + 1 } : p
       )
     );
   };
@@ -54,28 +37,53 @@ const ProductSlider: React.FC = () => {
   const decreaseQty = (id: number) => {
     setProducts(
       products.map((p) =>
-        p.id === id ? { ...p, quantity: Math.max(1, (p.quantity || 1) - 1) } : p
+        p.id === id ? { ...p, quantity: Math.max(1, (p.quantity ?? 1) - 1) } : p
       )
     );
   };
 
-  // เพิ่มสินค้าเข้า cart
+  // เพิ่มสินค้าเข้า cartno
   const addToCart = (product: Product) => {
     const existing = cart.find((item) => item.id === product.id);
     let newCart;
     if (existing) {
       newCart = cart.map((item) =>
         item.id === product.id
-          ? { ...item, quantity: item.quantity + (product.quantity || 1) }
+          ? { ...item, quantity: item.quantity + (product.quantity ?? 1) }
           : item
       );
     } else {
-      newCart = [...cart, { ...product, quantity: product.quantity || 1 }];
+      newCart = [...cart, { ...product, quantity: product.quantity ?? 1 }];
     }
     setCart(newCart);
     localStorage.setItem("cart", JSON.stringify(newCart));
-    alert(`เพิ่ม ${product.nameTH} จำนวน ${product.quantity} ลงตระกร้า 🛒`);
+    alert(`เพิ่ม ${product.nameTH} จำนวน ${product.quantity ?? 1} ลงตระกร้า 🛒`);
   };
+
+  // fetch products จาก backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await productService.getAllProducts();
+        if (res.data && res.data.data) {
+          const fetchedProducts = res.data.data.map((p: { id: number; product_name: string; product_detail: string; product_image?: string; product_price: number; }) => ({
+            id: p.id,
+            nameTH: p.product_name,
+            nameEN: p.product_detail,
+            image: p.product_image || "",
+            price: p.product_price,
+          }));
+          setProducts(fetchedProducts.map((p) => ({ ...p, quantity: 1 })));
+        } else {
+          console.error("Invalid product data:", res.data);
+        }
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        alert("ไม่สามารถโหลดสินค้าได้ กรุณาลองใหม่อีกครั้ง");
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const settings = {
     dots: true,
@@ -84,16 +92,15 @@ const ProductSlider: React.FC = () => {
     slidesToShow: 3,
     slidesToScroll: 1,
     centerMode: true,
-    centerPadding: "100px",
+    centerPadding: "50px",
     responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 2 } },
-      { breakpoint: 768, settings: { slidesToShow: 1 } },
+      { breakpoint: 1024, settings: { slidesToShow: 2, centerPadding: "30px" } },
+      { breakpoint: 768, settings: { slidesToShow: 1, centerPadding: "10px" } },
     ],
   };
 
   return (
-    <div style={{ boxShadow: "0px 13px 19px 0px rgba(0,0,0,0.25)" }}>
-      <div style={{ padding: "20px", backgroundColor: "#D6C0B3" }}></div>
+    <div >
       <div className="flex justify-center items-center mb-4 gap-6">
         <h1 className="text-[55px] font-bold">เมนู</h1>
         <h1 className="text-[55px] font-bold">Menu</h1>
@@ -137,12 +144,12 @@ const ProductSlider: React.FC = () => {
                 <div
                   style={{ display: "flex", alignItems: "center", gap: "10px" }}
                 >
-                  <b
+                  <button
                     className="btn-many-product"
                     onClick={() => decreaseQty(product.id)}
                   >
                     -
-                  </b>
+                  </button>
                   <span>{product.quantity}</span>
                   <button
                     className="btn-many-product"
@@ -175,7 +182,7 @@ const ProductSlider: React.FC = () => {
           ))}
         </Slider>
       </div>
-      <div style={{ padding: "20px", backgroundColor: "#D6C0B3" }}></div>
+
     </div>
   );
 };
