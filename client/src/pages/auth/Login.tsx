@@ -46,10 +46,10 @@ const Login = () => {
     try {
       const res = await authService.login(loginData);
       const { access_token, user_role } = res.data.data;
-
+      console.log(res)
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("user_role", user_role);
-
+    
       switch (user_role) {
         case "owner":
           navigate("/admin/dashboard");

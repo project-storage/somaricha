@@ -159,7 +159,7 @@ const Payments: React.FC = () => {
 
       {/* Payment Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 bg-black">
+        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 ">
           <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg animate-fadeIn">
             <h3 className="text-xl font-bold mb-4">
               {editPayment ? 'แก้ไขช่องทางการชำระเงิน' : 'เพิ่มช่องทางการชำระเงิน'}
