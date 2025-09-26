@@ -1,34 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { AddressOptionService } from './address_option.service';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateAddressOptionDto } from './dto/create-address_option.dto';
 import { UpdateAddressOptionDto } from './dto/update-address_option.dto';
+import { AddressOptionService } from './address_option.service';
 
-@Controller('address-option')
+@UseGuards(JwtAuthGuard)
+@Controller('address-options')
 export class AddressOptionController {
   constructor(private readonly addressOptionService: AddressOptionService) {}
 
   @Post()
-  create(@Body() createAddressOptionDto: CreateAddressOptionDto) {
-    return this.addressOptionService.create(createAddressOptionDto);
+  create(@Req() req, @Body() dto: CreateAddressOptionDto) {
+    return this.addressOptionService.create(req.user, dto);
   }
 
   @Get()
-  findAll() {
-    return this.addressOptionService.findAll();
+  findAll(@Req() req) {
+    return this.addressOptionService.findAll(req.user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.addressOptionService.findOne(+id);
+  findOne(@Req() req, @Param('id') id: string) {
+    return this.addressOptionService.findOne(+id, req.user);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAddressOptionDto: UpdateAddressOptionDto) {
-    return this.addressOptionService.update(+id, updateAddressOptionDto);
+  update(@Req() req, @Param('id') id: string, @Body() dto: UpdateAddressOptionDto) {
+    return this.addressOptionService.update(+id, dto, req.user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.addressOptionService.remove(+id);
+  remove(@Req() req, @Param('id') id: string) {
+    return this.addressOptionService.remove(+id, req.user);
   }
 }
