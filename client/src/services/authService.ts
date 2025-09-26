@@ -17,13 +17,23 @@ const baseUrl = "api/auth";
 
 const login = (loginData: LoginData) =>
   http.post(`${baseUrl}/login`, loginData);
+
 const register = (registerData: RegisterData) =>
   http.post(`${baseUrl}/register`, registerData);
+
+const registerOwner = (registerData: RegisterData) =>
+  http.post(`${baseUrl}/register-onwer`, registerData);
+
 const logout = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("user_role");
 };
 
-const authService = { login, register, logout };
+const authService = { 
+  login, 
+  register, 
+  registerOwner,
+  logout 
+};
 
 export default authService;
