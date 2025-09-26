@@ -27,14 +27,16 @@ export class AddressService {
       ...dto,
       addressOption: option,
     });
-    return await this.addressRepo.save(address);
+    const saved = await this.addressRepo.save(address);
+    return { data: saved };
   }
 
   async findAll(user: User) {
-    return await this.addressRepo.find({
+    const addresses = await this.addressRepo.find({
       where: { addressOption: { user: { id: user.id } } },
       relations: ['addressOption'],
     });
+    return { data: addresses };
   }
 
   async findOne(id: number, user: User) {
@@ -43,18 +45,19 @@ export class AddressService {
       relations: ['addressOption'],
     });
     if (!address) throw new NotFoundException(`Address #${id} not found`);
-    return address;
+    return { data: address };
   }
 
   async update(id: number, dto: UpdateAddressDto, user: User) {
     const address = await this.findOne(id, user);
-    Object.assign(address, dto);
-    return await this.addressRepo.save(address);
+    Object.assign(address.data, dto);
+    const updated = await this.addressRepo.save(address.data);
+    return { data: updated };
   }
 
   async remove(id: number, user: User) {
     const address = await this.findOne(id, user);
-    await this.addressRepo.remove(address);
-    return { message: `Address #${id} deleted successfully` };
+    await this.addressRepo.remove(address.data);
+    return { data: { message: `Address #${id} deleted successfully` } };
   }
 }

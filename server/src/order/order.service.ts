@@ -25,16 +25,12 @@ export class OrderService {
     const product = await this.productRepo.findOne({
       where: { id: dto.product_id },
     });
-    if (!product)
-      throw new NotFoundException(`Product #${dto.product_id} not found`);
+    if (!product) throw new NotFoundException(`Product #${dto.product_id} not found`);
 
     let payment: Payment | null = null;
     if (dto.payment_id) {
-      payment = await this.paymentRepo.findOne({
-        where: { id: dto.payment_id },
-      });
-      if (!payment)
-        throw new NotFoundException(`Payment #${dto.payment_id} not found`);
+      payment = await this.paymentRepo.findOne({ where: { id: dto.payment_id } });
+      if (!payment) throw new NotFoundException(`Payment #${dto.payment_id} not found`);
     }
 
     const total_price = Number(product.product_price) * dto.qty;
@@ -50,14 +46,16 @@ export class OrderService {
       comemnt_star: dto.comemnt_star,
     });
 
-    return await this.orderRepo.save(order);
+    const savedOrder = await this.orderRepo.save(order);
+    return { data: savedOrder };
   }
 
   async findAll(user: User) {
-    return await this.orderRepo.find({
+    const orders = await this.orderRepo.find({
       where: { user: { id: user.id } },
       relations: ['product', 'payment'],
     });
+    return { data: orders };
   }
 
   async findOne(id: number, user: User) {
@@ -66,18 +64,19 @@ export class OrderService {
       relations: ['product', 'payment'],
     });
     if (!order) throw new NotFoundException(`Order #${id} not found`);
-    return order;
+    return { data: order };
   }
 
   async update(id: number, dto: UpdateOrderDto, user: User) {
     const order = await this.findOne(id, user);
-    Object.assign(order, dto);
-    return await this.orderRepo.save(order);
+    Object.assign(order.data, dto);
+    const updated = await this.orderRepo.save(order.data);
+    return { data: updated };
   }
 
   async remove(id: number, user: User) {
     const order = await this.findOne(id, user);
-    await this.orderRepo.remove(order);
-    return { message: `Order #${id} deleted successfully` };
+    await this.orderRepo.remove(order.data);
+    return { data: { message: `Order #${id} deleted successfully` } };
   }
 }

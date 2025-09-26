@@ -12,33 +12,37 @@ export class UserService {
   ) {}
 
   async findAll() {
-    return await this.userRepo.find();
+    const users = await this.userRepo.find();
+    return { data: users };
   }
 
   async findOne(id: number) {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException(`User #${id} not found`);
-    return user;
+    return { data: user };
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.findOne(id);
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException(`User #${id} not found`);
     Object.assign(user, updateUserDto);
-    return await this.userRepo.save(user);
+    const updated = await this.userRepo.save(user);
+    return { data: updated };
   }
 
   async remove(id: number) {
-    const user = await this.findOne(id);
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException(`User #${id} not found`);
     await this.userRepo.remove(user);
-    return { message: `User #${id} deleted successfully` };
+    return { data: { message: `User #${id} deleted successfully` } };
   }
 
-    async getUserInfo(id: number) {
+  async getUserInfo(id: number) {
     const user = await this.userRepo.findOne({
       where: { id },
-      relations: ['auth', 'addressOptions', 'orders'], 
+      relations: ['auth', 'addressOptions', 'orders'],
     });
     if (!user) throw new NotFoundException(`User #${id} not found`);
-    return user;
+    return { data: user };
   }
 }
