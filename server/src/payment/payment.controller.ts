@@ -12,7 +12,7 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWER)
+  @Roles(UserRole.OWNER)
   @Post()
   create(@Body() dto: CreatePaymentDto) {
     return this.paymentService.create(dto);
@@ -25,14 +25,14 @@ export class PaymentController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWER)
+  @Roles(UserRole.OWNER)
   @Patch(':id')
   update(@Param('id') id: number, @Body() dto: UpdatePaymentDto) {
     return this.paymentService.update(id, dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWER)
+  @Roles(UserRole.OWNER)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.paymentService.remove(id);

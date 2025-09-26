@@ -21,6 +21,9 @@ import Users from "./pages/admin/Users";
 import Orders from "./pages/admin/Orders";
 import Analytics from "./pages/admin/Analytics";
 import Settings from "./pages/admin/Settings";
+import Payments from "./pages/admin/Payments";
+import Addresses from "./pages/admin/Addresses";
+import AddressOptions from "./pages/admin/AddressOptions";
 
 import "./components/styles/custom.scss";
 import ProductPage from "./pages/admin/ProductPage";
@@ -48,6 +51,9 @@ function App() {
           <Route path="/admin/users" element={<Users />} />
           <Route path="/admin/products" element={<ProductPage />} />
           <Route path="/admin/orders" element={<Orders />} />
+          <Route path="/admin/payments" element={<Payments />} />
+          <Route path="/admin/addresses" element={<Addresses />} />
+          <Route path="/admin/address-options" element={<AddressOptions />} />
           <Route path="/admin/analytics" element={<Analytics />} />
           <Route path="/admin/settings" element={<Settings />} />
         </Route>
