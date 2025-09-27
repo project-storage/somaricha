@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { FaShoppingCart } from "react-icons/fa";
 import productService, { type Product } from "../../../services/productService";
+import { useCart } from "../../../context/CartContext";
 
 // Cart item interface
 interface CartItem extends Product {
@@ -13,17 +14,7 @@ interface CartItem extends Product {
 
 const ProductSlider: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-
-  // ดึง cart จาก localStorage
-  useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
-    try {
-      if (storedCart) setCart(JSON.parse(storedCart));
-    } catch (err) {
-      console.error("Error parsing cart from localStorage:", err);
-    }
-  }, []);
+  const { addToCart: addToCartContext } = useCart();
 
   // เพิ่ม/ลดจำนวน
   const increaseQty = (id: number) => {
@@ -44,20 +35,17 @@ const ProductSlider: React.FC = () => {
 
   // เพิ่มสินค้าเข้า cartno
   const addToCart = (product: Product) => {
-    const existing = cart.find((item) => item.id === product.id);
-    let newCart;
-    if (existing) {
-      newCart = cart.map((item) =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + (product.quantity ?? 1) }
-          : item
-      );
-    } else {
-      newCart = [...cart, { ...product, quantity: product.quantity ?? 1 }];
-    }
-    setCart(newCart);
-    localStorage.setItem("cart", JSON.stringify(newCart));
-    alert(`เพิ่ม ${product.nameTH} จำนวน ${product.quantity ?? 1} ลงตระกร้า 🛒`);
+    // Convert Product to CartItem format for the context
+    const cartItem = {
+      id: product.id,
+      nameTH: product.nameTH,
+      nameEN: product.nameEN,
+      price: product.price,
+      image: product.image,
+      quantity: product.quantity ?? 1
+    };
+    
+    addToCartContext(cartItem);
   };
 
   // fetch products จาก backend

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { FaShoppingCart } from "react-icons/fa";
+import { useCart } from "../../../context/CartContext";
 
 const LogoImag = "/assets/SomariChaLogo.jpg";
 
@@ -7,10 +9,12 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState<string | null>(null);
+  const { getTotalItems } = useCart();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // ตรวจสอบ token และ role จาก localStorage
+  // ตรวจสอบ token และ role
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     const userRole = localStorage.getItem("user_role");
@@ -28,9 +32,14 @@ const Navbar = () => {
     setIsMenuOpen(false);
     navigate("/login");
   };
+
   const goToRegister = () => {
     setIsMenuOpen(false);
     navigate("/register");
+  };
+
+  const goToBasket = () => {
+    navigate("/basket");
   };
 
   const logout = () => {
@@ -41,10 +50,13 @@ const Navbar = () => {
     navigate("/");
   };
 
+  // Hide cart button when on the basket page
+  const isBasketPage = location.pathname === "/basket";
+
   return (
-    <>
+    <div className="relative w-full overflow-hidden">
       {/* Navbar บน */}
-      <nav className="bg-white px-6 py-4 flex items-center justify-between shadow-md">
+      <nav className="bg-white px-6 py-4 flex items-center justify-between shadow-md w-full box-border">
         <Link to="/" onClick={() => setIsMenuOpen(false)}>
           <img src={LogoImag} alt="Logo" className="h-[120px] cursor-pointer" />
         </Link>
@@ -81,11 +93,11 @@ const Navbar = () => {
         <ul className="flex flex-col p-4 space-y-4 text-lg font-inter">
           {isLoggedIn ? (
             <>
-              {role === "admin" ? (
+              {role === "owner" && (
                 <>
                   <li>
                     <Link
-                      to="/admin-dashboard"
+                      to="/admin/dashboard"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Admin Dashboard
@@ -100,58 +112,6 @@ const Navbar = () => {
                     </Link>
                   </li>
                 </>
-              ) : (
-                null
-                // <>
-                //   <li>
-                //     <Link
-                //       to="/edit-profile"
-                //       onClick={() => setIsMenuOpen(false)}
-                //     >
-                //       แก้ไขโปรไฟล์
-                //     </Link>
-                //   </li>
-                //   <li>
-                //     <Link
-                //       to="/address"
-                //       onClick={() => setIsMenuOpen(false)}
-                //     >
-                //       ที่อยู่จัดส่ง
-                //     </Link>
-                //   </li>
-                //   <li>
-                //     <Link
-                //       to="/payment"
-                //       onClick={() => setIsMenuOpen(false)}
-                //     >
-                //       ช่องทางการชำระเงิน
-                //     </Link>
-                //   </li>
-                //   <li>
-                //     <Link
-                //       to="/tracking"
-                //       onClick={() => setIsMenuOpen(false)}
-                //     >
-                //       ติดตามการสั่งซื้อ
-                //     </Link>
-                //   </li>
-                //   <li>
-                //     <Link
-                //       to="/history"
-                //       onClick={() => setIsMenuOpen(false)}
-                //     >
-                //       ประวัติการสั่งซื้อ
-                //     </Link>
-                //   </li>
-                //   <li>
-                //     <Link
-                //       to="/switch-account"
-                //       onClick={() => setIsMenuOpen(false)}
-                //     >
-                //       สลับบัญชี
-                //     </Link>
-                //   </li>
-                // </>
               )}
               <li>
                 <button onClick={logout} className="text-red-600">
@@ -160,56 +120,74 @@ const Navbar = () => {
               </li>
             </>
           ) : (
-            <li>
-              <button onClick={goToLogin} className="text-black">
-                เข้าสู่ระบบ
-              </button>
-            </li>
+            <>
+              <li>
+                <button onClick={goToLogin} className="text-black">
+                  เข้าสู่ระบบ
+                </button>
+              </li>
+              <li>
+                <button onClick={goToRegister} className="text-black">
+                  สมัครสมาชิก
+                </button>
+              </li>
+            </>
           )}
-           <li>
-              <button onClick={goToRegister} className="text-black">
-                สมัครสมาชิก
-              </button>
-            </li>
         </ul>
       </div>
 
       {/* Navbar ล่าง */}
-      <nav className="bg-black p-4 flex justify-center text-white h-16 shadow-lg">
-        <ul className="flex space-x-4 text-[22px] text-white">
+      <nav className="bg-black p-4 flex justify-center text-white h-16 shadow-lg w-full box-border">
+        <ul className="flex space-x-6 text-[22px] text-white">
           <li>
-            <Link to="/" className="hover-effect">
+            <Link to="/" className="hover:text-gray-300">
               หน้าหลัก
             </Link>
           </li>
           <li>
-            <Link to="/about" className="hover-effect">
+            <Link to="/about" className="hover:text-gray-300">
               เกี่ยวกับ
             </Link>
           </li>
           <li>
-            <Link to="/menu" className="hover-effect">
+            <Link to="/menu" className="hover:text-gray-300">
               สั่งเครื่องดื่ม/เบเกอร์รี่
             </Link>
           </li>
           <li>
-            <Link to="/contact" className="hover-effect">
+            <Link to="/contact" className="hover:text-gray-300">
               ติดต่อเรา
             </Link>
           </li>
           <li>
-            <Link to="/branch" className="hover-effect">
+            <Link to="/branch" className="hover:text-gray-300">
               สาขาใกล้คุณ
             </Link>
           </li>
           <li>
-            <Link to="/faq" className="hover-effect">
+            <Link to="/faq" className="hover:text-gray-300">
               คำถามที่พบบ่อย
             </Link>
           </li>
         </ul>
       </nav>
-    </>
+
+      {/* ปุ่มรถเข็น */}
+      {!isBasketPage && (
+        <button
+          onClick={goToBasket}
+          className="w-[89px] h-[89px] bg-white rounded-full shadow-lg flex items-center justify-center fixed right-6 bottom-6 z-40 border border-gray-300"
+          aria-label="Go to shopping basket"
+        >
+          <FaShoppingCart className="text-black text-[37px]" />
+          {getTotalItems() > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-[14px] font-bold">
+              {getTotalItems()}
+            </span>
+          )}
+        </button>
+      )}
+    </div>
   );
 };
 

@@ -5,6 +5,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router";
 import MainLayout from "./components/layouts/web/MainLayout";
 import AdminLayout from "./components/layouts/admin/AdminLayout";
 
+// Auth Component
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+
 // User Pages
 import HomePage from "./pages/web/HomePage";
 import Aboutme from "./pages/web/Aboutme";
@@ -12,6 +15,7 @@ import Menu from "./pages/web/Menu";
 import Contact from "./pages/web/Contact";
 import Branch from "./pages/web/Branch";
 import FAQ from "./pages/web/FAQ";
+import Basket from "./pages/web/Basket";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -38,6 +42,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/branch" element={<Branch />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/basket" element={<Basket />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>

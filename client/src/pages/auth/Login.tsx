@@ -45,7 +45,21 @@ const Login = () => {
 
     try {
       const res = await authService.login(loginData);
-      const { access_token, user_role } = res.data.data;
+      
+      // Handle different response formats
+      let access_token, user_role;
+      
+      if (res.data.access_token) {
+        // Direct response format
+        access_token = res.data.access_token;
+        user_role = res.data.user_role;
+      } else if (res.data.data && res.data.data.access_token) {
+        // Nested response format
+        access_token = res.data.data.access_token;
+        user_role = res.data.data.user_role;
+      } else {
+        throw new Error("Invalid response format from server");
+      }
 
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("user_role", user_role);
@@ -55,14 +69,17 @@ const Login = () => {
           navigate("/admin/dashboard");
           break;
         case "customer":
-          navigate("/customer");
+          // Check if /customer route exists, otherwise redirect to home
+          navigate("/"); // Change this to the appropriate customer route when available
           break;
         default:
           navigate("/");
       }
-    } catch (error) {
-      console.error(error);
-      alert("เข้าสู่ระบบล้มเหลว กรุณาลองอีกครั้ง");
+    } catch (error: any) {
+      console.error("Login error:", error);
+      // Try to get error message from response
+      const errorMessage = error.response?.data?.message || "เข้าสู่ระบบล้มเหลว กรุณาลองอีกครั้ง";
+      alert(errorMessage);
     }
   };
 
