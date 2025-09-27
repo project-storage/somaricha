@@ -6,11 +6,11 @@ const ContactLocation = () => {
     <div className="py-10 mb-10">
       {/* หัวข้อ */}
       <div className="flex justify-center items-center mb-4 gap-6 text-black">
-        <h1 className="text-[55px] font-bold">สถานที่ติดต่อ</h1>
-        <h1 className="text-[55px] font-bold">Contact Location</h1>
+        <h1 className="text-[40px] font-bold">สถานที่ติดต่อ</h1>
+        <h1 className="text-[40px] font-bold">Contact Location</h1>
       </div>
 
-      <h3 className="text-[28px] font-bold text-center mb-8">
+      <h3 className="text-[22px] font-bold text-center mb-8">
         สามารถติดต่อเราได้ที่
       </h3>
 
@@ -18,7 +18,7 @@ const ContactLocation = () => {
         {/* ฝั่งซ้าย - แผนที่ */}
         <div
           className="border-[10px] border-[#8C6E63] rounded-lg overflow-hidden"
-          style={{ width: "548px", height: "530px" }}
+          style={{ width: "500px", height: "500px" }}
         >
           <iframe
             title="Contact Map"
@@ -32,7 +32,7 @@ const ContactLocation = () => {
         </div>
 
         {/* ฝั่งขวา - ข้อมูลติดต่อ */}
-        <div className="max-w-[500px] flex flex-col gap-6 text-[20px]">
+        <div className="max-w-[500px] flex flex-col gap-6 text-[18px]">
           <div>
             <h4 className="font-bold mb-2">📍 ที่อยู่ (ภาษาไทย)</h4>
             <p>

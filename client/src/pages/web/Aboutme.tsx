@@ -6,6 +6,7 @@ import { AiOutlineCalendar } from "react-icons/ai";
 import { IoPerson } from "react-icons/io5";
 import { GoGoal } from "react-icons/go";
 import InformationBox from "../../components/shared/web/InformationBox";
+import CenterImage from '../../components/shared/web/CenterImag';
 
 
 const Aboutme = () => {
@@ -23,11 +24,13 @@ const Aboutme = () => {
       items={[
         { icon: MdBusinessCenter, title: "ชื่อทางการค้า", detail: "Somari cha (โซมาริชา)" },
         { icon: AiOutlineCalendar, title: "ก่อตั้งเมื่อปี", detail: "ค.ศ. 2025" },
-        { icon: IoPerson, title: "ก่อตั้งโดย", detail: "mr.Sommai Supawong" },
+        { icon: IoPerson, title: "ก่อตั้งโดย", detail: "maiy phoom oak" },
         { icon: GoGoal, title: "เป้าหมาย", detail: "มอบความสุขและสุขภาพที่ดีให้ผู้ดื่ม" },
       ]}
     />
-
+<CenterImage
+      backgroundUrl="/assets/images/tea2.png"
+    />  
         <ProductSlider />
       </>
     </div>

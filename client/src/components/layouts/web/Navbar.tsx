@@ -50,22 +50,22 @@ const Navbar = () => {
     navigate("/");
   };
 
-  // Hide cart button when on the basket page
-  const isBasketPage = location.pathname === "/basket";
+  // Hide cart button when on the basket, login, or register pages
+  const hideCartButton = ["/basket", "/login", "/register"].includes(location.pathname);
 
   return (
     <div className="relative w-full overflow-hidden">
       {/* Navbar บน */}
       <nav className="bg-white px-6 py-4 flex items-center justify-between shadow-md w-full box-border">
         <Link to="/" onClick={() => setIsMenuOpen(false)}>
-          <img src={LogoImag} alt="Logo" className="h-[120px] cursor-pointer" />
+          <img src={LogoImag} alt="Logo" className="h-[90px] cursor-pointer" />
         </Link>
         <button
           className="text-black focus:outline-none"
           onClick={() => setIsMenuOpen(true)}
         >
           <svg
-            className="w-8 h-8"
+            className="w-7 h-7"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -93,6 +93,38 @@ const Navbar = () => {
         <ul className="flex flex-col p-4 space-y-4 text-lg font-inter">
           {isLoggedIn ? (
             <>
+              <li>
+                <Link
+                  to="/profile"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  โปรไฟล์
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/address"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ที่อยู่จัดส่ง
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/payment"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ช่องทางการชำระเงิน
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/history-orders"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ประวัติการสั่งซื้อ
+                </Link>
+              </li>
               {role === "owner" && (
                 <>
                   <li>
@@ -137,8 +169,8 @@ const Navbar = () => {
       </div>
 
       {/* Navbar ล่าง */}
-      <nav className="bg-black p-4 flex justify-center text-white h-16 shadow-lg w-full box-border">
-        <ul className="flex space-x-6 text-[22px] text-white">
+      <nav className="bg-black p-4 flex justify-center text-white h-13 shadow-lg w-full box-border">
+        <ul className="flex space-x-6 text-[18px] text-white">
           <li>
             <Link to="/" className="hover:text-gray-300">
               หน้าหลัก
@@ -173,13 +205,13 @@ const Navbar = () => {
       </nav>
 
       {/* ปุ่มรถเข็น */}
-      {!isBasketPage && (
+      {!hideCartButton && (
         <button
           onClick={goToBasket}
-          className="w-[89px] h-[89px] bg-white rounded-full shadow-lg flex items-center justify-center fixed right-6 bottom-6 z-40 border border-gray-300"
+          className="w-[70px] h-[70px] bg-white rounded-full shadow-lg flex items-center justify-center fixed right-6 bottom-6 z-40 border border-gray-300"
           aria-label="Go to shopping basket"
         >
-          <FaShoppingCart className="text-black text-[37px]" />
+          <FaShoppingCart className="text-black text-[25px]" />
           {getTotalItems() > 0 && (
             <span className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-[14px] font-bold">
               {getTotalItems()}

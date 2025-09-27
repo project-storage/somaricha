@@ -16,6 +16,10 @@ import Contact from "./pages/web/Contact";
 import Branch from "./pages/web/Branch";
 import FAQ from "./pages/web/FAQ";
 import Basket from "./pages/web/Basket";
+import Profile from "./pages/web/Profile";
+import Address from "./pages/web/Adress";
+import Payment from "./pages/web/Payment";
+import HistoryOrders from "./pages/web/HistoryOrders";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -35,7 +39,7 @@ function App() {
     <Router>
       <Routes>
         {/* ================= USER LAYOUT ================= */}
-        <Route element={<MainLayout />}>
+        <Route element={<MainLayout />} >
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<Aboutme />} />
           <Route path="/menu" element={<Menu />} />
@@ -43,6 +47,26 @@ function App() {
           <Route path="/branch" element={<Branch />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/basket" element={<Basket />} />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/address" element={
+            <ProtectedRoute>
+              <Address />
+            </ProtectedRoute>
+          } />
+          <Route path="/payment" element={
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          } />
+          <Route path="/history-orders" element={
+            <ProtectedRoute>
+              <HistoryOrders />
+            </ProtectedRoute>
+          } />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
