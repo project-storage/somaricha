@@ -9,12 +9,6 @@ export interface Address {
   district: string;
   province: string;
   code_zip: number;
-  address_detail?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface CreateAddressDto {
   ao_id: number;
   number: string;
   road: string;
@@ -24,6 +18,12 @@ export interface CreateAddressDto {
   code_zip: number;
   address_detail?: string;
 }
+  address_detail?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface CreateAddressDto {
 
 export interface UpdateAddressDto {
   number?: string;
