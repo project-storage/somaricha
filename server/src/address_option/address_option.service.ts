@@ -18,14 +18,16 @@ export class AddressOptionService {
       ao_name: dto.ao_name,
       user,
     });
-    return await this.addressOptionRepo.save(option);
+    const saved = await this.addressOptionRepo.save(option);
+    return { data: saved };
   }
 
   async findAll(user: User) {
-    return await this.addressOptionRepo.find({
+    const options = await this.addressOptionRepo.find({
       where: { user: { id: user.id } },
       relations: ['addresses'],
     });
+    return { data: options };
   }
 
   async findOne(id: number, user: User) {
@@ -34,18 +36,19 @@ export class AddressOptionService {
       relations: ['addresses'],
     });
     if (!option) throw new NotFoundException(`AddressOption #${id} not found`);
-    return option;
+    return { data: option };
   }
 
   async update(id: number, dto: UpdateAddressOptionDto, user: User) {
     const option = await this.findOne(id, user);
-    option.ao_name = dto.ao_name ?? option.ao_name;
-    return await this.addressOptionRepo.save(option);
+    option.data.ao_name = dto.ao_name ?? option.data.ao_name;
+    const updated = await this.addressOptionRepo.save(option.data);
+    return { data: updated };
   }
 
   async remove(id: number, user: User) {
     const option = await this.findOne(id, user);
-    await this.addressOptionRepo.remove(option);
-    return { message: `AddressOption #${id} deleted successfully` };
+    await this.addressOptionRepo.remove(option.data);
+    return { data: { message: `AddressOption #${id} deleted successfully` } };
   }
 }

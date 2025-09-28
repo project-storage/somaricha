@@ -11,4 +11,9 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+
+  @ApiProperty({ example: 'USER' })
+  @IsString()
+  @IsNotEmpty()
+  role: string;
 }

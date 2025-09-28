@@ -14,28 +14,31 @@ export class PaymentService {
 
   async create(dto: CreatePaymentDto) {
     const payment = this.paymentRepository.create(dto);
-    return await this.paymentRepository.save(payment);
+    const result = await this.paymentRepository.save(payment);
+    return { data: result }; 
   }
 
   async findAll() {
-    return await this.paymentRepository.find();
+    const payments = await this.paymentRepository.find();
+    return { data: payments }; 
   }
 
   async findOne(id: number) {
     const payment = await this.paymentRepository.findOne({ where: { id } });
     if (!payment) throw new NotFoundException(`Payment #${id} not found`);
-    return payment;
+    return { data: payment }; 
   }
 
   async update(id: number, dto: UpdatePaymentDto) {
     const payment = await this.findOne(id);
-    Object.assign(payment, dto);
-    return await this.paymentRepository.save(payment);
+    Object.assign(payment.data, dto); // payment.data เพราะ findOne คืน { data }
+    const updated = await this.paymentRepository.save(payment.data);
+    return { data: updated }; 
   }
 
   async remove(id: number) {
     const payment = await this.findOne(id);
-    await this.paymentRepository.remove(payment);
-    return { message: `Payment #${id} deleted successfully` };
+    await this.paymentRepository.remove(payment.data);
+    return { data: { message: `Payment #${id} deleted successfully` } };
   }
 }

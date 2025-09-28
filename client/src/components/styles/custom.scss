@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai&display=swap');
+
+html, body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+}
+
+.hover-effect {
+  padding-left: 0.5rem;      /* px-2 */
+  padding-right: 0.5rem;
+  border-radius: 0.25rem;    /* rounded */
+  transition: all 0.2s;      /* transition-all duration-200 */
+}
+
+.hover-effect:hover {
+  color: white;               /* hover:text-white */
+  text-shadow: 0 0 8px white; /* hover:[text-shadow:0_0_8px_white] */
+}
+
+/* custom.scss */
+.round-btn {
+  background-color: white;
+  color: black;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #f2f2f2;
+    transform: scale(1.05);
+  }
+}
+.image-card-product {
+  height: 308px;;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+.btn-many-product {
+  background-color:#333333;
+  height: 15px;
+  width: 100%;
+  color: white  ;
+  padding: 20px 15px;
+  border: none;
+  border-radius: 10000px;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+
+  &:hover {
+    background-color: #f2f2f2;
+    transform: scale(1.05);
+  }
+}
+.btn-add-cart {
+  background-color: #8C6E63;
+  height: 40px;
+  width: 100px;
+  color: white  ;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+
+  &:hover {
+    background-color: #D6C0B3;
+    transform: scale(1.05);
+  }
+}
+.image-hover {
+  overflow: hidden;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+ .wrap {
+      padding: 40px;
+      display: flex;
+      justify-content: center; /* จัดกลางหน้า */
+      align-items: center;
+      min-height: 100vh;
+      background: #f5f5f5;
+    }
+
+    .rect {
+      background: #FFF2DF;
+      height: 194.67px;
+      width: auto;              /* ตามที่ขอ */
+      display: inline-block;    /* ให้ width:auto ทำงานตามเนื้อหา */
+      padding: 0 48px;          /* เติมช่องว่างด้านข้างเพื่อให้เห็นรูปทรง */
+      transform: rotate(4.35deg);
+      transform-origin: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      vertical-align: middle;
+      line-height: 194.67px;    /* ถ้าต้องการจัดข้อความชิดกึ่งกลางแนวตั้ง */
+      font-family: sans-serif;
+      font-size: 18px;
+      color: #333;
+    }

@@ -4,8 +4,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    credentials: true, // if have send cookie/token
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
-  // ตั้งค่า Swagger
   const config = new DocumentBuilder()
     .setTitle('Somaricha API')
     .setDescription('API for development product somaricha')
@@ -22,6 +28,8 @@ async function bootstrap() {
       'JWT-auth', // ชื่อ security scheme
     )
     .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
 
   const document = SwaggerModule.createDocument(app, config);
 
