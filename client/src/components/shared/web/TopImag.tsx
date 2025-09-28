@@ -8,7 +8,7 @@ interface TopImageProps {
 const TopImage: React.FC<TopImageProps> = ({ backgroundUrl, circleImageUrl }) => {
   return (
     <div
-      className="relative w-full h-[549px] flex items-center justify-center"
+      className="relative w-full h-[490px] flex items-center justify-center"
       style={{
         backgroundImage: `url(${backgroundUrl})`,
         backgroundSize: "cover",
@@ -16,7 +16,7 @@ const TopImage: React.FC<TopImageProps> = ({ backgroundUrl, circleImageUrl }) =>
       }}
     >
       <div
-        className="w-[393px] h-[393px] rounded-full bg-black shadow-2xl flex items-center justify-center overflow-hidden 
+        className="w-[330px] h-[330px] rounded-full bg-black shadow-2xl flex items-center justify-center overflow-hidden 
                    transition-transform duration-500 ease-in-out hover:scale-105 "
       >
         {circleImageUrl && (

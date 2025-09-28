@@ -19,7 +19,8 @@ const Contact = () => {
       description="สามารถติดต่อเราผ่านช่องทางต่างๆ ได้ที่นี่"
       items={[
         { icon: FaPhone, title: "โทรศัพท์", detail: "012-345-6789" },
-        { icon: FaEnvelope, title: "อีเมล", detail: "info@mail.com" },
+        { icon: FaPhone, title: "โทรศัพท์", detail: "012-345-6342" },
+        { icon: FaEnvelope, title: "อีเมล", detail: "Somarichaofficial@mail.com" },
         { icon: FaMapMarkerAlt, title: "ที่อยู่", detail: "กรุงเทพฯ" },
       ]}
     />
@@ -31,6 +32,7 @@ const Contact = () => {
         { icon: FaFacebook, title: "Facebook", detail: "Somarichaofficial" },
         { icon: FaInstagram, title: "Instagram", detail: "Somarichaofficial" },
         { icon: FaTiktok, title: "TikTok", detail: "@Somarichaofficial" },
+        { icon: FaTiktok, title: "TikTok", detail: "@Somaricha" },
       ]}
     />
     <CenterImage

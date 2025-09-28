@@ -13,6 +13,11 @@ export interface Product {
   product_price: number;
   product_image?: string;
   product_status: ProductStatus;
+  quantity?: number;
+  nameTH?: string;
+  nameEN?: string;
+  price?: number;
+  image?: string;
 }
 
 const baseUrl = "api/products";

@@ -26,11 +26,11 @@ const InformationBoxwhite: React.FC<InformationBoxProps> = ({
             <div className="w-full py-12 px-6 bg-white flex flex-col items-center">
                 {/* ส่วนหัวข้อ */}
                 <div className="text-center mb-8">
-                    <h1 className="text-[55px] font-bold">
+                    <h1 className="text-[40px] font-bold">
                         <span className="text-black mr-4">{thaiTitle}</span>
                         <span className="text-black">{engTitle}</span>
                     </h1>
-                    <p className="text-black text-[28px] mt-4">{description}</p>
+                    <p className="text-black font-semi-bold text-[18px] mt-4">{description}</p>
                 </div>
 
                 {/* ส่วนการ์ด icon */}
@@ -40,8 +40,8 @@ const InformationBoxwhite: React.FC<InformationBoxProps> = ({
                         return (
                             <div key={index} className="flex flex-col items-center text-center">
                                 {/* วงกลม icon */}
-                                <div className="w-[120px] h-[120px] rounded-full bg-black flex items-center justify-center shadow-lg mb-4">
-                                    <Icon className="w-[86px] h-[86px] text-white" />
+                                <div className="w-[90px] h-[90px] rounded-full bg-black flex items-center justify-center shadow-lg mb-4">
+                                    <Icon className="w-[50px] h-[50px] text-white" />
                                 </div>
 
                                 {/* หัวข้อ */}
@@ -50,7 +50,7 @@ const InformationBoxwhite: React.FC<InformationBoxProps> = ({
                                 </h2>
 
                                 {/* ข้อมูล */}
-                                <p className="text-[32px] text-black">{item.detail}</p>
+                                <p className="text-[20px] text-black">{item.detail}</p>
                             </div>
                         );
                     })}

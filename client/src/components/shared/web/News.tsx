@@ -12,8 +12,8 @@ const News: React.FC = () => {
       <div className="py-10 bg-[#8C6E63] mb-10 h-[700px]">
         {/* หัวข้อ */}
         <div className="flex justify-center items-center mb-4 gap-6 text-white">
-          <h1 className="text-[55px] font-bold">ข่าวสาร</h1>
-          <h1 className="text-[55px] font-bold">News</h1>
+          <h1 className="text-[40px] font-bold">ข่าวสาร</h1>
+          <h1 className="text-[40px] font-bold">News</h1>
         </div>
 
         {/* รูปข่าว */}
@@ -36,7 +36,7 @@ const News: React.FC = () => {
         {/* ปุ่มอ่านเพิ่มเติมตรงกลาง */}
         <div className="flex justify-center">
           <div className="mt-8">
-            <button className="round-btn" style={{ width: 213 }}>
+            <button className="round-btn" style={{ width: 190 }}>
               Read More
             </button>
           </div>

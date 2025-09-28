@@ -5,27 +5,20 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { FaShoppingCart } from "react-icons/fa";
 import productService, { type Product } from "../../../services/productService";
+import { useCart } from "../../../context/CartContext";
 
-// Cart item interface
+// กำหนด interface สำหรับCartItem ที่สืบทอดจาก Product และเพิ่ม field quantity
 interface CartItem extends Product {
   quantity: number;
 }
 
 const ProductSlider: React.FC = () => {
+  // state สำหรับเก็บรายการสินค้า
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
+  // เข้าถึง context ตะกร้าเพื่อเพิ่มสินค้าลงในตะกร้า
+  const { addToCart: addToCartContext } = useCart();
 
-  // ดึง cart จาก localStorage
-  useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
-    try {
-      if (storedCart) setCart(JSON.parse(storedCart));
-    } catch (err) {
-      console.error("Error parsing cart from localStorage:", err);
-    }
-  }, []);
-
-  // เพิ่ม/ลดจำนวน
+  // ฟังก์ชันเพิ่มจำนวนสินค้าใน slider
   const increaseQty = (id: number) => {
     setProducts(
       products.map((p) =>
@@ -34,6 +27,7 @@ const ProductSlider: React.FC = () => {
     );
   };
 
+  // ฟังก์ชันลดจำนวนสินค้าใน slider (น้อยสุดคือ 1)
   const decreaseQty = (id: number) => {
     setProducts(
       products.map((p) =>
@@ -42,25 +36,22 @@ const ProductSlider: React.FC = () => {
     );
   };
 
-  // เพิ่มสินค้าเข้า cartno
+  // ฟังก์ชันเพิ่มสินค้าลงใน context ของตะกร้า
   const addToCart = (product: Product) => {
-    const existing = cart.find((item) => item.id === product.id);
-    let newCart;
-    if (existing) {
-      newCart = cart.map((item) =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + (product.quantity ?? 1) }
-          : item
-      );
-    } else {
-      newCart = [...cart, { ...product, quantity: product.quantity ?? 1 }];
-    }
-    setCart(newCart);
-    localStorage.setItem("cart", JSON.stringify(newCart));
-    alert(`เพิ่ม ${product.nameTH} จำนวน ${product.quantity ?? 1} ลงตระกร้า 🛒`);
+    // แปลง Product เป็นรูปแบบ CartItem สำหรับ context
+    const cartItem = {
+      id: product.id,
+      nameTH: product.nameTH,
+      nameEN: product.nameEN,
+      price: product.price,
+      image: product.image,
+      quantity: product.quantity ?? 1
+    };
+    
+    addToCartContext(cartItem);
   };
 
-  // fetch products จาก backend
+  // effect สำหรับดึงข้อมูลสินค้าจาก backend เมื่อ component mount
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -85,104 +76,121 @@ const ProductSlider: React.FC = () => {
     fetchProducts();
   }, []);
 
+  // การตั้งค่าสำหรับ component react-slick slider
   const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    centerMode: true,
-    centerPadding: "50px",
+    dots: true, // แสดงจุดนำทาง
+    infinite: true, // วนลูปไม่สิ้นสุด
+    speed: 500, // ความเร็วในการแสดงภาพ
+    slidesToShow: 5, // จำนวน slide ที่แสดงพร้อมกัน
+    slidesToScroll: 1, // จำนวน slide ที่เลื่อนต่อครั้ง
+    centerMode: true, // จัด slide ที่ใช้งานอยู่ตรงกลาง
+    centerPadding: "50px", // พื้นที่ว่างด้านข้างเมื่อเปิดโหมด center ปรับเพื่อให้มีระยะห่างระหว่างสินค้า
+    // การตั้งค่า responsive สำหรับขนาดหน้าจอต่างๆ
     responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 2, centerPadding: "30px" } },
-      { breakpoint: 768, settings: { slidesToShow: 1, centerPadding: "10px" } },
+      { 
+        breakpoint: 1024, 
+        settings: { 
+          slidesToShow: 2, 
+          centerPadding: "30px" 
+        } 
+      },
+      { 
+        breakpoint: 768, 
+        settings: { 
+          slidesToShow: 1, 
+          centerPadding: "20px" 
+        } 
+      },
     ],
   };
 
   return (
-    <div >
+    <div>
+      {/* ส่วนหัวข้อที่แสดงชื่อเมนู */}
       <div className="flex justify-center items-center mb-4 gap-6">
-        <h1 className="text-[55px] font-bold">เมนู</h1>
-        <h1 className="text-[55px] font-bold">Menu</h1>
+        <h1 className="text-[40px] font-bold">เมนู</h1>
+        <h1 className="text-[40px] font-bold">Menu</h1>
       </div>
-      <div style={{ padding: "20px", backgroundColor: "white" }}>
+      
+      {/* คอนเทนเนอร์ของ slider สินค้าที่มีพื้นหลังสีขาว */}
+      <div className="p-5 bg-white">
         <Slider
           {...settings}
-          style={{ padding: "30px", textAlign: "center", margin: "0 auto" }}
+          className="px-1 text-center mx-[1px]"
         >
+          {/* วนลูปผ่านรายการสินค้าเพื่อแสดงแต่ละ card ของสินค้า */}
           {products.map((product) => (
             <div
               key={product.id}
-              style={{
-                padding: "0",
-                textAlign: "center",
-                width: "308px",
-                margin: "0 auto",
-              }}
+              
             >
-              <img
-                src={product.image}
-                alt={product.nameTH}
-                style={{ width: "auto", height: "308px", marginBottom: "10px" }}
-              />
-              <div style={{ width: "308px", fontSize: "46px" }}>
-                {product.nameTH}
-              </div>
-              <div style={{ width: "308px", fontSize: "22px" }}>
-                {product.nameEN}
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginTop: "10px",
-                  width: "308px",
-                }}
-              >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "10px" }}
-                >
-                  <button
-                    className="btn-many-product"
-                    onClick={() => decreaseQty(product.id)}
-                  >
-                    -
-                  </button>
-                  <span>{product.quantity}</span>
-                  <button
-                    className="btn-many-product"
-                    onClick={() => increaseQty(product.id)}
-                  >
-                    +
-                  </button>
+              {/* ตัวคอนเทนเนอร์สินค้าที่มี hover effect */}
+              <div className="w-70 bg-white rounded-xl hover:shadow-xl transition-shadow duration-300 p-4 flex flex-col justify-between h-a">
+                {/* รูปภาพสินค้า */}
+                <div className="flex justify-center">
+                  <img
+                    src={product.image}
+                    alt={product.nameTH}
+                    className="w-48 h-48 object-cover rounded-lg mx-auto mb-3"
+                  />
+                </div>
+                
+                {/* ชื่อสินค้าภาษาไทย */}
+                <div className="text-lg font-bold mt-2 w-48 mx-auto truncate">
+                  {product.nameTH}
+                </div>
+                
+                {/* ชื่อสินค้าภาษาอังกฤษ */}
+                <div className="text-sm text-gray-600 mb-2 w-48 mx-auto truncate">
+                  {product.nameEN}
                 </div>
 
-                <p
-                  style={{
-                    margin: 0,
-                    fontWeight: "bold",
-                    minWidth: "40px",
-                    textAlign: "center",
-                    fontSize: "22px",
-                  }}
+                {/* การควบคุมสินค้า: ปุ่มจำนวน, ราคา, และเพิ่มลงตะกร้า */}
+                <div
+                  className="flex items-center justify-between w-60 mx-auto mt-auto"
                 >
-                  {product.price}฿
-                </p>
+                  {/* ปุ่มควบคุมจำนวน */}
+                  <div
+                    className="flex items-center gap-1"
+                  >
+                    {/* ปุ่มลดจำนวน - ปุ่มกลมสีเทาเข้ม ขนาดเล็กลง */}
+                    <button
+                      className="w-8 h-8 bg-[#333333] text-white rounded-full flex items-center justify-center font-bold hover:bg-gray-200 hover:scale-105 transition-all duration-300 shadow-md"
+                      onClick={() => decreaseQty(product.id)}
+                    >
+                      -
+                    </button>
+                    {/* แสดงจำนวนปัจจุบัน */}
+                    <span className="w-7 text-center text-sm">{product.quantity}</span>
+                    {/* ปุ่มเพิ่มจำนวน - ปุ่มกลมสีเทาเข้ม ขนาดเล็กลง */}
+                    <button
+                      className="w-8 h-8 bg-[#333333] text-white rounded-full flex items-center justify-center font-bold hover:bg-gray-200 hover:scale-105 transition-all duration-300 shadow-md"
+                      onClick={() => increaseQty(product.id)}
+                    >
+                      +
+                    </button>
+                  </div>
 
-                <button
-                  className="btn-add-cart"
-                  onClick={() => addToCart(product)}
-                >
-                  <FaShoppingCart size={22} />
-                </button>
+                  {/* แสดงราคาสินค้า ขนาดเล็กลงให้เหมาะสมกับ card */}
+                  <p
+                    className="font-bold text-center min-w-[50px] text-sm m-0"
+                  >
+                    {product.price}฿
+                  </p>
+
+                  {/* ปุ่มเพิ่มลงตะกร้า - ปุ่มสีน้ำตาลพร้อมไอคอนรถเข็น ขนาดเล็กลง */}
+                  <button
+                    className="w-15 h-8 bg-[#8C6E63] text-white rounded-full flex items-center justify-center text-sm font-bold hover:bg-[#D6C0B3] hover:scale-105 transition-all duration-300 shadow-md"
+                    onClick={() => addToCart(product)}
+                  >
+                    <FaShoppingCart size={16} />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </Slider>
       </div>
-
     </div>
   );
 };
