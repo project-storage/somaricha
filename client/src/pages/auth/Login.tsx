@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FaUser, FaKey, FaFacebook, FaGoogle } from "react-icons/fa";
 import authService from "../../services/authService";
 import { useNavigate } from "react-router";
@@ -16,25 +16,6 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  // // Auto-login ถ้ามี token อยู่แล้ว
-  // useEffect(() => {
-  //   const token = localStorage.getItem("access_token");
-  //   const role = localStorage.getItem("user_role");
-
-  //   if (token && role) {
-  //     switch (role.toLowerCase()) {
-  //       case "owner":
-  //         navigate("/admin/dashboard");
-  //         break;
-  //       case "customer":
-  //         navigate("/customer");
-  //         break;
-  //       default:
-  //         navigate("/");
-  //     }
-  //   }
-  // }, [navigate]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -45,19 +26,17 @@ const Login = () => {
 
     try {
       const res = await authService.login(loginData);
-<<<<<<< HEAD
-      const { access_token, user_role } = res.data.data;
-      console.log(res)
-=======
-      
+      console.log("Login response:", res);
+
       // Handle different response formats
-      let access_token, user_role;
-      
+      let access_token: string;
+      let user_role: string;
+
       if (res.data.access_token) {
         // Direct response format
         access_token = res.data.access_token;
         user_role = res.data.user_role;
-      } else if (res.data.data && res.data.data.access_token) {
+      } else if (res.data.data?.access_token) {
         // Nested response format
         access_token = res.data.data.access_token;
         user_role = res.data.data.user_role;
@@ -65,25 +44,26 @@ const Login = () => {
         throw new Error("Invalid response format from server");
       }
 
->>>>>>> develop_frontend
+      // Save token & role
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("user_role", user_role);
-    
-      switch (user_role) {
+
+      // Redirect by role
+      switch (user_role.toLowerCase()) {
         case "owner":
           navigate("/admin/dashboard");
           break;
         case "customer":
-          // Check if /customer route exists, otherwise redirect to home
-          navigate("/"); // Change this to the appropriate customer route when available
+          navigate("/"); // เปลี่ยนเป็น "/customer" ถ้ามี route นั้น
           break;
         default:
           navigate("/");
       }
     } catch (error: any) {
       console.error("Login error:", error);
-      // Try to get error message from response
-      const errorMessage = error.response?.data?.message || "เข้าสู่ระบบล้มเหลว กรุณาลองอีกครั้ง";
+      const errorMessage =
+        error.response?.data?.message ||
+        "เข้าสู่ระบบล้มเหลว กรุณาลองอีกครั้ง";
       alert(errorMessage);
     }
   };
