@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
 import { useCart } from "../../../context/CartContext";
 
 const LogoImag = "/assets/SomariChaLogo.jpg";
 
-const Navbar = () => {
+interface NavbarProps {
+  hideCartButton?: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ hideCartButton: propHideCartButton = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState<string | null>(null);
@@ -50,8 +54,8 @@ const Navbar = () => {
     navigate("/");
   };
 
-  // Hide cart button when on the basket, login, or register pages
-  const hideCartButton = ["/basket", "/login", "/register"].includes(location.pathname);
+  // Hide cart button when on certain pages or when prop is true
+  const hideCartButton = propHideCartButton || ["/basket", "/login", "/register", "/pay"].includes(location.pathname);
 
   return (
     <div className="relative w-full overflow-hidden">
@@ -119,7 +123,7 @@ const Navbar = () => {
               </li>
               <li>
                 <Link
-                  to="/history-orders"
+                  to="/order-history"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   ประวัติการสั่งซื้อ

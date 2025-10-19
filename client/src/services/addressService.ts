@@ -3,6 +3,8 @@ import http from "./http-common";
 export interface Address {
   id?: number;
   ao_id: number; // address option id
+  recipient_name?: string;
+  phone?: string;
   number: string;
   road: string;
   subdistrict: string;
@@ -12,10 +14,16 @@ export interface Address {
   address_detail?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  addressOption?: {
+    id: number;
+    ao_name: string;
+  };
 }
 
 export interface CreateAddressDto {
   ao_id: number;
+  recipient_name?: string;
+  phone?: string;
   number: string;
   road: string;
   subdistrict: string;
@@ -26,6 +34,9 @@ export interface CreateAddressDto {
 }
 
 export interface UpdateAddressDto {
+  ao_id?: number;
+  recipient_name?: string;
+  phone?: string;
   number?: string;
   road?: string;
   subdistrict?: string;
@@ -33,6 +44,7 @@ export interface UpdateAddressDto {
   province?: string;
   code_zip?: number;
   address_detail?: string;
+  isDefault?: boolean;
 }
 
 const baseUrl = "api/addresses";

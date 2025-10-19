@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import userService from "../../services/userService";
+import orderService from "../../services/orderService";
 import { toast } from "react-toastify";
 
 interface OrderItem {
@@ -8,20 +8,34 @@ interface OrderItem {
   product_name: string;
   quantity: number;
   price: number;
+  product_image: string;
 }
 
 interface Order {
   id: number;
-  user_id: number;
-  order_number: string;
-  total_amount: number;
-  status: 'pending' | 'confirmed' | 'preparing' | 'ready_for_pickup' | 'completed' | 'cancelled';
   order_date: string;
-  items: OrderItem[];
+  total_amount: number;
+  status: 'preparing' | 'shipping' | 'delivered' | 'cancelled';
+  address: {
+    recipient_name: string;
+    phone: string;
+    number: string;
+    road: string;
+    subdistrict: string;
+    district: string;
+    province: string;
+    code_zip: number;
+    address_detail?: string;
+  };
+  order_items: OrderItem[];
+  created_at: string;
+  updated_at?: string;
+  delivered_at?: string;
 }
 
 const HistoryOrders: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const authContext = useAuth();
+  const isLoggedIn = authContext.isLoggedIn;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -32,21 +46,35 @@ const HistoryOrders: React.FC = () => {
   });
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (authContext.isLoggedIn) {
       fetchOrders();
     }
-  }, [isLoggedIn, pagination.page]);
+  }, [authContext.isLoggedIn, pagination.page]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const offset = (pagination.page - 1) * pagination.limit;
-      const response = await userService.getOrderHistory(pagination.limit, offset);
+      console.log("Fetching order history for user...");
       
-      setOrders(response.data.orders);
+      // Clear localStorage before fetching to ensure we get fresh data
+      localStorage.removeItem('local_orders');
+      console.log("Cleared local_orders from localStorage");
+      
+      const response = await orderService.getOrderHistory();
+      console.log("Order history response:", response);
+      let ordersData = [];
+      
+      if (Array.isArray(response.data)) {
+        ordersData = response.data;
+      } else if (response.data && typeof response.data === 'object' && Array.isArray(response.data.data)) {
+        ordersData = response.data.data;
+      }
+      
+      console.log(`Loaded ${ordersData.length} orders for user`);
+      setOrders(ordersData);
       setPagination(prev => ({
         ...prev,
-        total: response.data.total,
+        total: ordersData.length,
       }));
     } catch (error: any) {
       console.error("Error fetching orders:", error);
@@ -58,39 +86,21 @@ const HistoryOrders: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-500';
-      case 'confirmed':
-        return 'bg-blue-500';
-      case 'preparing':
-        return 'bg-purple-500';
-      case 'ready_for_pickup':
-        return 'bg-indigo-500';
-      case 'completed':
-        return 'bg-green-500';
-      case 'cancelled':
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-500';
+      case 'preparing': return 'text-yellow-600';
+      case 'shipping': return 'text-blue-600';
+      case 'delivered': return 'text-green-600';
+      case 'cancelled': return 'text-red-600';
+      default: return 'text-gray-600';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'confirmed':
-        return 'Confirmed';
-      case 'preparing':
-        return 'Preparing';
-      case 'ready_for_pickup':
-        return 'Ready for Pickup';
-      case 'completed':
-        return 'Completed';
-      case 'cancelled':
-        return 'Cancelled';
-      default:
-        return status;
+      case 'preparing': return 'กำลังจัดเตรียม';
+      case 'shipping': return 'กำลังจัดส่ง';
+      case 'delivered': return 'จัดส่งเสร็จสิ้นแล้ว';
+      case 'cancelled': return 'ออเดอร์ถูกยกเลิก';
+      default: return status;
     }
   };
 
@@ -111,21 +121,21 @@ const HistoryOrders: React.FC = () => {
     );
   }
 
-  if (!isLoggedIn) {
+  if (!authContext.isLoggedIn) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600">Please log in to view your order history</h1>
+          <h1 className="text-2xl font-bold text-red-600">กรุณาเข้าสู่ระบบเพื่อดูประวัติการสั่งซื้อของคุณ</h1>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#D6C0B3] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white flex flex-col items-center py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-[#8C6E63] mb-8 text-center">Order History</h1>
+          <h1 className="text-4xl font-bold text-black mb-12 text-center">ประวัติการสั่งซื้อ</h1>
 
           {orders.length > 0 ? (
             <div className="space-y-6">
@@ -133,9 +143,9 @@ const HistoryOrders: React.FC = () => {
                 <div key={order.id} className="border border-gray-200 rounded-lg p-6">
                   <div className="flex justify-between items-center mb-4">
                     <div>
-                      <h2 className="text-xl font-semibold">Order #{order.order_number}</h2>
+                      <h2 className="text-xl font-semibold">Order #{order.id}</h2>
                       <p className="text-gray-600">
-                        {new Date(order.order_date).toLocaleDateString('en-US', {
+                        {new Date(order.created_at).toLocaleDateString('th-TH', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
@@ -155,7 +165,7 @@ const HistoryOrders: React.FC = () => {
                   <div className="mb-4">
                     <h3 className="font-medium mb-2">Items:</h3>
                     <ul className="space-y-1">
-                      {order.items.map((item) => (
+                      {order.order_items.map((item) => (
                         <li key={item.id} className="flex justify-between">
                           <span>
                             {item.quantity} x {item.product_name}
@@ -178,14 +188,29 @@ const HistoryOrders: React.FC = () => {
                       <h3 className="font-medium mb-2">Order Details:</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p><span className="font-medium">Order Number:</span> {order.order_number}</p>
-                          <p><span className="font-medium">Order Date:</span> {new Date(order.order_date).toLocaleString()}</p>
+                          <p><span className="font-medium">Order ID:</span> {order.id}</p>
+                          <p><span className="font-medium">Order Date:</span> {new Date(order.created_at).toLocaleString('th-TH')}</p>
                           <p><span className="font-medium">Status:</span> {getStatusText(order.status)}</p>
                         </div>
                         <div>
                           <p><span className="font-medium">Total Amount:</span> ฿{order.total_amount.toFixed(2)}</p>
-                          <p><span className="font-medium">Items Count:</span> {order.items.reduce((sum, item) => sum + item.quantity, 0)}</p>
+                          <p><span className="font-medium">Items Count:</span> {order.order_items.reduce((sum, item) => sum + item.quantity, 0)}</p>
                           <p><span className="font-medium">Payment Status:</span> Paid</p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <h3 className="font-medium mb-2">ที่อยู่จัดส่ง:</h3>
+                        <div className="flex items-start">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="mr-2 mt-0.5">
+                            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                          </svg>
+                          <div>
+                            <p>{order.address.recipient_name} - {order.address.phone}</p>
+                            <p>{order.address.number} ถ. {order.address.road}</p>
+                            <p>{order.address.subdistrict}, {order.address.district}, {order.address.province} {order.address.code_zip}</p>
+                            {order.address.address_detail && <p>{order.address.address_detail}</p>}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -239,8 +264,8 @@ const HistoryOrders: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-500">You have no order history yet. Place your first order!</p>
+            <div className="text-center py-12 text-gray-600">
+              ยังไม่มีประวัติการสั่งซื้อ
             </div>
           )}
         </div>

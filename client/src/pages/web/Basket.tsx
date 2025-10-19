@@ -4,6 +4,7 @@ import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import { checkAuthAndAlert } from "../../services/authUtils";
 import { BsBasket2Fill } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
 
 
 interface Product {
@@ -18,6 +19,7 @@ interface Product {
 const Basket: React.FC = () => {
   const { cart, updateQuantity, removeFromCart, getTotalItems, getTotalPrice } = useCart();
   const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
   
   // Transform the cart items to match the Basket component structure
   const [products, setProducts] = useState<Product[]>([]);
@@ -210,7 +212,7 @@ const Basket: React.FC = () => {
           className={`h-[50px] w-[190px] rounded-[50px] text-[20px] font-bold text-white ${
             deleteMode ? "bg-red-600" : (products.length > 0 ? "bg-[#8C6E63]" : (!isLoggedIn ? "bg-gray-400" : "bg-gray-400"))
           }`}
-          onClick={!isLoggedIn ? () => window.location.href = "/login" : (deleteMode ? handleDelete : undefined)}
+          onClick={!isLoggedIn ? () => window.location.href = "/login" : (deleteMode ? handleDelete : () => navigate('/pay'))}
           disabled={products.length === 0 && !deleteMode && isLoggedIn}
         >
           {!isLoggedIn ? "เข้าสู่ระบบ" : (deleteMode ? "ลบสินค้า" : "ชำระเงิน")}

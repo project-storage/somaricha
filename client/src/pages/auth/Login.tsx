@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaUser, FaKey, FaFacebook, FaGoogle } from "react-icons/fa";
+import { FaUser, FaKey, FaFacebook, FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import authService from "../../services/authService";
 import { useNavigate } from "react-router";
 
@@ -15,6 +15,9 @@ const Login = () => {
   });
 
   const navigate = useNavigate();
+  
+  // State for password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +56,7 @@ const Login = () => {
         case "owner":
           navigate("/admin/dashboard");
           break;
-        case "customer":
+        case "user":
           navigate("/"); // เปลี่ยนเป็น "/customer" ถ้ามี route นั้น
           break;
         default:
@@ -92,14 +95,21 @@ const Login = () => {
         <div className="relative">
           <FaKey className="absolute left-0 top-1/2 transform -translate-y-1/2 text-black text-xl" />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={loginData.password}
             onChange={(e) =>
               setLoginData({ ...loginData, password: e.target.value })
             }
-            className="pl-10 pb-2 pt-2 w-full border-b-2 border-black focus:border-black outline-none text-lg bg-transparent"
+            className="pl-10 pr-10 pb-2 pt-2 w-full border-b-2 border-black focus:border-black outline-none text-lg bg-transparent"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 text-black text-xl"
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
         </div>
 
         <div className="flex justify-end">

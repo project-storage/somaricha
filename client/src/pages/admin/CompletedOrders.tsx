@@ -16,10 +16,11 @@ interface Order {
   id: number;
   user_id: number;
   total_price: number;
-  status: 'pending' | 'processing' | 'completed' | 'canceled' | 'preparing' | 'shipping' | 'delivered';
+  status: 'preparing' | 'shipping' | 'delivered' | 'cancelled';
   shipping_method: string;
   payment_method: string;
   created_at: string;
+  delivered_at?: string;
   updated_at: string;
   order_items: OrderItem[];
   address: {
@@ -35,63 +36,47 @@ interface Order {
   };
 }
 
-const AdminOrders: React.FC = () => {
+const AdminCompletedOrders: React.FC = () => {
   const navigate = useNavigate();
   const { isLoggedIn, userRole } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [orderToCancel, setOrderToCancel] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (isLoggedIn && userRole === 'owner') {
-      fetchOrders();
+      fetchCompletedOrders();
     } else {
       toast.error("คุณไม่มีสิทธิ์ในการเข้าถึงหน้านี้");
       navigate("/admin");
     }
   }, [isLoggedIn, userRole, navigate]);
 
-  const fetchOrders = async () => {
+  const fetchCompletedOrders = async () => {
     try {
       setLoading(true);
       const response = await orderService.getAllOrders();
       let ordersData = [];
       
       if (Array.isArray(response.data)) {
-        // Filter to only show non-completed and non-cancelled orders
+        // Filter to only show completed and delivered orders
         ordersData = response.data.filter((order: any) => 
-          order.status !== 'completed' && order.status !== 'canceled' && 
-          order.status !== 'delivered'
+          order.status === 'completed' || order.status === 'delivered'
         );
       } else if (response.data && typeof response.data === 'object' && Array.isArray(response.data.data)) {
         ordersData = response.data.data.filter((order: any) => 
-          order.status !== 'completed' && order.status !== 'canceled' && 
-          order.status !== 'delivered'
+          order.status === 'completed' || order.status === 'delivered'
         );
-      } else if (response.data && typeof response.data === 'object' && response.data.data) {
-        // Handle different response structure
-        if (Array.isArray(response.data.data)) {
-          ordersData = response.data.data.filter((order: any) => 
-            order.status !== 'completed' && order.status !== 'canceled' && 
-            order.status !== 'delivered'
-          );
-        } else if (Array.isArray(response.data.data.data)) {
-          // Handle nested response
-          ordersData = response.data.data.data.filter((order: any) => 
-            order.status !== 'completed' && order.status !== 'canceled' && 
-            order.status !== 'delivered'
-          );
-        }
       } else {
-        console.warn("Unexpected API response format, using empty array:", response);
-        ordersData = [];
+        console.error("Unexpected API response format:", response);
+        toast.error("ข้อมูลคำสั่งซื้อไม่อยู่ในรูปแบบที่ถูกต้อง");
+        return;
       }
       
       setOrders(ordersData);
     } catch (error: any) {
-      console.error("Error fetching orders:", error);
+      console.error("Error fetching completed orders:", error);
       
       if (error.response?.status === 401) {
         toast.error("กรุณาเข้าสู่ระบบอีกครั้ง");
@@ -102,75 +87,40 @@ const AdminOrders: React.FC = () => {
       } else if (error.response?.status === 500) {
         toast.error("เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์");
       } else {
-        toast.error(`ไม่สามารถโหลดคำสั่งซื้อได้: ${error.message || 'เกิดข้อผิดพลาด'}`);
+        toast.error(`ไม่สามารถโหลดคำสั่งซื้อที่เสร็จสิ้นได้: ${error.message || 'เกิดข้อผิดพลาด'}`);
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdateStatus = async (orderId: number, newStatus: string) => {
-    try {
-      await orderService.updateOrder(orderId, { status: newStatus });
-      toast.success("อัพเดทสถานะคำสั่งซื้อเรียบร้อย");
-      fetchOrders(); // Refresh the orders list
-      if (selectedOrder && selectedOrder.id === orderId) {
-        setSelectedOrder(null); // Close the detail view if updating the selected order
-      }
-    } catch (error) {
-      console.error("Error updating order status:", error);
-      toast.error("อัพเดทสถานะคำสั่งซื้อล้มเหลว");
-    }
-  };
-
-  const openCancelModal = (orderId: number) => {
-    setOrderToCancel(orderId);
-    setShowCancelModal(true);
-  };
-
-  const confirmCancelOrder = async () => {
-    if (orderToCancel !== null) {
-      try {
-        await orderService.updateOrder(orderToCancel, { status: 'canceled' });
-        toast.success("ยกเลิกคำสั่งซื้อเรียบร้อย");
-        setShowCancelModal(false);
-        setOrderToCancel(null);
-        fetchOrders(); // Refresh the orders list
-        if (selectedOrder && selectedOrder.id === orderToCancel) {
-          setSelectedOrder(null); // Close the detail view if canceling the selected order
-        }
-      } catch (error) {
-        console.error("Error cancelling order:", error);
-        toast.error("ยกเลิกคำสั่งซื้อล้มเหลว");
-      }
-    }
-  };
-
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'รอดำเนินการ';
-      case 'processing': return 'กำลังดำเนินการ';
-      case 'completed': return 'เสร็จสิ้น';
-      case 'canceled': return 'ถูกยกเลิก';
       case 'preparing': return 'กำลังจัดเตรียม';
       case 'shipping': return 'กำลังจัดส่ง';
       case 'delivered': return 'จัดส่งเสร็จสิ้นแล้ว';
+      case 'cancelled': return 'ออเดอร์ถูกยกเลิก';
+      case 'completed': return 'เสร็จสิ้น';
       default: return status;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'text-gray-600';
-      case 'processing': return 'text-yellow-600';
-      case 'completed': return 'text-green-600';
-      case 'canceled': return 'text-red-600';
       case 'preparing': return 'text-yellow-600';
       case 'shipping': return 'text-blue-600';
       case 'delivered': return 'text-green-600';
+      case 'cancelled': return 'text-red-600';
+      case 'completed': return 'text-green-600';
       default: return 'text-gray-600';
     }
   };
+
+  const filteredOrders = orders.filter(order => 
+    order.id.toString().includes(searchTerm) ||
+    (order.address?.recipient_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (order.address?.phone || '').includes(searchTerm)
+  );
 
   if (loading) {
     return (
@@ -194,11 +144,17 @@ const AdminOrders: React.FC = () => {
     <div className="min-h-screen bg-white py-6 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-black">คำสั่งซื้อ</h1>
+          <h1 className="text-3xl font-bold text-black">ประวัติคำสั่งซื้อที่เสร็จสิ้น</h1>
         </div>
 
-        <div className="mb-8 p-6 bg-red-100 rounded-xl text-center">
-          <p className="text-red-600 font-bold">มี {orders.length} คำสั่งซื้อใหม่</p>
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="ค้นหาคำสั่งซื้อ..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg"
+          />
         </div>
 
         {selectedOrder ? (
@@ -219,7 +175,7 @@ const AdminOrders: React.FC = () => {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="text-black"><span className="font-medium">ชื่อ:</span> {selectedOrder.address?.recipient_name || 'N/A'}</p>
                   <p className="text-black"><span className="font-medium">เบอร์โทร:</span> {selectedOrder.address?.phone || 'N/A'}</p>
-                  <p className="text-black"><span className="font-medium">User ID:</span> {selectedOrder.user_id}</p>
+                  <p className="text-black"><span className="font-medium">ID ผู้ใช้:</span> {selectedOrder.user_id}</p>
                 </div>
               </div>
 
@@ -265,6 +221,9 @@ const AdminOrders: React.FC = () => {
                   <p className="text-black"><span className="font-medium">วิธีจัดส่ง:</span> {selectedOrder.shipping_method}</p>
                   <p className="text-black"><span className="font-medium">วิธีชำระเงิน:</span> {selectedOrder.payment_method}</p>
                   <p className="text-black"><span className="font-medium">วันที่สั่ง:</span> {new Date(selectedOrder.created_at).toLocaleString('th-TH')}</p>
+                  {selectedOrder.delivered_at && (
+                    <p className="text-black"><span className="font-medium">วันที่จัดส่งเสร็จ:</span> {new Date(selectedOrder.delivered_at).toLocaleString('th-TH')}</p>
+                  )}
                 </div>
               </div>
 
@@ -276,51 +235,6 @@ const AdminOrders: React.FC = () => {
                   </p>
                 </div>
               </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3 mb-6">
-              <button
-                onClick={() => handleUpdateStatus(selectedOrder.id, 'processing')}
-                className={`px-4 py-2 rounded-lg ${
-                  selectedOrder.status === 'processing' || selectedOrder.status === 'preparing'
-                    ? 'bg-gray-400 text-white' 
-                    : 'bg-yellow-500 text-white hover:bg-yellow-600'
-                }`}
-                disabled={selectedOrder.status === 'processing' || selectedOrder.status === 'preparing'}
-              >
-                กำลังจัดเตรียม
-              </button>
-              
-              <button
-                onClick={() => handleUpdateStatus(selectedOrder.id, 'shipping')}
-                className={`px-4 py-2 rounded-lg ${
-                  selectedOrder.status === 'shipping' 
-                    ? 'bg-gray-400 text-white' 
-                    : 'bg-blue-500 text-white hover:bg-blue-600'
-                }`}
-                disabled={selectedOrder.status === 'shipping'}
-              >
-                กำลังจัดส่ง
-              </button>
-              
-              <button
-                onClick={() => handleUpdateStatus(selectedOrder.id, 'completed')}
-                className={`px-4 py-2 rounded-lg ${
-                  selectedOrder.status === 'completed' || selectedOrder.status === 'delivered'
-                    ? 'bg-gray-400 text-white' 
-                    : 'bg-green-500 text-white hover:bg-green-600'
-                }`}
-                disabled={selectedOrder.status === 'completed' || selectedOrder.status === 'delivered'}
-              >
-                จัดส่งเสร็จสิ้นแล้ว
-              </button>
-              
-              <button
-                onClick={() => openCancelModal(selectedOrder.id)}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-              >
-                ยกเลิกคำสั่งซื้อ
-              </button>
             </div>
           </div>
         ) : (
@@ -337,7 +251,7 @@ const AdminOrders: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
+                {filteredOrders.map((order) => (
                   <tr key={order.id} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="py-3 px-4 text-black">{order.id}</td>
                     <td className="py-3 px-4 text-black">{order.address?.recipient_name || 'N/A'}</td>
@@ -361,37 +275,11 @@ const AdminOrders: React.FC = () => {
               </tbody>
             </table>
 
-            {orders.length === 0 && (
+            {filteredOrders.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                ไม่มีคำสั่งซื้อใหม่
+                ไม่มีคำสั่งซื้อที่เสร็จสิ้น
               </div>
             )}
-          </div>
-        )}
-
-        {/* Cancel Order Modal */}
-        {showCancelModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-xl max-w-md w-full mx-4">
-              <h3 className="text-xl font-bold text-black mb-4">ยืนยันการยกเลิกคำสั่งซื้อ</h3>
-              <p className="text-gray-600 mb-6">
-                คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อ #${orderToCancel}?
-              </p>
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => setShowCancelModal(false)}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  onClick={confirmCancelOrder}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  ยืนยัน
-                </button>
-              </div>
-            </div>
           </div>
         )}
       </div>
@@ -399,4 +287,4 @@ const AdminOrders: React.FC = () => {
   );
 };
 
-export default AdminOrders;
+export default AdminCompletedOrders;

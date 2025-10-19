@@ -17,9 +17,15 @@ import Branch from "./pages/web/Branch";
 import FAQ from "./pages/web/FAQ";
 import Basket from "./pages/web/Basket";
 import Profile from "./pages/web/Profile";
-import Address from "./pages/web/Adress";
+import Address from "./pages/web/Address";
+import AddAddress from "./pages/web/AddAddress";
+import EditAddress from "./pages/web/EditAddress";
 import Payment from "./pages/web/Payment";
 import HistoryOrders from "./pages/web/HistoryOrders";
+import Pay from "./pages/web/Pay";
+import OrderHistory from "./pages/web/OrderHistory";
+import OrderDetail from "./pages/web/OrderDetail";
+import AdminCompletedOrders from "./pages/admin/CompletedOrders";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -41,6 +47,10 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Public Routes - No Layout */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
         {/* ================= USER LAYOUT ================= */}
         <Route element={<MainLayout />} >
           <Route path="/" element={<HomePage />} />
@@ -50,36 +60,25 @@ function App() {
           <Route path="/branch" element={<Branch />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/basket" element={<Basket />} />
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          } />
-          <Route path="/address" element={
-            <ProtectedRoute>
-              <Address />
-            </ProtectedRoute>
-          } />
-          <Route path="/payment" element={
-            <ProtectedRoute>
-              <Payment />
-            </ProtectedRoute>
-          } />
-          <Route path="/history-orders" element={
-            <ProtectedRoute>
-              <HistoryOrders />
-            </ProtectedRoute>
-          } />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile/>} />
+          <Route path="/address" element={<Address />} />
+          <Route path="/address/add" element={<AddAddress />} />
+          <Route path="/address/edit/:id" element={<EditAddress />} />
+          <Route path="/payment" element={<Payment/>} />
+          <Route path="/pay" element={<Pay />} />
+          <Route path="/order-history" element={<OrderHistory />} />
+          <Route path="/order-detail/:id" element={<OrderDetail />} />
+          <Route path="/history-orders" element={<HistoryOrders/>} />
         </Route>
 
         {/* ================= ADMIN LAYOUT ================= */}
         <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<Dashboard />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/admin/users" element={<Users />} />
           <Route path="/admin/products" element={<ProductPage />} />
           <Route path="/admin/orders" element={<Orders />} />
+          <Route path="/admin/completed-orders" element={<AdminCompletedOrders />} />
           <Route path="/admin/payments" element={<Payments />} />
           <Route path="/admin/addresses" element={<Addresses />} />
           <Route path="/admin/address-options" element={<AddressOptions />} />
