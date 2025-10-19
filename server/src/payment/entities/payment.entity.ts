@@ -21,14 +21,10 @@ export class Payment {
   })
   payment_name: PaymentStatus;
 
-  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 
-  @UpdateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
+  @UpdateDateColumn({ type: 'timestamp' })
   updated_at: Date;
 
   @OneToOne(() => Order, (order) => order.payment)

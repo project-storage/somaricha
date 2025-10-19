@@ -23,9 +23,10 @@ export class CreateUserDto {
   @IsOptional()
   user_imageUrl?: string;
 
-  @ApiProperty({ description: 'User birth date', example: '1990-01-01' })
+  @ApiProperty({ description: 'User birth date', example: '1990-01-01', required: false })
   @IsDate()
-  user_birth: Date;
+  @IsOptional()
+  user_birth?: Date;
 
   @ApiProperty({ description: 'Role of the user', enum: UserRole, example: UserRole.USER })
   @IsEnum(UserRole)

@@ -26,13 +26,13 @@ export class User {
   @Column({ type: 'varchar', length: 500, nullable: true })
   user_imageUrl?: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: true })
   user_birth: Date;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   user_role: UserRole;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 20, nullable: true })
   tel: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
@@ -46,14 +46,10 @@ export class User {
   })
   addressOptions: AddressOption[];
 
-  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 
-  @UpdateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
+  @UpdateDateColumn({ type: 'timestamp' })
   updated_at: Date;
 
   @OneToMany(() => Order, (order) => order.user)
