@@ -4,19 +4,36 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // กำหนด prefix สำหรับ API
   app.setGlobalPrefix('api');
+
+  // CORS config
+  const allowedOrigins = [
+    'http://localhost:5173',       // สำหรับ dev local Vite
+    'https://somaricha.vercel.app' // สำหรับ production Vercel
+  ];
+
   app.enableCors({
-    origin: 'https://somaricha.vercel.app/',
-    credentials: true, // if have send cookie/token
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    origin: (origin, callback) => {
+      // ถ้าไม่มี origin (เช่น curl) ให้อนุญาต
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS not allowed for origin ${origin}`));
+      }
+    },
+    credentials: true, // ต้องใช้ถ้าใช้ cookie / JWT
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
+  // Swagger / OpenAPI setup
   const config = new DocumentBuilder()
     .setTitle('Somaricha API')
-    .setDescription('API for development product somaricha')
+    .setDescription('API for development product Somaricha')
     .setVersion('1.0')
-    // เพิ่ม JWT Bearer token support
     .addBearerAuth(
       {
         type: 'http',
@@ -25,15 +42,12 @@ async function bootstrap() {
         name: 'JWT',
         in: 'header',
       },
-      'JWT-auth', // ชื่อ security scheme
+      'JWT-auth',
     )
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
 
   const document = SwaggerModule.createDocument(app, config);
 
-  // ตั้งค่า Swagger UI
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: {
       persistAuthorization: true, // จำ token ไว้เวลา refresh
@@ -43,6 +57,9 @@ async function bootstrap() {
     },
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+  await app.listen(port);
+  console.log(`Server running on port ${port}`);
 }
+
 bootstrap();
