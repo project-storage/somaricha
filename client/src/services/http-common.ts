@@ -2,7 +2,7 @@ import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
 
 const defaultOptions: AxiosRequestConfig = {
-  baseURL: "https://somaricha.onrender.com",
+  baseURL: "https://somaricha.onrender.com/",
   headers: {
     "Content-Type": "application/json",
   },
