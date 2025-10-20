@@ -37,7 +37,7 @@ const Register = () => {
         e.preventDefault();
 
         // ตรวจสอบฟิลด์
-        const { username, email, user_name, user_lastname, tel, password, confirmPassword, agreeTerms } =
+        const { username, email, user_name, user_lastname, password, confirmPassword, agreeTerms } =
             registerData;
 
         if (!username || !email || !user_name || !user_lastname || !password || !confirmPassword) {

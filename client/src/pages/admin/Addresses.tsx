@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, Edit, Trash2, Plus } from 'lucide-react';
-import addressService, { Address, CreateAddressDto } from '../../services/addressService';
+import addressService from '../../services/addressService';
+import type { Address, CreateAddressDto } from '../../services/addressService';
 
 const Addresses: React.FC = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);

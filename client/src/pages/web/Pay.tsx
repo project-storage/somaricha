@@ -3,10 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import userService from "../../services/userService";
-import basketService from "../../services/basketService";
 import orderService from "../../services/orderService";
 import { toast } from "react-toastify";
-import { FaTrash, FaMinus, FaPlus, FaCheck } from "react-icons/fa";
+import { FaMinus, FaPlus, FaCheck } from "react-icons/fa";
 
 interface UserAddress {
   id: number;
@@ -28,14 +27,7 @@ interface UserAddress {
   };
 }
 
-interface CartItem {
-  id: number;
-  product_id: number;
-  product_name: string;
-  product_price: number;
-  quantity: number;
-  product_image: string;
-}
+
 
 interface ShippingOption {
   id: string;
@@ -47,9 +39,8 @@ interface ShippingOption {
 const Pay: React.FC = () => {
   const navigate = useNavigate();
   const authContext = useAuth();
-  const isLoggedIn = authContext.isLoggedIn;
   const { cart, updateQuantity, removeFromCart, getTotalItems, getTotalPrice } = useCart();
-  const [addresses, setAddresses] = useState<UserAddress[]>([]);
+
   const [selectedAddress, setSelectedAddress] = useState<UserAddress | null>(null);
   const [shippingOptions] = useState<ShippingOption[]>([
     { id: "economy", name: "ส่งแบบประหยัด", description: "ระยะเวลาช้ากว่าปกติ", price: 15 },
@@ -82,10 +73,8 @@ const Pay: React.FC = () => {
         addressesData = response.data.data;
       }
       
-      setAddresses(addressesData);
-      
       // Select default address or first address
-      const defaultAddress = addressesData.find(addr => addr.isDefault) || addressesData[0] || null;
+      const defaultAddress = addressesData.find((addr: UserAddress) => addr.isDefault) || addressesData[0] || null;
       setSelectedAddress(defaultAddress);
     } catch (error) {
       console.error("Error fetching addresses:", error);
@@ -212,20 +201,12 @@ const Pay: React.FC = () => {
       }
 
       // Try to create order with fallback for server issues
-      let response;
       try {
-        response = await orderService.createOrder(orderData);
+        await orderService.createOrder(orderData);
       } catch (networkError: any) {
         if (networkError.response?.status === 500) {
           console.warn("Server error received, using mock success response for demo purposes");
           // In a real application, you would not do this, but for demo purposes when backend is down
-          response = { 
-            data: { 
-              success: true, 
-              message: "Order placed successfully (mock response)",
-              order: { id: Math.floor(Math.random() * 10000) }
-            } 
-          };
         } else {
           throw networkError; // Re-throw if it's not a 500 error
         }

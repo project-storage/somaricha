@@ -1,12 +1,8 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 
 // Layouts
 import MainLayout from "./components/layouts/web/MainLayout";
 import AdminLayout from "./components/layouts/admin/AdminLayout";
-
-// Auth Component
-import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 // User Pages
 import HomePage from "./pages/web/HomePage";

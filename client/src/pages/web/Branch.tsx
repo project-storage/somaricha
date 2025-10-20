@@ -1,5 +1,5 @@
-import React from 'react'
-import TopImage from '../../components/shared/web/Topimag'
+
+import TopImage from '../../components/shared/web/TopImag'
 import BranchMe from '../../components/shared/web/Branch';
 
 const Branch = () => {

@@ -1,8 +1,12 @@
-import React from 'react';
 import { NavLink } from 'react-router';
 import { X, Home, Users, ShoppingCart, BarChart3, Settings } from 'lucide-react';
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+interface SidebarProps {
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const sidebarItems = [
     { path: '/dashboard', icon: Home, label: 'Dashboard' },
     { path: '/users', icon: Users, label: 'Users' },

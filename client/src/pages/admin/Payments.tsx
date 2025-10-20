@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, Edit, Trash2, Plus } from 'lucide-react';
-import paymentService, { Payment, PaymentStatus, CreatePaymentDto } from '../../services/paymentService';
+import paymentService from '../../services/paymentService';
+import type { Payment, CreatePaymentDto } from '../../services/paymentService';
+import { PaymentStatus } from '../../services/paymentService';
 
 const Payments: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);

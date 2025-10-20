@@ -29,7 +29,7 @@ const Profile: React.FC = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const response = await userService.getProfile();
+      const response = await userService.getMe();
       setProfile(response.data);
       setFormData(response.data);
     } catch (error: any) {
@@ -51,8 +51,16 @@ const Profile: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await userService.updateProfile(formData);
+      if (!profile) {
+        toast.error("Profile data not available");
+        return;
+      }
+      const userId = profile.id; // Get user ID from profile
+      await userService.updateUser(userId, formData as any); // Cast to any to handle partial update
+      // Fetch updated profile data after update
+      const response = await userService.getMe();
       setProfile(response.data);
+      setFormData(response.data);
       setIsEditing(false);
       toast.success("Profile updated successfully!");
     } catch (error: any) {

@@ -1,5 +1,5 @@
-import React from 'react'
-import TopImage from '../../components/shared/web/Topimag'
+
+import TopImage from '../../components/shared/web/TopImag'
 import ProductSlider from '../../components/shared/web/ProductSlider'
 import { MdBusinessCenter, } from "react-icons/md";
 import { AiOutlineCalendar } from "react-icons/ai";

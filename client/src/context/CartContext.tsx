@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
+import type { ReactNode } from 'react';
 
-interface CartItem {
+export interface CartItem {
   id: number;
   nameTH: string;
   nameEN: string;
@@ -108,11 +109,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const getTotalItems = () => {
-    return cart.items.reduce((total, item) => total + item.quantity, 0);
+    return cart.items.reduce((total: number, item: CartItem) => total + item.quantity, 0);
   };
 
   const getTotalPrice = () => {
-    return cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cart.items.reduce((total: number, item: CartItem) => total + (item.price * item.quantity), 0);
   };
 
   const value = {

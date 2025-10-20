@@ -1,8 +1,11 @@
-import React from 'react';
 import { useLocation } from 'react-router';
 import { Menu, Bell, Search, ChevronDown } from 'lucide-react';
 
-const Header = ({ setSidebarOpen }) => {
+interface HeaderProps {
+  setSidebarOpen: (open: boolean) => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
   const location = useLocation();
   const currentPage = location.pathname.slice(1) || 'dashboard';
 

@@ -5,12 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { FaShoppingCart } from "react-icons/fa";
 import productService, { type Product } from "../../../services/productService";
-import { useCart } from "../../../context/CartContext";
-
-// กำหนด interface สำหรับCartItem ที่สืบทอดจาก Product และเพิ่ม field quantity
-interface CartItem extends Product {
-  quantity: number;
-}
+import { useCart, type CartItem } from "../../../context/CartContext";
 
 const ProductSlider: React.FC = () => {
   // state สำหรับเก็บรายการสินค้า
@@ -39,12 +34,12 @@ const ProductSlider: React.FC = () => {
   // ฟังก์ชันเพิ่มสินค้าลงใน context ของตะกร้า
   const addToCart = (product: Product) => {
     // แปลง Product เป็นรูปแบบ CartItem สำหรับ context
-    const cartItem = {
-      id: product.id,
-      nameTH: product.nameTH,
-      nameEN: product.nameEN,
-      price: product.price,
-      image: product.image,
+    const cartItem: CartItem = {
+      id: product.id!,
+      nameTH: product.nameTH!,
+      nameEN: product.nameEN!,
+      price: product.price!,
+      image: product.image || "",
       quantity: product.quantity ?? 1
     };
     
@@ -63,8 +58,8 @@ const ProductSlider: React.FC = () => {
             nameEN: p.product_detail,
             image: p.product_image || "",
             price: p.product_price,
-          }));
-          setProducts(fetchedProducts.map((p) => ({ ...p, quantity: 1 })));
+          }) as Product);
+          setProducts(fetchedProducts.map((p: Product) => ({ ...p, quantity: 1 as number })));
         } else {
           console.error("Invalid product data:", res.data);
         }
@@ -75,6 +70,8 @@ const ProductSlider: React.FC = () => {
     };
     fetchProducts();
   }, []);
+
+  // การตั้งค่าสำหรับ component react-slick slider
 
   // การตั้งค่าสำหรับ component react-slick slider
   const settings = {
@@ -156,7 +153,7 @@ const ProductSlider: React.FC = () => {
                     {/* ปุ่มลดจำนวน - ปุ่มกลมสีเทาเข้ม ขนาดเล็กลง */}
                     <button
                       className="w-8 h-8 bg-[#333333] text-white rounded-full flex items-center justify-center font-bold hover:bg-gray-200 hover:scale-105 transition-all duration-300 shadow-md"
-                      onClick={() => decreaseQty(product.id)}
+                      onClick={() => product.id && decreaseQty(product.id)}
                     >
                       -
                     </button>
@@ -165,7 +162,7 @@ const ProductSlider: React.FC = () => {
                     {/* ปุ่มเพิ่มจำนวน - ปุ่มกลมสีเทาเข้ม ขนาดเล็กลง */}
                     <button
                       className="w-8 h-8 bg-[#333333] text-white rounded-full flex items-center justify-center font-bold hover:bg-gray-200 hover:scale-105 transition-all duration-300 shadow-md"
-                      onClick={() => increaseQty(product.id)}
+                      onClick={() => product.id && increaseQty(product.id)}
                     >
                       +
                     </button>

@@ -96,11 +96,11 @@ const Products: React.FC = () => {
   const addToCart = (product: ProductType) => {
     // Convert Product to CartItem format for context
     const cartItem = {
-      id: product.id,
-      nameTH: product.nameTH,
-      nameEN: product.nameEN,
-      price: product.price,
-      image: product.image,
+      id: product.id!,
+      nameTH: product.nameTH!,
+      nameEN: product.nameEN!,
+      price: product.price!,
+      image: product.image || "",
       quantity: product.quantity ?? 1
     };
     
@@ -187,7 +187,7 @@ const Products: React.FC = () => {
                   {/* Decrease Quantity Button */}
                   <button
                     className="w-8 h-8 bg-[#333333] text-white rounded-full flex items-center justify-center font-bold hover:bg-gray-600 transition-all duration-300 shadow-md"
-                    onClick={() => decreaseQty(product.id)}
+                    onClick={() => product.id && decreaseQty(product.id)}
                   >
                     -
                   </button>
@@ -198,7 +198,7 @@ const Products: React.FC = () => {
                   {/* Increase Quantity Button */}
                   <button
                     className="w-8 h-8 bg-[#333333] text-white rounded-full flex items-center justify-center font-bold hover:bg-gray-600 transition-all duration-300 shadow-md"
-                    onClick={() => increaseQty(product.id)}
+                    onClick={() => product.id && increaseQty(product.id)}
                   >
                     +
                   </button>

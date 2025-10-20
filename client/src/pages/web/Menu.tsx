@@ -1,5 +1,4 @@
-import React from 'react'
-import TopImage from '../../components/shared/web/Topimag'
+import TopImage from '../../components/shared/web/TopImag'
 import ProductsComponent from '../../components/shared/web/Products'
 
 const Menu = () => {

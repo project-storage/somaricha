@@ -35,7 +35,6 @@ interface Order {
 
 const HistoryOrders: React.FC = () => {
   const authContext = useAuth();
-  const isLoggedIn = authContext.isLoggedIn;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);

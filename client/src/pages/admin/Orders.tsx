@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import orderService from "../../services/orderService";
+import orderService, { OrderStatus } from "../../services/orderService";
 import { toast } from "react-toastify";
 
 interface OrderItem {
@@ -16,7 +16,7 @@ interface Order {
   id: number;
   user_id: number;
   total_price: number;
-  status: 'pending' | 'processing' | 'completed' | 'canceled' | 'preparing' | 'shipping' | 'delivered';
+  status: string;
   shipping_method: string;
   payment_method: string;
   created_at: string;
@@ -64,7 +64,7 @@ const AdminOrders: React.FC = () => {
         ordersData = response.data.filter((order: any) => 
           order.status !== 'completed' && order.status !== 'canceled' && 
           order.status !== 'delivered'
-        );
+        ) as Order[];
       } else if (response.data && typeof response.data === 'object' && Array.isArray(response.data.data)) {
         ordersData = response.data.data.filter((order: any) => 
           order.status !== 'completed' && order.status !== 'canceled' && 
@@ -111,7 +111,7 @@ const AdminOrders: React.FC = () => {
 
   const handleUpdateStatus = async (orderId: number, newStatus: string) => {
     try {
-      await orderService.updateOrder(orderId, { status: newStatus });
+      await orderService.updateOrder(orderId, { status: newStatus as OrderStatus });
       toast.success("อัพเดทสถานะคำสั่งซื้อเรียบร้อย");
       fetchOrders(); // Refresh the orders list
       if (selectedOrder && selectedOrder.id === orderId) {
@@ -131,7 +131,7 @@ const AdminOrders: React.FC = () => {
   const confirmCancelOrder = async () => {
     if (orderToCancel !== null) {
       try {
-        await orderService.updateOrder(orderToCancel, { status: 'canceled' });
+        await orderService.updateOrder(orderToCancel, { status: OrderStatus.CANCELED });
         toast.success("ยกเลิกคำสั่งซื้อเรียบร้อย");
         setShowCancelModal(false);
         setOrderToCancel(null);

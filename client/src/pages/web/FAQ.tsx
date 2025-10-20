@@ -1,5 +1,5 @@
-import React from 'react'
-import TopImage from '../../components/shared/web/Topimag'
+
+import TopImage from '../../components/shared/web/TopImag'
 import Question from '../../components/shared/web/Question'
 
 const FAQ = () => {

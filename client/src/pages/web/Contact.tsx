@@ -1,5 +1,5 @@
-import React from 'react'
-import TopImage from '../../components/shared/web/Topimag'
+
+import TopImage from '../../components/shared/web/TopImag'
 import { FaPhone, FaEnvelope, FaMapMarkerAlt,FaFacebook,FaInstagram,FaTiktok } from "react-icons/fa";
 import InformationBox from "../../components/shared/web/InformationBox";
 import InformationBoxwhite from "../../components/shared/web/InformationBoxwhite";

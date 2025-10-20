@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import userService from "../../services/userService";
-import addressOptionService from "../../services/addressOptionService";
+
 import addressService from "../../services/addressService";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";

@@ -1,5 +1,5 @@
 import React from "react";
-import { IconType } from "react-icons";
+import type { IconType } from "react-icons";
 
 interface InfoItem {
     icon: IconType; // ใช้ react-icons

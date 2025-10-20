@@ -1,4 +1,3 @@
-import React from 'react'
 
 const Videopresent = "/assets/VideoCha.mp4"
 const Chapeach = "/assets/Chapeach.png"
