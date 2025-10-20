@@ -6,8 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
   app.enableCors({
-    origin: 'https://somaricha.vercel.app/',
-    // credentials: true, // if have send cookie/token
+    origin: ['http://localhost:5173', 'https://somaricha.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
@@ -37,9 +36,9 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: {
       persistAuthorization: true, // จำ token ไว้เวลา refresh
-      docExpansion: 'none',       // ปิดการขยาย section อัตโนมัติ
-      filter: true,               // มีช่องค้นหา
-      showRequestDuration: true,  // แสดงเวลา request
+      docExpansion: 'none', // ปิดการขยาย section อัตโนมัติ
+      filter: true, // มีช่องค้นหา
+      showRequestDuration: true, // แสดงเวลา request
     },
   });
 
