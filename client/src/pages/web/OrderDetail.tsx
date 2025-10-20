@@ -39,7 +39,6 @@ const OrderDetail: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const authContext = useAuth();
-  const isLoggedIn = authContext.isLoggedIn;
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,10 +51,6 @@ const OrderDetail: React.FC = () => {
   const fetchOrderDetail = async () => {
     try {
       setLoading(true);
-      
-      // Clear localStorage to ensure we get fresh data
-      localStorage.removeItem('local_orders');
-      console.log("Cleared local_orders from localStorage in OrderDetail");
       
       const orderId = parseInt(id || '');
       
@@ -81,24 +76,52 @@ const OrderDetail: React.FC = () => {
       if (orderData) {
         setOrder(orderData);
       } else {
-        toast.error("ไม่พบข้อมูลคำสั่งซื้อ");
-        navigate('/order-history');
+        // Try to load from localStorage if API fails
+        const localOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
+        const localOrder = localOrders.find((o: Order) => o.id === orderId);
+        if (localOrder) {
+          setOrder(localOrder);
+        } else {
+          toast.error("ไม่พบข้อมูลคำสั่งซื้อ");
+          navigate('/order-history');
+        }
       }
     } catch (error: any) {
       console.error("Error fetching order detail:", error);
       
-      if (error.response?.status === 401) {
-        toast.error("กรุณาเข้าสู่ระบบอีกครั้ง");
-        navigate('/login');
-      } else if (error.response?.status === 404) {
-        toast.error("ไม่พบคำสั่งซื้อนี้");
-        navigate('/order-history');
-      } else if (error.response?.status === 500) {
-        toast.error("เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์");
-        navigate('/order-history');
-      } else {
-        toast.error(`ไม่สามารถโหลดรายละเอียดคำสั่งซื้อได้: ${error.message || 'เกิดข้อผิดพลาด'}`);
-        navigate('/order-history');
+      // Try to load from localStorage if API fails
+      try {
+        const orderId = parseInt(id || '');
+        const localOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
+        const localOrder = localOrders.find((o: Order) => o.id === orderId);
+        
+        if (localOrder) {
+          setOrder(localOrder);
+          toast.info("กำลังแสดงข้อมูลจาก local storage");
+        } else {
+          if (error.response?.status === 401) {
+            toast.error("กรุณาเข้าสู่ระบบอีกครั้ง");
+            navigate('/login');
+          } else if (error.response?.status === 404) {
+            toast.error("ไม่พบคำสั่งซื้อนี้");
+            navigate('/order-history');
+          } else {
+            toast.error(`ไม่สามารถโหลดรายละเอียดคำสั่งซื้อได้: ${error.message || 'เกิดข้อผิดพลาด'}`);
+            navigate('/order-history');
+          }
+        }
+      } catch (localError) {
+        console.warn("Could not load local order:", localError);
+        if (error.response?.status === 401) {
+          toast.error("กรุณาเข้าสู่ระบบอีกครั้ง");
+          navigate('/login');
+        } else if (error.response?.status === 404) {
+          toast.error("ไม่พบคำสั่งซื้อนี้");
+          navigate('/order-history');
+        } else {
+          toast.error(`ไม่สามารถโหลดรายละเอียดคำสั่งซื้อได้: ${error.message || 'เกิดข้อผิดพลาด'}`);
+          navigate('/order-history');
+        }
       }
     } finally {
       setLoading(false);

@@ -77,7 +77,7 @@ export interface UpdateOrderDto {
   comemnt_star?: number;
 }
 
-const baseUrl = "api/orders";
+const baseUrl = "orders";
 
 // Local storage management for orders when backend is not available
 const getLocalOrders = (): FullOrder[] => {
@@ -136,7 +136,21 @@ const updateLocalOrderStatus = (id: number, status: string) => {
 const createOrder = async (orderData: CreateOrderDto) => {
   // Try to create the order via API first
   try {
-    const response = await http.post(`${baseUrl}`, orderData);
+    // Prepare the order data to match the new backend structure
+    const orderPayload = {
+      status: 'pending', // default status
+      orderdatetime: new Date().toISOString(), // current date/time
+      payment_id: 1, // This might need to come from the payment selection
+      total_price: orderData.total_amount,
+      address_option: orderData.address_id, // Use address_id from frontend as address_option in backend
+      items: orderData.items.map(item => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+    };
+    
+    const response = await http.post(`${baseUrl}`, orderPayload);
     return response;
   } catch (error: any) {
     // If API call fails, create a local order
@@ -324,17 +338,27 @@ const getOrderById = async (id: number) => {
 
 const getOrderHistory = async () => {
   try {
+    console.log("Making request to:", `${baseUrl}/history`);
     const response = await http.get(`${baseUrl}/history`);
+    console.log("Raw response from server:", response);
     
     // Handle both direct array responses and nested data responses
     let ordersData = [];
     if (Array.isArray(response.data)) {
       ordersData = response.data;
+      console.log("Order history response format: direct array with", response.data.length, "items");
     } else if (response.data && typeof response.data === 'object' && Array.isArray(response.data.data)) {
       ordersData = response.data.data;
+      console.log("Order history response format: nested data with", response.data.data.length, "items");
     } else if (response.data && response.data.data) {
       // Handle response in the format {data: [...]}
       ordersData = response.data.data;
+      console.log("Order history response format: nested data (backup check) with", response.data.data.length, "items");
+    } else {
+      console.warn("Unexpected order history response format", response);
+      console.log("Full unexpected response:", response);
+      // Instead of returning empty array here, return the full response to see what's happening
+      return response;
     }
     
     // If the response contains orders without address data, try to fetch addresses separately
@@ -342,7 +366,7 @@ const getOrderHistory = async () => {
       const orders = ordersData;
       
       // Check if any orders are missing address data
-      const hasMissingAddresses = orders.some(order => !order.address);
+      const hasMissingAddresses = orders.some(order => !order?.address);
       
       if (hasMissingAddresses) {
         // Attempt to get user's addresses to enrich the order data
@@ -354,7 +378,7 @@ const getOrderHistory = async () => {
           
           // Map address_id to address data for each order
           const enrichedOrders = orders.map(order => {
-            if (!order.address && order.address_id) {
+            if (!order?.address && order?.address_id) {
               const address = addresses.find(addr => addr.id === order.address_id);
               if (address) {
                 return {
@@ -388,24 +412,28 @@ const getOrderHistory = async () => {
       }
     }
     
+    console.log("Final processed orders data:", ordersData);
     return response;
   } catch (error) {
-    console.warn("Failed to fetch order history from server, using local orders");
+    console.error("Failed to fetch order history from server:", error);
     // Check if we have a network error (not just empty results)
     if (error.response) {
       // Server responded with error status
-      console.warn("Server error:", error.response.status, error.response.data);
+      console.error("Server error:", error.response.status, error.response?.data);
     } else if (error.request) {
       // Request was made but no response received
-      console.warn("Network error:", error.request);
+      console.error("Network error: request made but no response received", error.request);
     } else {
       // Something else happened
-      console.warn("Error:", error.message);
+      console.error("General error:", error.message);
     }
     
-    // Return local orders as fallback
+    // Return local orders as fallback - this might be hiding the real problem
+    console.warn("Using local order history as fallback");
+    const localOrders = getLocalOrderHistory();
+    console.log("Local orders available:", localOrders.length);
     return {
-      data: getLocalOrderHistory()
+      data: localOrders
     };
   }
 };

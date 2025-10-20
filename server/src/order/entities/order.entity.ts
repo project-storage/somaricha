@@ -1,12 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
-import { Product } from '../../product/entities/product.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Payment } from '../../payment/entities/payment.entity';
+import { OrderItem } from './order-item.entity';
+import { Address } from '../../address/entities/address.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
-  PROCESSING = 'processing',
-  COMPLETED = 'completed',
+  PREPARING = 'preparing',
+  SHIPPING = 'shipping',
+  DELIVERED = 'delivered',
   CANCELED = 'canceled',
 }
 
@@ -15,16 +17,9 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Product, product => product.orders, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
-
   @ManyToOne(() => User, user => user.orders, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
-
-  @Column({ type: 'int' })
-  qty: number;
 
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;
@@ -35,6 +30,10 @@ export class Order {
   @OneToOne(() => Payment, { cascade: true })
   @JoinColumn({ name: 'payment_id' })
   payment: Payment;
+
+  @ManyToOne(() => Address, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'address_id' })
+  address: Address;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   total_price: number;
@@ -47,4 +46,7 @@ export class Order {
 
   @UpdateDateColumn({ type: 'timestamp' })
   updated_at: Date;
+
+  @OneToMany(() => OrderItem, orderItem => orderItem.order, { cascade: true })
+  order_items: OrderItem[];
 }

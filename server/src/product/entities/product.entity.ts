@@ -7,7 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { ProductStatus } from '../dto/create-product.dto';
-import { Order } from 'src/order/entities/order.entity';
+import { OrderItem } from 'src/order/entities/order-item.entity';
 
 @Entity('products')
 export class Product {
@@ -39,6 +39,6 @@ export class Product {
   @UpdateDateColumn({ type: 'timestamp' })
   updated_at: Date;
 
-  @OneToMany(() => Order, (order) => order.product)
-  orders: Order[];
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+  order_items: OrderItem[];
 }

@@ -265,7 +265,7 @@ async getUserInfo(id: number) {
   async getUserOrders(userId: number, limit = 10, offset = 0) {
     const [orders, total] = await this.orderRepository.findAndCount({
       where: { user: { id: userId } },
-      relations: ['product', 'payment'],
+      relations: ['order_items', 'order_items.product', 'payment'],
       order: { created_at: 'DESC' },
       skip: offset,
       take: limit,
@@ -284,14 +284,12 @@ async getUserInfo(id: number) {
         | 'completed'
         | 'cancelled',
       order_date: order.created_at,
-      items: [
-        {
-          id: order.product.id,
-          product_name: order.product.product_name,
-          quantity: order.qty,
-          price: parseFloat(order.total_price.toString()) / order.qty,
-        },
-      ],
+      items: order.order_items.map(orderItem => ({
+        id: orderItem.product.id,
+        product_name: orderItem.product.product_name,
+        quantity: orderItem.quantity,
+        price: orderItem.price,
+      })),
     }));
 
     return { orders: formattedOrders, total };

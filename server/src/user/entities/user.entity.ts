@@ -12,6 +12,8 @@ import { Auth } from '../../auth/entities/auth.entity';
 import { AddressOption } from 'src/address_option/entities/address_option.entity';
 import { Order } from 'src/order/entities/order.entity';
 
+export { UserRole }; // Export UserRole so it can be imported elsewhere
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()

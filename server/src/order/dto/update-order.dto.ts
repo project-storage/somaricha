@@ -18,7 +18,7 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @IsOptional()
   qty?: number;
 
-  @ApiProperty({ description: 'Status of the order', enum: OrderStatus, example: OrderStatus.PENDING, required: false })
+  @ApiProperty({ description: 'Status of the order', enum: OrderStatus, example: OrderStatus.PREPARING, required: false })
   @IsEnum(OrderStatus)
   @IsOptional()
   status?: OrderStatus;
