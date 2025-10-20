@@ -41,7 +41,15 @@ export interface FullOrder {
   order_date: string;
   total_amount: number;
   shipping_cost: number;
-  status: 'preparing' | 'shipping' | 'delivered' | 'cancelled' | 'pending' | 'processing' | 'completed' | 'canceled';
+  status:
+    | 'preparing'
+    | 'shipping'
+    | 'delivered'
+    | 'cancelled'
+    | 'pending'
+    | 'processing'
+    | 'completed'
+    | 'canceled';
   address: {
     recipient_name: string;
     phone: string;
@@ -79,10 +87,19 @@ export interface UpdateOrderDto {
 
 const baseUrl = "orders";
 
+// Helpers for localStorage with safe parsing
+const safeParse = (value: string | null, fallback: any) => {
+  try {
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 // Local storage management for orders when backend is not available
 const getLocalOrders = (): FullOrder[] => {
-  const orders = localStorage.getItem('local_orders');
-  return orders ? JSON.parse(orders) : [];
+  const orders = safeParse(localStorage.getItem('local_orders'), []);
+  return Array.isArray(orders) ? orders : [];
 };
 
 const saveLocalOrder = (order: FullOrder) => {
@@ -104,28 +121,39 @@ const updateLocalOrderStatus = (id: number, status: string) => {
   const orders = getLocalOrders();
   const orderIndex = orders.findIndex(order => order.id === id);
   if (orderIndex !== -1) {
-    // Map frontend statuses to backend compatible statuses
-    let mappedStatus: 'preparing' | 'shipping' | 'delivered' | 'cancelled' | 'pending' | 'processing' | 'completed' | 'canceled';
-    switch(status) {
-      case 'processing': 
-        mappedStatus = 'processing'; 
+    // Map frontend statuses to FullOrder.status union
+    let mappedStatus: FullOrder['status'];
+
+    switch (status) {
+      case 'processing':
+        mappedStatus = 'processing';
         break;
-      case 'shipping': 
-        mappedStatus = 'shipping'; 
+      case 'shipping':
+        mappedStatus = 'shipping';
         break;
-      case 'completed': 
-        mappedStatus = 'completed'; 
+      case 'completed':
+        mappedStatus = 'completed';
         break;
-      case 'canceled': 
-        mappedStatus = 'canceled'; 
+      case 'canceled':
+      case 'cancelled':
+        mappedStatus = 'canceled';
+        break;
+      case 'delivered':
+        mappedStatus = 'delivered';
+        break;
+      case 'preparing':
+        mappedStatus = 'preparing';
+        break;
+      case 'pending':
+        mappedStatus = 'pending';
         break;
       default:
-        // For backward compatibility with frontend statuses
-        mappedStatus = status as any;
+        // fallback: coerce to string and trust runtime
+        mappedStatus = status as FullOrder['status'];
     }
-    
+
     orders[orderIndex].status = mappedStatus;
-    
+
     if (status === 'delivered' || status === 'completed') {
       orders[orderIndex].delivered_at = new Date().toISOString();
     }
@@ -149,22 +177,22 @@ const createOrder = async (orderData: CreateOrderDto) => {
         price: item.price,
       })),
     };
-    
+
     const response = await http.post(`${baseUrl}`, orderPayload);
     return response;
   } catch (error: any) {
     // If API call fails, create a local order
     console.warn("Failed to create order via API, creating local order as fallback");
-    
+
     // Get the actual address details from selected address ID
-    // In a real app, this would come from an API call to fetch address details
-    // But for local storage fallback, we'll use localStorage to maintain address data
-    const savedAddresses = JSON.parse(localStorage.getItem('saved_addresses') || '[]');
-    const selectedAddress = savedAddresses.find((addr: any) => addr.id === orderData.address_id);
-    
+    const savedAddresses = safeParse(localStorage.getItem('saved_addresses'), []);
+    const selectedAddress = Array.isArray(savedAddresses)
+      ? savedAddresses.find((addr: any) => addr.id === orderData.address_id)
+      : undefined;
+
     // Calculate shipping cost based on selected shipping method
     let shippingCost = 0;
-    switch(orderData.shipping_method) {
+    switch (orderData.shipping_method) {
       case 'economy':
         shippingCost = 15;
         break;
@@ -177,33 +205,35 @@ const createOrder = async (orderData: CreateOrderDto) => {
       default:
         shippingCost = 20; // default to standard
     }
-    
+
     const mockOrder: FullOrder = {
       id: Date.now(), // Use timestamp as ID
       order_date: new Date().toISOString(),
       total_amount: orderData.total_amount,
       shipping_cost: shippingCost,
       status: 'preparing',
-      address: selectedAddress ? {
-        recipient_name: selectedAddress.recipient_name || selectedAddress.name || "Local User",
-        phone: selectedAddress.phone || "0800000000",
-        number: selectedAddress.number || "123",
-        road: selectedAddress.road || "Main Road",
-        subdistrict: selectedAddress.subdistrict || "Subdistrict",
-        district: selectedAddress.district || "District",
-        province: selectedAddress.province || "Province",
-        code_zip: selectedAddress.code_zip || 12345,
-        address_detail: selectedAddress.address_detail
-      } : {
-        recipient_name: "Local User",
-        phone: "0800000000",
-        number: "123",
-        road: "Main Road",
-        subdistrict: "Subdistrict",
-        district: "District",
-        province: "Province",
-        code_zip: 12345
-      },
+      address: selectedAddress
+        ? {
+            recipient_name: selectedAddress.recipient_name || selectedAddress.name || "Local User",
+            phone: selectedAddress.phone || "0800000000",
+            number: selectedAddress.number || "123",
+            road: selectedAddress.road || "Main Road",
+            subdistrict: selectedAddress.subdistrict || "Subdistrict",
+            district: selectedAddress.district || "District",
+            province: selectedAddress.province || "Province",
+            code_zip: selectedAddress.code_zip || 12345,
+            address_detail: selectedAddress.address_detail
+          }
+        : {
+            recipient_name: "Local User",
+            phone: "0800000000",
+            number: "123",
+            road: "Main Road",
+            subdistrict: "Subdistrict",
+            district: "District",
+            province: "Province",
+            code_zip: 12345
+          },
       order_items: orderData.items.map(item => ({
         id: item.product_id,
         product_name: `Product ${item.product_id}`,
@@ -213,15 +243,16 @@ const createOrder = async (orderData: CreateOrderDto) => {
       })),
       created_at: new Date().toISOString()
     };
-    
+
     saveLocalOrder(mockOrder);
-    
+
     return {
       data: {
         success: true,
         message: "Order created successfully (locally)",
         data: mockOrder
-      }
+      },
+      status: 200
     };
   }
 };
@@ -238,29 +269,28 @@ const getAllOrders = async () => {
     let response;
     // If admin, try to call admin-specific endpoint
     if (checkIfAdminUser()) {
-      // Try to call admin-specific endpoint - update to use the correct admin endpoint
       response = await http.get(`${baseUrl}/admin/all`);
     } else {
       // Regular user gets their own orders
       response = await http.get(`${baseUrl}/history`);
     }
-    
+
     // If the response contains orders without address data, try to fetch addresses separately
-    if (response.data && Array.isArray(response.data)) {
+    if (response && response.data && Array.isArray(response.data)) {
       const orders = response.data;
-      
+
       // Check if any orders are missing address data
       const hasMissingAddresses = orders.some((order: any) => !order.address);
-      
+
       if (hasMissingAddresses) {
-        // Attempt to get user's addresses to enrich the order data
         try {
-          const addressResponse = await http.get('/api/addresses'); // Assuming this endpoint exists
-          const addresses = Array.isArray(addressResponse.data) ? addressResponse.data : 
-                           (addressResponse.data?.data && Array.isArray(addressResponse.data.data)) ? 
-                           addressResponse.data.data : [];
-          
-          // Map address_id to address data for each order
+          const addressResponse = await http.get('/api/addresses'); // adjust if needed
+          const addresses = Array.isArray(addressResponse.data)
+            ? addressResponse.data
+            : (addressResponse.data?.data && Array.isArray(addressResponse.data.data))
+            ? addressResponse.data.data
+            : [];
+
           const enrichedOrders = orders.map((order: any) => {
             if (!order.address && order.address_id) {
               const address = addresses.find((addr: any) => addr.id === order.address_id);
@@ -283,43 +313,30 @@ const getAllOrders = async () => {
             }
             return order;
           });
-          
-          // Update the response data with enriched orders
+
           response.data = enrichedOrders;
-        } catch (addrError) {
-          console.warn("Could not enrich order addresses:", addrError);
+        } catch (addrError: any) {
+          console.warn("Could not enrich order addresses:", String(addrError));
         }
       }
     }
-    
+
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.warn("Failed to fetch orders from server, using local orders");
-    // Check if we have a network error (not just empty results)
-    if (error.response) {
-      // Server responded with error status
+
+    if (error?.response) {
       console.warn("Server error:", error.response.status, error.response.data);
-    } else if (error.request) {
-      // Request was made but no response received
+    } else if (error?.request) {
       console.warn("Network error:", error.request);
     } else {
-      // Something else happened
-      console.warn("Error:", error.message);
+      console.warn("Error:", String(error));
     }
-    
-    // For admin users, return all local orders in fallback
-    // For regular users, return their local orders (though local storage doesn't separate by user)
-    if (checkIfAdminUser()) {
-      return {
-        data: getLocalOrders()
-      };
-    } else {
-      // For regular users, try to filter local orders by a user ID if available
-      // Since local storage doesn't currently separate by user, this is a fallback
-      return {
-        data: getLocalOrders()
-      };
-    }
+
+    // Fallback to local orders
+    return {
+      data: getLocalOrders()
+    };
   }
 };
 
@@ -327,7 +344,7 @@ const getOrderById = async (id: number) => {
   try {
     const response = await http.get(`${baseUrl}/${id}`);
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.warn("Failed to fetch order from server, using local order");
     const order = getLocalOrderById(id);
     return {
@@ -341,9 +358,9 @@ const getOrderHistory = async () => {
     console.log("Making request to:", `${baseUrl}/history`);
     const response = await http.get(`${baseUrl}/history`);
     console.log("Raw response from server:", response);
-    
+
     // Handle both direct array responses and nested data responses
-    let ordersData = [];
+    let ordersData: any[] = [];
     if (Array.isArray(response.data)) {
       ordersData = response.data;
       console.log("Order history response format: direct array with", response.data.length, "items");
@@ -351,35 +368,30 @@ const getOrderHistory = async () => {
       ordersData = response.data.data;
       console.log("Order history response format: nested data with", response.data.data.length, "items");
     } else if (response.data && response.data.data) {
-      // Handle response in the format {data: [...]}
       ordersData = response.data.data;
       console.log("Order history response format: nested data (backup check) with", response.data.data.length, "items");
     } else {
       console.warn("Unexpected order history response format", response);
-      console.log("Full unexpected response:", response);
-      // Instead of returning empty array here, return the full response to see what's happening
       return response;
     }
-    
+
     // If the response contains orders without address data, try to fetch addresses separately
     if (ordersData && Array.isArray(ordersData)) {
       const orders = ordersData;
-      
-      // Check if any orders are missing address data
       const hasMissingAddresses = orders.some(order => !order?.address);
-      
+
       if (hasMissingAddresses) {
-        // Attempt to get user's addresses to enrich the order data
         try {
-          const addressResponse = await http.get('/api/addresses'); // Assuming this endpoint exists
-          const addresses = Array.isArray(addressResponse.data) ? addressResponse.data : 
-                           (addressResponse.data?.data && Array.isArray(addressResponse.data.data)) ? 
-                           addressResponse.data.data : [];
-          
-          // Map address_id to address data for each order
-          const enrichedOrders = orders.map(order => {
+          const addressResponse = await http.get('/api/addresses'); // adjust as needed
+          const addresses = Array.isArray(addressResponse.data)
+            ? addressResponse.data
+            : (addressResponse.data?.data && Array.isArray(addressResponse.data.data))
+            ? addressResponse.data.data
+            : [];
+
+          const enrichedOrders = orders.map((order: any) => {
             if (!order?.address && order?.address_id) {
-              const address = addresses.find(addr => addr.id === order.address_id);
+              const address = addresses.find((addr: any) => addr.id === order.address_id);
               if (address) {
                 return {
                   ...order,
@@ -399,36 +411,27 @@ const getOrderHistory = async () => {
             }
             return order;
           });
-          
-          // Update the response data with enriched orders
-          if (Array.isArray(response.data)) {
-            return { data: enrichedOrders }; // Return the enriched orders directly
-          } else {
-            response.data.data = enrichedOrders;
-          }
-        } catch (addrError) {
-          console.warn("Could not enrich order addresses:", addrError);
+
+          // Normalize response shape
+          return { data: enrichedOrders };
+        } catch (addrError: any) {
+          console.warn("Could not enrich order addresses:", String(addrError));
         }
       }
     }
-    
+
     console.log("Final processed orders data:", ordersData);
     return response;
-  } catch (error) {
-    console.error("Failed to fetch order history from server:", error);
-    // Check if we have a network error (not just empty results)
-    if (error.response) {
-      // Server responded with error status
+  } catch (error: any) {
+    console.error("Failed to fetch order history from server:", String(error));
+    if (error?.response) {
       console.error("Server error:", error.response.status, error.response?.data);
-    } else if (error.request) {
-      // Request was made but no response received
+    } else if (error?.request) {
       console.error("Network error: request made but no response received", error.request);
     } else {
-      // Something else happened
-      console.error("General error:", error.message);
+      console.error("General error:", String(error));
     }
-    
-    // Return local orders as fallback - this might be hiding the real problem
+
     console.warn("Using local order history as fallback");
     const localOrders = getLocalOrderHistory();
     console.log("Local orders available:", localOrders.length);
@@ -441,27 +444,28 @@ const getOrderHistory = async () => {
 const getOrderDetail = async (id: number) => {
   try {
     const response = await http.get(`${baseUrl}/detail/${id}`);
-    
+
     // Handle both direct object responses and nested data responses
-    let orderData = null;
+    let orderData: any = null;
     if (response.data && typeof response.data === 'object' && response.data.data) {
       orderData = response.data.data;
     } else if (response.data && response.data.id) {
       orderData = response.data;
     }
-    
+
     // If the response contains an order without address data, try to fetch address separately
     if (orderData) {
       const order = orderData;
-      
+
       if (!order.address && order.address_id) {
-        // Attempt to get user's addresses to enrich the order data
         try {
-          const addressResponse = await http.get('/api/addresses'); // Assuming this endpoint exists
-          const addresses = Array.isArray(addressResponse.data) ? addressResponse.data : 
-                           (addressResponse.data?.data && Array.isArray(addressResponse.data.data)) ? 
-                           addressResponse.data.data : [];
-          
+          const addressResponse = await http.get('/api/addresses'); // adjust as needed
+          const addresses = Array.isArray(addressResponse.data)
+            ? addressResponse.data
+            : (addressResponse.data?.data && Array.isArray(addressResponse.data.data))
+            ? addressResponse.data.data
+            : [];
+
           const address = addresses.find((addr: any) => addr.id === order.address_id);
           if (address) {
             const enrichedOrder = {
@@ -478,42 +482,35 @@ const getOrderDetail = async (id: number) => {
                 address_detail: address.address_detail
               }
             };
-            
-            // Return the response in the expected format
+
             return {
               data: { data: enrichedOrder }
             };
           }
-        } catch (addrError) {
-          console.warn("Could not enrich order address:", addrError);
+        } catch (addrError: any) {
+          console.warn("Could not enrich order address:", String(addrError));
         }
       }
-      
-      // Return the order data in the expected format
+
       return {
         data: { data: orderData }
       };
     }
-    
+
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.warn("Failed to fetch order detail from server, using local order");
-    // Check if we have a network error (not just order not found)
-    if (error.response) {
-      // Server responded with error status
+    if (error?.response) {
       console.warn("Server error:", error.response.status, error.response.data);
-      // If it's a 404 - order not found, don't use local fallback
       if (error.response.status === 404) {
         throw error;
       }
-    } else if (error.request) {
-      // Request was made but no response received
+    } else if (error?.request) {
       console.warn("Network error:", error.request);
     } else {
-      // Something else happened
-      console.warn("Error:", error.message);
+      console.warn("Error:", String(error));
     }
-    
+
     const order = getLocalOrderById(id);
     return {
       data: order
@@ -525,11 +522,12 @@ const updateOrder = async (id: number, orderData: UpdateOrderDto) => {
   try {
     const response = await http.patch(`${baseUrl}/${id}`, orderData);
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.warn("Failed to update order on server, updating local order");
+
     if (orderData.status) {
-      // Convert enum value to string for local storage update
-      const statusString = typeof orderData.status === 'string' ? orderData.status : orderData.status.toString();
+      // Use String() to coerce to safe string representation
+      const statusString = String(orderData.status);
       updateLocalOrderStatus(id, statusString);
     }
     return {
@@ -546,7 +544,7 @@ const confirmDelivery = async (id: number) => {
   try {
     const response = await http.patch(`${baseUrl}/${id}/confirm-delivery`, {});
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.warn("Failed to confirm delivery on server, updating local order");
     updateLocalOrderStatus(id, OrderStatus.DELIVERED);
     return {
