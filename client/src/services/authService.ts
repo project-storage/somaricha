@@ -13,7 +13,7 @@ interface RegisterData {
   email: string;
 }
 
-const baseUrl = "api/auth";
+const baseUrl = "/auth";
 
 const login = (loginData: LoginData) =>
   http.post(`${baseUrl}/login`, loginData);

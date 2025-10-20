@@ -87,8 +87,8 @@ export interface UpdateAddressDto {
   isDefault?: boolean;
 }
 
-const baseUrl = "api/user";
-const addressBaseUrl = "api/addresses";
+const baseUrl = "/user";
+const addressBaseUrl = "/addresses";
 
 const getMe = () => {
   return http.get(`${baseUrl}/me`);

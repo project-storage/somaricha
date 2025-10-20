@@ -21,7 +21,7 @@ export interface UpdatePaymentDto {
   payment_name?: PaymentStatus;
 }
 
-const baseUrl = "api/payment";
+const baseUrl = "/payment";
 
 const createPayment = (paymentData: CreatePaymentDto) => {
   return http.post(baseUrl, paymentData);

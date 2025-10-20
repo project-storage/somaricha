@@ -47,7 +47,7 @@ export interface UpdateAddressDto {
   isDefault?: boolean;
 }
 
-const baseUrl = "api/addresses";
+const baseUrl = "/addresses";
 
 const createAddress = (addressData: CreateAddressDto) => {
   return http.post(baseUrl, addressData);

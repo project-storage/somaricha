@@ -17,7 +17,7 @@ export interface UpdateAddressOptionDto {
   ao_name?: string;
 }
 
-const baseUrl = "api/address-options";
+const baseUrl = "/address-options";
 
 const createAddressOption = (addressOptionData: CreateAddressOptionDto) => {
   return http.post(baseUrl, addressOptionData);

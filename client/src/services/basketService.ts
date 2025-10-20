@@ -14,7 +14,7 @@ export interface CartItemQuantityUpdate {
   quantity: number;
 }
 
-const baseUrl = "api/baskets";
+const baseUrl = "/baskets";
 
 const getCartItems = () => {
   return http.get(`${baseUrl}`);

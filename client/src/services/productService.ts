@@ -20,7 +20,7 @@ export interface Product {
   image?: string;
 }
 
-const baseUrl = "api/products";
+const baseUrl = "/products";
 
 const addProduct = (product: Product) => http.post(baseUrl, product);
 

@@ -10,8 +10,8 @@ async function bootstrap() {
 
   // CORS config
   const allowedOrigins = [
-    'http://localhost:5173',       // สำหรับ dev local Vite
-    'https://somaricha.vercel.app' // สำหรับ production Vercel
+    'http://localhost:5173',       
+    'https://somaricha.vercel.app' 
   ];
 
   app.enableCors({
