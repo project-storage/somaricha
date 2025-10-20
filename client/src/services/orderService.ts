@@ -180,7 +180,7 @@ const createOrder = async (orderData: CreateOrderDto) => {
 
     const response = await http.post(`${baseUrl}`, orderPayload);
     return response;
-  } catch (error: any) {
+  } catch (error) {
     // If API call fails, create a local order
     console.warn("Failed to create order via API, creating local order as fallback");
 
@@ -315,22 +315,22 @@ const getAllOrders = async () => {
           });
 
           response.data = enrichedOrders;
-        } catch (addrError: any) {
-          console.warn("Could not enrich order addresses:", String(addrError));
+        } catch (addrError) {
+          console.warn("Could not enrich order addresses:", addrError instanceof Error ? addrError.message : String(addrError));
         }
       }
     }
 
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.warn("Failed to fetch orders from server, using local orders");
 
-    if (error?.response) {
-      console.warn("Server error:", error.response.status, error.response.data);
-    } else if (error?.request) {
-      console.warn("Network error:", error.request);
+    if (error instanceof Error && 'response' in error) {
+      console.warn("Server error:", (error as any).response?.status, (error as any).response?.data);
+    } else if (error instanceof Error && 'request' in error) {
+      console.warn("Network error:", (error as any).request);
     } else {
-      console.warn("Error:", String(error));
+      console.warn("Error:", error instanceof Error ? error.message : String(error));
     }
 
     // Fallback to local orders
@@ -414,22 +414,22 @@ const getOrderHistory = async () => {
 
           // Normalize response shape
           return { data: enrichedOrders };
-        } catch (addrError: any) {
-          console.warn("Could not enrich order addresses:", String(addrError));
+        } catch (addrError) {
+          console.warn("Could not enrich order addresses:", addrError instanceof Error ? addrError.message : String(addrError));
         }
       }
     }
 
     console.log("Final processed orders data:", ordersData);
     return response;
-  } catch (error: any) {
-    console.error("Failed to fetch order history from server:", String(error));
-    if (error?.response) {
-      console.error("Server error:", error.response.status, error.response?.data);
-    } else if (error?.request) {
-      console.error("Network error: request made but no response received", error.request);
+  } catch (error) {
+    console.error("Failed to fetch order history from server:", error instanceof Error ? error.message : String(error));
+    if (error instanceof Error && 'response' in error) {
+      console.error("Server error:", (error as any).response?.status, (error as any).response?.data);
+    } else if (error instanceof Error && 'request' in error) {
+      console.error("Network error: request made but no response received", (error as any).request);
     } else {
-      console.error("General error:", String(error));
+      console.error("General error:", error instanceof Error ? error.message : String(error));
     }
 
     console.warn("Using local order history as fallback");
@@ -487,8 +487,8 @@ const getOrderDetail = async (id: number) => {
               data: { data: enrichedOrder }
             };
           }
-        } catch (addrError: any) {
-          console.warn("Could not enrich order address:", String(addrError));
+        } catch (addrError) {
+          console.warn("Could not enrich order address:", addrError instanceof Error ? addrError.message : String(addrError));
         }
       }
 
@@ -498,17 +498,17 @@ const getOrderDetail = async (id: number) => {
     }
 
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.warn("Failed to fetch order detail from server, using local order");
-    if (error?.response) {
-      console.warn("Server error:", error.response.status, error.response.data);
-      if (error.response.status === 404) {
+    if (error instanceof Error && 'response' in error) {
+      console.warn("Server error:", (error as any).response?.status, (error as any).response?.data);
+      if ((error as any).response?.status === 404) {
         throw error;
       }
-    } else if (error?.request) {
-      console.warn("Network error:", error.request);
+    } else if (error instanceof Error && 'request' in error) {
+      console.warn("Network error:", (error as any).request);
     } else {
-      console.warn("Error:", String(error));
+      console.warn("Error:", error instanceof Error ? error.message : String(error));
     }
 
     const order = getLocalOrderById(id);
@@ -522,10 +522,10 @@ const updateOrder = async (id: number, orderData: UpdateOrderDto) => {
   try {
     const response = await http.patch(`${baseUrl}/${id}`, orderData);
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.warn("Failed to update order on server, updating local order");
 
-    if (orderData.status) {
+    if (orderData.status !== undefined) {
       // Use String() to coerce to safe string representation
       const statusString = String(orderData.status);
       updateLocalOrderStatus(id, statusString);
@@ -544,7 +544,7 @@ const confirmDelivery = async (id: number) => {
   try {
     const response = await http.patch(`${baseUrl}/${id}/confirm-delivery`, {});
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.warn("Failed to confirm delivery on server, updating local order");
     updateLocalOrderStatus(id, OrderStatus.DELIVERED);
     return {
