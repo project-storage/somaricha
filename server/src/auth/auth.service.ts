@@ -3,98 +3,100 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
-import { Repository } from 'typeorm';
-import { Auth } from './entities/auth.entity';
+import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
-import { UserRole } from 'src/user/dto/create-user.dto';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User) private userRepo: Repository<User>,
-    @InjectRepository(Auth) private authRepo: Repository<Auth>,
+    private readonly prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
 
   async register(dto: RegisterDto) {
-    const existUsername = await this.authRepo.findOne({
+    const existUsername = await this.prisma.auth.findUnique({
       where: { username: dto.username },
     });
     if (existUsername) throw new BadRequestException('Username already exists');
 
-    const existEmail = await this.userRepo.findOne({
+    const existEmail = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
     if (existEmail) throw new BadRequestException('Email already exists');
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    const user = this.userRepo.create({
-      user_name: dto.user_name,
-      user_lastname: dto.user_lastname,
-      email: dto.email,
-      tel: dto.tel,
-      user_role: UserRole.USER,
+    await this.prisma.user.create({
+      data: {
+        user_name: dto.user_name,
+        user_lastname: dto.user_lastname,
+        email: dto.email,
+        tel: dto.tel,
+        user_role: UserRole.USER,
+        auth: {
+          create: {
+            username: dto.username,
+            password: hashedPassword,
+          },
+        },
+      },
     });
-    await this.userRepo.save(user);
-
-    const auth = this.authRepo.create({
-      username: dto.username,
-      password: hashedPassword,
-      user,
-    });
-    await this.authRepo.save(auth);
 
     return { message: 'User registered successfully' };
   }
 
   async registerOwner(dto: RegisterDto) {
-    const existUsername = await this.authRepo.findOne({
+    const existUsername = await this.prisma.auth.findUnique({
       where: { username: dto.username },
     });
     if (existUsername) throw new BadRequestException('Username already exists');
 
-    const existEmail = await this.userRepo.findOne({
+    const existEmail = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
     if (existEmail) throw new BadRequestException('Email already exists');
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    const user = this.userRepo.create({
-      user_name: dto.user_name,
-      user_lastname: dto.user_lastname,
-      email: dto.email,
-      tel: dto.tel,
-      user_role: UserRole.OWNER,
+    await this.prisma.user.create({
+      data: {
+        user_name: dto.user_name,
+        user_lastname: dto.user_lastname,
+        email: dto.email,
+        tel: dto.tel,
+        user_role: UserRole.OWNER,
+        auth: {
+          create: {
+            username: dto.username,
+            password: hashedPassword,
+          },
+        },
+      },
     });
-    await this.userRepo.save(user);
 
-    const auth = this.authRepo.create({
-      username: dto.username,
-      password: hashedPassword,
-      user,
-    });
-    await this.authRepo.save(auth);
-
-    return { message: 'Ower registered successfully' };
+    return { message: 'Owner registered successfully' };
   }
 
   async login(dto: LoginDto) {
-    const auth = await this.authRepo.findOne({
+    const auth = await this.prisma.auth.findUnique({
       where: { username: dto.username },
-      relations: ['user'],
+      include: { user: true },
     });
 
     if (!auth) throw new UnauthorizedException('Invalid credentials');
 
     const isMatch = await bcrypt.compare(dto.password, auth.password);
     if (!isMatch) throw new UnauthorizedException('Invalid credentials');
+
+    // Update last login
+    await this.prisma.auth.update({
+      where: { id: auth.id },
+      data: { last_login: new Date() },
+    });
 
     const payload = {
       sub: auth.user.id,

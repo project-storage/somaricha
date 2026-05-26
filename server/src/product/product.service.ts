@@ -1,44 +1,55 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Product } from './entities/product.entity';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductStatus } from '@prisma/client';
 
 @Injectable()
 export class ProductService {
-  constructor(
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateProductDto) {
-    const product = this.productRepository.create(dto);
-    const savedProduct = await this.productRepository.save(product);
+    const savedProduct = await this.prisma.product.create({
+      data: {
+        product_name: dto.product_name,
+        product_detail: dto.product_detail,
+        product_price: dto.product_price,
+        product_image: dto.product_image,
+        product_status: dto.product_status as any as ProductStatus,
+      },
+    });
     return { data: savedProduct }; 
   }
 
   async findAll() {
-    const products = await this.productRepository.find();
+    const products = await this.prisma.product.findMany();
     return { data: products };
   }
 
   async findOne(id: number) {
-    const product = await this.productRepository.findOne({ where: { id } });
+    const product = await this.prisma.product.findUnique({ where: { id } });
     if (!product) throw new NotFoundException(`Product #${id} not found`);
     return { data: product };
   }
 
   async update(id: number, dto: UpdateProductDto) {
-    const { data: product } = await this.findOne(id);
-    Object.assign(product, dto);
-    const updated = await this.productRepository.save(product);
+    await this.findOne(id);
+    const updated = await this.prisma.product.update({
+      where: { id },
+      data: {
+        product_name: dto.product_name,
+        product_detail: dto.product_detail,
+        product_price: dto.product_price,
+        product_image: dto.product_image,
+        product_status: dto.product_status as any as ProductStatus,
+      },
+    });
     return { data: updated };
   }
 
   async remove(id: number) {
-    const { data: product } = await this.findOne(id);
-    await this.productRepository.remove(product);
+    await this.findOne(id);
+    await this.prisma.product.delete({ where: { id } });
     return { message: `Product #${id} deleted successfully` };
   }
 }

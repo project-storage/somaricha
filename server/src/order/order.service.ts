@@ -1,125 +1,95 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, DataSource } from 'typeorm';
-import { Order, OrderStatus } from './entities/order.entity';
-import { OrderItem } from './entities/order-item.entity';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { Product } from 'src/product/entities/product.entity';
-import { User } from 'src/user/entities/user.entity';
-import { Payment } from 'src/payment/entities/payment.entity';
-import { Address } from 'src/address/entities/address.entity';
+import { OrderStatus } from '@prisma/client';
 
 @Injectable()
 export class OrderService {
-  constructor(
-    @InjectRepository(Order)
-    private readonly orderRepo: Repository<Order>,
+  constructor(private readonly prisma: PrismaService) {}
 
-    @InjectRepository(Product)
-    private readonly productRepo: Repository<Product>,
-
-    @InjectRepository(Payment)
-    private readonly paymentRepo: Repository<Payment>,
-    
-    @InjectRepository(Address)
-    private readonly addressRepo: Repository<Address>,
-
-    private readonly dataSource: DataSource,
-  ) {}
-
-  async create(user: User, dto: CreateOrderDto) {
-    return this.dataSource.transaction(async (manager) => {
-      // Validate all products exist using standard non-deprecated query
+  async create(user: { id: number }, dto: CreateOrderDto) {
+    return this.prisma.$transaction(async (tx) => {
+      // Validate all products exist
       const productIds = dto.items.map(item => item.product_id);
-      const products = await manager.find(Product, {
-        where: { id: In(productIds) },
+      const products = await tx.product.findMany({
+        where: { id: { in: productIds } },
       });
       
       if (products.length !== productIds.length) {
-        // Find which products are missing
         const foundProductIds = products.map(p => p.id);
         const missingIds = productIds.filter(id => !foundProductIds.includes(id));
         throw new NotFoundException(`Some products not found: ${missingIds.join(', ')}`);
       }
       
       // Get the address for this order
-      const address = await manager.findOne(Address, { where: { id: dto.address_id } });
+      const address = await tx.address.findUnique({ where: { id: dto.address_id } });
       if (!address) {
         throw new NotFoundException(`Address #${dto.address_id} not found`);
       }
       
-      // Create a map for quick product lookup
-      const productMap = new Map(products.map(p => [p.id, p]));
-      
-      // Validate all items and calculate total
-      let calculatedTotal = 0;
-      const orderItemsToCreate = dto.items.map(item => {
-        const product = productMap.get(item.product_id);
-        if (!product) {
-          throw new NotFoundException(`Product #${item.product_id} not found`);
-        }
-        
-        const itemTotal = item.price * item.quantity;
-        calculatedTotal += itemTotal;
-        
-        const orderItem = new OrderItem();
-        orderItem.product = product;
-        orderItem.quantity = item.quantity;
-        orderItem.price = item.price;
-        orderItem.total_price = itemTotal;
-        
-        return orderItem;
-      });
-      
       // Check if payment exists
-      let payment: Payment | null = null;
       if (dto.payment_id) {
-        payment = await manager.findOne(Payment, { where: { id: dto.payment_id } });
+        const payment = await tx.payment.findUnique({ where: { id: dto.payment_id } });
         if (!payment) throw new NotFoundException(`Payment #${dto.payment_id} not found`);
       }
 
       // Create the order
-      const order = manager.create(Order, {
-        user,
-        status: dto.status,
-        orderdatetime: dto.orderdatetime,
-        payment: payment ?? undefined,
-        address: address,
-        total_price: dto.total_price,
-        comemnt_star: dto.comemnt_star,
-        order_items: orderItemsToCreate,
+      const savedOrder = await tx.order.create({
+        data: {
+          user_id: user.id,
+          status: dto.status as any as OrderStatus,
+          orderdatetime: new Date(dto.orderdatetime),
+          payment_id: dto.payment_id || null,
+          address_id: dto.address_id,
+          total_price: dto.total_price,
+          comemnt_star: dto.comemnt_star || null,
+          order_items: {
+            create: dto.items.map(item => ({
+              product_id: item.product_id,
+              quantity: item.quantity,
+              price: item.price,
+              total_price: item.price * item.quantity,
+            })),
+          },
+        },
+        include: {
+          order_items: { include: { product: true } },
+          payment: true,
+        },
       });
 
-      const savedOrder = await manager.save(Order, order);
       return { data: savedOrder };
     });
   }
 
-  async findAll(user: User) {
-    const orders = await this.orderRepo.find({
-      where: { user: { id: user.id } },
-      relations: ['product', 'payment'],
+  async findAll(user: { id: number }) {
+    const orders = await this.prisma.order.findMany({
+      where: { user_id: user.id },
+      include: {
+        order_items: { include: { product: true } },
+        payment: true,
+      },
     });
     return { data: orders };
   }
 
-  async findHistory(user: User) {
-    const orders = await this.orderRepo
-      .createQueryBuilder('order')
-      .innerJoinAndSelect('order.order_items', 'order_item')
-      .innerJoinAndSelect('order_item.product', 'product')
-      .innerJoinAndSelect('order.address', 'address')
-      .innerJoinAndSelect('order.user', 'user')
-      .leftJoinAndSelect('order.payment', 'payment')
-      .where('order.user_id = :userId', { userId: user.id })
-      .orderBy('order.orderdatetime', 'DESC')
-      .getMany();
+  async findHistory(user: { id: number }) {
+    const orders = await this.prisma.order.findMany({
+      where: { user_id: user.id },
+      include: {
+        order_items: { include: { product: true } },
+        address: true,
+        user: true,
+        payment: true,
+      },
+      orderBy: { orderdatetime: 'desc' },
+    });
 
     return {
       data: orders.map(order => ({
         id: order.id,
-        total_amount: order.total_price,
+        total_amount: parseFloat(order.total_price.toString()),
         status: order.status,
         order_date: order.orderdatetime,
         created_at: order.created_at,
@@ -131,8 +101,8 @@ export class OrderService {
           product_name: orderItem.product.product_name,
           product_image: orderItem.product.product_image,
           quantity: orderItem.quantity,
-          price: orderItem.price,
-          total_price: orderItem.total_price,
+          price: parseFloat(orderItem.price.toString()),
+          total_price: parseFloat(orderItem.total_price.toString()),
         })),
         address: {
           recipient_name: `${order.user.user_name} ${order.user.user_lastname}`,
@@ -145,41 +115,42 @@ export class OrderService {
           code_zip: order.address.code_zip,
           address_detail: order.address.address_detail,
         },
-        // Include payment information if needed
         payment: order.payment ? {
           id: order.payment.id,
-          // Add other payment fields as needed
         } : null,
       })),
     };
   }
 
-  async findOne(id: number, user: User) {
-    const order = await this.orderRepo.findOne({
-      where: { id, user: { id: user.id } },
-      relations: ['product', 'payment'],
+  async findOne(id: number, user: { id: number }) {
+    const order = await this.prisma.order.findFirst({
+      where: { id, user_id: user.id },
+      include: {
+        order_items: { include: { product: true } },
+        payment: true,
+      },
     });
     if (!order) throw new NotFoundException(`Order #${id} not found`);
     return { data: order };
   }
 
-  async findOneForDetails(id: number, user: User) {
-    const order = await this.orderRepo
-      .createQueryBuilder('order')
-      .innerJoinAndSelect('order.order_items', 'order_item')
-      .innerJoinAndSelect('order_item.product', 'product')
-      .innerJoinAndSelect('order.address', 'address')
-      .innerJoinAndSelect('order.user', 'user')
-      .leftJoinAndSelect('order.payment', 'payment')  // Left join for payment since it might be optional
-      .where('order.id = :id AND order.user_id = :userId', { id, userId: user.id })
-      .getOne();
+  async findOneForDetails(id: number, user: { id: number }) {
+    const order = await this.prisma.order.findFirst({
+      where: { id, user_id: user.id },
+      include: {
+        order_items: { include: { product: true } },
+        address: true,
+        user: true,
+        payment: true,
+      },
+    });
       
     if (!order) throw new NotFoundException(`Order #${id} not found`);
     
     return {
       data: {
         id: order.id,
-        total_amount: order.total_price,
+        total_amount: parseFloat(order.total_price.toString()),
         status: order.status,
         order_date: order.orderdatetime,
         created_at: order.created_at,
@@ -191,8 +162,8 @@ export class OrderService {
           product_name: orderItem.product.product_name,
           product_image: orderItem.product.product_image,
           quantity: orderItem.quantity,
-          price: orderItem.price,
-          total_price: orderItem.total_price,
+          price: parseFloat(orderItem.price.toString()),
+          total_price: parseFloat(orderItem.total_price.toString()),
         })),
         address: {
           recipient_name: `${order.user.user_name} ${order.user.user_lastname}`,
@@ -207,65 +178,68 @@ export class OrderService {
         },
         payment: order.payment ? {
           id: order.payment.id,
-          // Add other payment fields as needed
         } : null,
-        product: null, // Remove the single product reference as we now have order_items
+        product: null,
       }
     };
   }
 
-  async update(id: number, dto: UpdateOrderDto, user: User) {
-    const order = await this.findOne(id, user);
-    Object.assign(order.data, dto);
-    const updated = await this.orderRepo.save(order.data);
+  async update(id: number, dto: UpdateOrderDto, user: { id: number }) {
+    await this.findOne(id, user);
+    const updated = await this.prisma.order.update({
+      where: { id },
+      data: {
+        status: dto.status as any as OrderStatus,
+        comemnt_star: dto.comemnt_star,
+      },
+    });
     return { data: updated };
   }
 
-  async remove(id: number, user: User) {
-    const order = await this.findOne(id, user);
-    await this.orderRepo.remove(order.data);
+  async remove(id: number, user: { id: number }) {
+    await this.findOne(id, user);
+    await this.prisma.order.delete({ where: { id } });
     return { data: { message: `Order #${id} deleted successfully` } };
   }
 
-  async markAsReceived(id: number, user: User, comemnt_star?: number) {
-    const order = await this.orderRepo.findOne({
-      where: { id, user: { id: user.id } },
+  async markAsReceived(id: number, user: { id: number }, comemnt_star?: number) {
+    const order = await this.prisma.order.findFirst({
+      where: { id, user_id: user.id },
     });
     
     if (!order) throw new NotFoundException(`Order #${id} not found`);
     
-    // Only allow marking as received if the order is in shipping status or preparing
     if (order.status !== OrderStatus.SHIPPING && order.status !== OrderStatus.PREPARING) {
       throw new Error(`Cannot mark order as received. Current status: ${order.status}`);
     }
     
-    order.status = OrderStatus.DELIVERED;
-    if (comemnt_star !== undefined) {
-      order.comemnt_star = comemnt_star;
-    }
-    
-    const updatedOrder = await this.orderRepo.save(order);
+    const updatedOrder = await this.prisma.order.update({
+      where: { id },
+      data: {
+        status: OrderStatus.DELIVERED,
+        comemnt_star: comemnt_star !== undefined ? comemnt_star : undefined,
+      },
+    });
     return { data: updatedOrder };
   }
 
   async updateOrderStatus(id: number, status: string) {
-    const order = await this.orderRepo.findOne({ 
+    const order = await this.prisma.order.findUnique({ 
       where: { id },
-      relations: ['user', 'address'] 
     });
     
     if (!order) throw new NotFoundException(`Order #${id} not found`);
     
-    // Convert string status to enum
     const orderStatusEnum = OrderStatus[status.toUpperCase()];
     if (!orderStatusEnum) {
       throw new Error(`Invalid order status: ${status}`);
     }
     
-    // Validate the status transition is allowed
     if (this.isValidStatusTransition(order.status, orderStatusEnum)) {
-      order.status = orderStatusEnum;
-      const updatedOrder = await this.orderRepo.save(order);
+      const updatedOrder = await this.prisma.order.update({
+        where: { id },
+        data: { status: orderStatusEnum },
+      });
       return { data: updatedOrder };
     } else {
       throw new Error(`Invalid status transition from ${order.status} to ${orderStatusEnum}`);
@@ -277,8 +251,8 @@ export class OrderService {
       [OrderStatus.PENDING]: [OrderStatus.PREPARING, OrderStatus.CANCELED],
       [OrderStatus.PREPARING]: [OrderStatus.SHIPPING, OrderStatus.CANCELED],
       [OrderStatus.SHIPPING]: [OrderStatus.DELIVERED, OrderStatus.CANCELED],
-      [OrderStatus.DELIVERED]: [], // Delivered is final state
-      [OrderStatus.CANCELED]: [], // Canceled is final state
+      [OrderStatus.DELIVERED]: [],
+      [OrderStatus.CANCELED]: [],
     };
 
     return validTransitions[currentStatus]?.includes(newStatus) || false;

@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { User, UserRole } from 'src/user/entities/user.entity';
+import { User, UserRole } from '@prisma/client';
 
 @Injectable()
 export class AdminAuthGuard implements CanActivate {

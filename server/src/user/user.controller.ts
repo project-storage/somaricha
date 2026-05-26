@@ -14,7 +14,6 @@ import {
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { User } from './entities/user.entity';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -53,27 +52,27 @@ export class UserController {
   // Get user profile (requires authentication)
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@GetUser() user: User) {
+  getProfile(@GetUser() user: any) {
     return this.userService.getProfile(user.id);
   }
 
   // Update user profile (requires authentication)
   @UseGuards(JwtAuthGuard)
   @Patch('profile')
-  updateProfile(@GetUser() user: User, @Body() profileData: Partial<UpdateUserDto>) {
+  updateProfile(@GetUser() user: any, @Body() profileData: Partial<UpdateUserDto>) {
     return this.userService.updateProfile(user.id, profileData);
   }
 
   // Get user addresses
   @UseGuards(JwtAuthGuard)
   @Get('addresses')
-  getUserAddresses(@GetUser() user: User) {
+  getUserAddresses(@GetUser() user: any) {
     return this.userService.getUserAddresses(user.id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('addresses')
-  createUserAddress(@GetUser() user: User, @Body() addressData: any) {
+  createUserAddress(@GetUser() user: any, @Body() addressData: any) {
     return this.userService.createUserAddress(user.id, addressData);
   }
 
@@ -81,7 +80,7 @@ export class UserController {
   @Put('addresses/:id')
   updateUserAddress(
     @Param('id') addressId: string, 
-    @GetUser() user: User, 
+    @GetUser() user: any, 
     @Body() addressData: any
   ) {
     return this.userService.updateUserAddress(+addressId, user.id, addressData);
@@ -89,26 +88,26 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('addresses/:id')
-  deleteUserAddress(@Param('id') addressId: string, @GetUser() user: User) {
+  deleteUserAddress(@Param('id') addressId: string, @GetUser() user: any) {
     return this.userService.deleteUserAddress(+addressId, user.id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put('addresses/:id/default')
-  setDefaultAddress(@Param('id') addressId: string, @GetUser() user: User) {
+  setDefaultAddress(@Param('id') addressId: string, @GetUser() user: any) {
     return { message: 'Default address set successfully' };
   }
 
   // Payments
   @UseGuards(JwtAuthGuard)
   @Get('payment-methods')
-  getUserPayments(@GetUser() user: User) {
+  getUserPayments(@GetUser() user: any) {
     return this.userService.getUserPayments(user.id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('payment-methods')
-  addUserPayment(@GetUser() user: User, @Body() paymentData: any) {
+  addUserPayment(@GetUser() user: any, @Body() paymentData: any) {
     return this.userService.addUserPayment(user.id, paymentData);
   }
 
@@ -116,7 +115,7 @@ export class UserController {
   @Put('payment-methods/:id')
   updateUserPayment(
     @Param('id') paymentId: string, 
-    @GetUser() user: User, 
+    @GetUser() user: any, 
     @Body() paymentData: any
   ) {
     return this.userService.updateUserPayment(+paymentId, user.id, paymentData);
@@ -124,13 +123,13 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('payment-methods/:id')
-  deleteUserPayment(@Param('id') paymentId: string, @GetUser() user: User) {
+  deleteUserPayment(@Param('id') paymentId: string, @GetUser() user: any) {
     return this.userService.deleteUserPayment(+paymentId, user.id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put('payment-methods/:id/default')
-  setDefaultPayment(@Param('id') paymentId: string, @GetUser() user: User) {
+  setDefaultPayment(@Param('id') paymentId: string, @GetUser() user: any) {
     return this.userService.setDefaultPayment(+paymentId, user.id);
   }
 
@@ -138,7 +137,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('orders')
   getUserOrders(
-    @GetUser() user: User, 
+    @GetUser() user: any, 
     @Query('limit') limit: number = 10, 
     @Query('offset') offset: number = 0
   ) {

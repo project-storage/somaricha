@@ -1,54 +1,53 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { AddressOption } from './entities/address_option.entity';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateAddressOptionDto } from './dto/create-address_option.dto';
 import { UpdateAddressOptionDto } from './dto/update-address_option.dto';
-import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class AddressOptionService {
-  constructor(
-    @InjectRepository(AddressOption)
-    private readonly addressOptionRepo: Repository<AddressOption>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(user: User, dto: CreateAddressOptionDto) {
-    const option = this.addressOptionRepo.create({
-      ao_name: dto.ao_name,
-      user,
+  async create(user: { id: number }, dto: CreateAddressOptionDto) {
+    const saved = await this.prisma.addressOption.create({
+      data: {
+        ao_name: dto.ao_name,
+        user_id: user.id,
+      },
     });
-    const saved = await this.addressOptionRepo.save(option);
     return { data: saved };
   }
 
-  async findAll(user: User) {
-    const options = await this.addressOptionRepo.find({
-      where: { user: { id: user.id } },
-      relations: ['addresses'],
+  async findAll(user: { id: number }) {
+    const options = await this.prisma.addressOption.findMany({
+      where: { user_id: user.id },
+      include: { addresses: true },
     });
     return { data: options };
   }
 
-  async findOne(id: number, user: User) {
-    const option = await this.addressOptionRepo.findOne({
-      where: { id, user: { id: user.id } },
-      relations: ['addresses'],
+  async findOne(id: number, user: { id: number }) {
+    const option = await this.prisma.addressOption.findFirst({
+      where: { id, user_id: user.id },
+      include: { addresses: true },
     });
     if (!option) throw new NotFoundException(`AddressOption #${id} not found`);
     return { data: option };
   }
 
-  async update(id: number, dto: UpdateAddressOptionDto, user: User) {
-    const option = await this.findOne(id, user);
-    option.data.ao_name = dto.ao_name ?? option.data.ao_name;
-    const updated = await this.addressOptionRepo.save(option.data);
+  async update(id: number, dto: UpdateAddressOptionDto, user: { id: number }) {
+    await this.findOne(id, user);
+    const updated = await this.prisma.addressOption.update({
+      where: { id },
+      data: {
+        ao_name: dto.ao_name,
+      },
+    });
     return { data: updated };
   }
 
-  async remove(id: number, user: User) {
-    const option = await this.findOne(id, user);
-    await this.addressOptionRepo.remove(option.data);
+  async remove(id: number, user: { id: number }) {
+    await this.findOne(id, user);
+    await this.prisma.addressOption.delete({ where: { id } });
     return { data: { message: `AddressOption #${id} deleted successfully` } };
   }
 }

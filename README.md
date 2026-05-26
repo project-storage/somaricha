@@ -23,7 +23,7 @@ graph TD
         D["Validation & Security Guards"]
         E["JWT Auth Service"]
         F["Database Seed Service"]
-        G["TypeORM Core Engine"]
+        G["Prisma v7 Core Engine"]
     end
 
     subgraph Database ["Data Layer (PostgreSQL 15)"]
@@ -84,8 +84,8 @@ graph TD
 
 ### Backend (Server)
 * **Core Framework:** NestJS v11 (TypeScript-first node framework)
-* **ORM:** TypeORM v0.3 (Data mapper pattern with high database decoupling)
-* **Database Driver:** `pg` (PostgreSQL)
+* **ORM:** Prisma v7 (Type-safe query generation & decoupled schema configurations)
+* **Database Driver / Adapter:** `@prisma/adapter-pg` & `pg` (PostgreSQL connection pooling)
 * **API Documentation:** OpenAPI Swagger UI (persistent authorizations enabled at `/api`)
 * **Security:** Helmet, bcrypt (password hashing), passport-jwt
 * **Validation:** class-validator & class-transformer
@@ -119,21 +119,24 @@ somaricha/
 │   └── package.json
 │
 ├── server/                     # Backend API Module (NestJS)
+│   ├── prisma/
+│   │   └── schema.prisma       # Unified Prisma schema configuration
 │   ├── src/
-│   │   ├── address/            # TypeORM entities, DTOs, controllers, services for Addresses
+│   │   ├── address/            # Prisma controller, DTO, and service for Addresses
 │   │   ├── address_option/     # Configuration module for address labels (Home, Work, etc.)
 │   │   ├── auth/               # Passport authentication logic, JWT token issuance
 │   │   ├── common/             # Interceptors (Logging, Response wrapping), Exception Filters
 │   │   ├── health/             # Standard health check endpoint
-│   │   ├── migrations/         # SQL database schema versions
-│   │   ├── order/              # Orders and Order-Items transaction tables
+│   │   ├── order/              # Orders and Order-Items transaction APIs
 │   │   ├── payment/            # Payment gateway mock and receipt slips reviewer
+│   │   ├── prisma/             # Global Global module exporting PrismaService database interface
 │   │   ├── product/            # Stevia tea beverage profiles management
 │   │   ├── user/               # Customer and Owner/Admin profiles
-│   │   ├── app.module.ts       # Global Application Module & Database orchestrator
+│   │   ├── app.module.ts       # Global Application Module & global database registration
 │   │   ├── main.ts             # Bootstrapper (CORS, Pipes, Helmet, Swagger registration)
 │   │   └── seeder.service.ts   # Auto-seeds healthy teas & mock users on clean db starts
 │   ├── Dockerfile              # Node NestJS server build
+│   ├── prisma.config.ts        # Prisma 7 environment datasource configuration
 │   └── package.json
 │
 └── docker-compose.yml          # Container orchestration (PostgreSQL 15, NestJS API, React Web App)
@@ -153,8 +156,9 @@ DB_PORT=5432
 DB_USERNAME=somaricha_user
 DB_PASSWORD=somaricha_password
 DB_DATABASE=somaricha
-JWT_SECRET=super_secure_jwt_secret_key_123!
 DB_SSL=false
+DATABASE_URL="postgresql://somaricha_user:somaricha_password@localhost:5432/somaricha?schema=public"
+JWT_SECRET=super_secure_jwt_secret_key_123!
 ```
 
 ### Client Environment (`client/.env`)
@@ -172,6 +176,9 @@ Make sure you have Docker installed. This command builds and sets up all compone
 ```bash
 # Build and run the entire ecosystem in the background
 docker-compose up -d --build
+
+# Run Prisma schema push to build database tables
+docker-compose exec api npx prisma db push
 ```
 
 Access the applications at:
@@ -193,6 +200,7 @@ CREATE DATABASE somaricha;
 ```bash
 cd server
 npm install
+npx prisma db push
 npm run start:dev
 ```
 *The server will boot on [http://localhost:3000](http://localhost:3000). On first launch, the `SeederService` will automatically detect a clean database and seed the system with default beverages, users, owner accounts, and addresses!*
@@ -223,7 +231,7 @@ On clean database runs, the system seeds the following credentials with the pass
 The system was recently updated with core UI and API improvements:
 1. **Interactive Password Toggles:** Added absolute-positioned visual password eye icons (`FaEye`/`FaEyeSlash`) inside `Register.tsx` to toggle character readability.
 2. **Aligned Register Schema:** Fixed integration mismatches between client payloads and the database schema by mapping `username`, `email`, `user_name` (First name), and `user_lastname` (Last name) precisely to backend expectations.
-3. **Database Migration to PostgreSQL:** Migrated database container to PostgreSQL 15, updated connection modules, swapped drivers (`mysql2` to `pg`), and converted database migrations into cross-platform database-agnostic TypeORM queryRunner operations.
+3. **Database Migration to PostgreSQL & Prisma v7:** Migrated database container to PostgreSQL 15, updated connection modules, swapped drivers (`mysql2` to `pg`), and completely replaced TypeORM with Prisma v7, utilizing modern database adapters (`@prisma/adapter-pg`) and new schema configurations (`prisma.config.ts`).
 
 ---
 

@@ -1,11 +1,11 @@
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { DataSource } from 'typeorm';
+import { PrismaService } from '../prisma/prisma.service';
 
 @ApiTags('Health')
 @Controller('health')
 export class HealthController {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   @Get()
   @ApiOperation({ summary: 'Check API and database health status' })
@@ -13,7 +13,7 @@ export class HealthController {
     let dbStatus = 'UP';
     try {
       // Run a simple query to verify database connection
-      await this.dataSource.query('SELECT 1');
+      await this.prisma.$queryRaw`SELECT 1`;
     } catch (e) {
       dbStatus = 'DOWN';
     }

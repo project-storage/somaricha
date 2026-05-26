@@ -3,15 +3,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Auth } from './entities/auth.entity';
-import { User } from '../user/entities/user.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AdminAuthGuard } from './admin-auth.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Auth, User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

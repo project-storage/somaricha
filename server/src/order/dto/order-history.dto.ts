@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OrderStatus } from '../entities/order.entity';
+import { OrderStatus } from '@prisma/client';
 
 export class OrderHistoryItemDto {
   @ApiProperty({ description: 'Order ID', example: 1 })

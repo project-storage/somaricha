@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
-import { Unique } from 'typeorm';
 
 export enum UserRole {
   OWNER = 'owner',

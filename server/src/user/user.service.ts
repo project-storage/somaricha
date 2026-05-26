@@ -1,77 +1,88 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AddressOption } from '../address_option/entities/address_option.entity';
-import { Address } from '../address/entities/address.entity';
-import { Order } from '../order/entities/order.entity';
-import { Payment } from '../payment/entities/payment.entity';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(AddressOption)
-    private addressOptionRepository: Repository<AddressOption>,
-    @InjectRepository(Address)
-    private addressRepository: Repository<Address>,
-    @InjectRepository(Order)
-    private orderRepository: Repository<Order>,
-    @InjectRepository(Payment)
-    private paymentRepository: Repository<Payment>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-async getUserInfo(id: number) {
-    const user = await this.userRepository.findOne({
+  async getUserInfo(id: number) {
+    const user = await this.prisma.user.findUnique({
       where: { id },
-      relations: ['auth', 'addressOptions', 'orders'], 
+      include: { auth: true, addressOptions: true, orders: true },
     });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     return user;
   }
 
   async create(createUserDto: CreateUserDto) {
-    const user = this.userRepository.create(createUserDto);
-    return await this.userRepository.save(user);
+    return await this.prisma.user.create({
+      data: {
+        user_name: createUserDto.user_name,
+        user_lastname: createUserDto.user_lastname,
+        email: createUserDto.email,
+        tel: createUserDto.tel,
+        user_role: createUserDto.user_role as any as UserRole,
+        user_birth: createUserDto.user_birth ? new Date(createUserDto.user_birth) : null,
+      },
+    });
   }
 
   async findAll() {
-    return await this.userRepository.find({
-      relations: ['addressOptions', 'addressOptions.addresses', 'orders', 'orders.payment'],
+    return await this.prisma.user.findMany({
+      include: {
+        addressOptions: { include: { addresses: true } },
+        orders: { include: { payment: true } },
+      },
     });
   }
 
   async findOne(id: number) {
-    const user = await this.userRepository.findOne({
+    const user = await this.prisma.user.findUnique({
       where: { id },
-      relations: ['addressOptions', 'addressOptions.addresses', 'orders', 'orders.payment'],
+      include: {
+        addressOptions: { include: { addresses: true } },
+        orders: { include: { payment: true } },
+      },
     });
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
     return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
-
-    Object.assign(user, updateUserDto);
-    return await this.userRepository.save(user);
+    await this.findOne(id);
+    return await this.prisma.user.update({
+      where: { id },
+      data: {
+        user_name: updateUserDto.user_name,
+        user_lastname: updateUserDto.user_lastname,
+        email: updateUserDto.email,
+        tel: updateUserDto.tel,
+        user_role: updateUserDto.user_role as any as UserRole,
+        user_birth: updateUserDto.user_birth ? new Date(updateUserDto.user_birth) : undefined,
+      },
+    });
   }
 
   async remove(id: number) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
-
-    return await this.userRepository.remove(user);
+    await this.findOne(id);
+    return await this.prisma.user.delete({ where: { id } });
   }
 
   async getProfile(userId: number) {
-    const user = await this.userRepository.findOne({
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: ['id', 'user_name', 'user_lastname', 'email', 'tel', 'created_at', 'updated_at'],
+      select: {
+        id: true,
+        user_name: true,
+        user_lastname: true,
+        email: true,
+        tel: true,
+        created_at: true,
+        updated_at: true,
+      },
     });
 
     if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
@@ -87,11 +98,16 @@ async getUserInfo(id: number) {
   }
 
   async updateProfile(userId: number, profileData: Partial<UpdateUserDto>) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
-
-    Object.assign(user, profileData);
-    const updatedUser = await this.userRepository.save(user);
+    await this.findOne(userId);
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        user_name: profileData.user_name,
+        user_lastname: profileData.user_lastname,
+        email: profileData.email,
+        tel: profileData.tel,
+      },
+    });
 
     return {
       id: updatedUser.id,
@@ -104,9 +120,9 @@ async getUserInfo(id: number) {
   }
 
   async getUserAddresses(userId: number) {
-    const addressOptions = await this.addressOptionRepository.find({
-      where: { user: { id: userId } },
-      relations: ['addresses', 'user'],
+    const addressOptions = await this.prisma.addressOption.findMany({
+      where: { user_id: userId },
+      include: { addresses: true, user: true },
     });
 
     return addressOptions.flatMap((option) =>
@@ -126,30 +142,31 @@ async getUserInfo(id: number) {
   }
 
   async createUserAddress(userId: number, addressData: any) {
-    let addressOption = await this.addressOptionRepository.findOne({
-      where: { ao_name: addressData.recipient_name, user: { id: userId } },
+    let addressOption = await this.prisma.addressOption.findFirst({
+      where: { ao_name: addressData.recipient_name, user_id: userId },
     });
 
     if (!addressOption) {
-      addressOption = this.addressOptionRepository.create({
-        ao_name: addressData.recipient_name,
-        user: { id: userId } as User,
+      addressOption = await this.prisma.addressOption.create({
+        data: {
+          ao_name: addressData.recipient_name,
+          user_id: userId,
+        },
       });
-      await this.addressOptionRepository.save(addressOption);
     }
 
-    const newAddress = this.addressRepository.create({
-      addressOption: { id: addressOption.id } as AddressOption,
-      number: addressData.address_line1,
-      address_detail: addressData.address_line2,
-      district: addressData.district,
-      province: addressData.city,
-      code_zip: parseInt(addressData.postal_code),
-      road: '',
-      subdistrict: '',
+    const savedAddress = await this.prisma.address.create({
+      data: {
+        ao_id: addressOption.id,
+        number: addressData.address_line1,
+        address_detail: addressData.address_line2,
+        district: addressData.district,
+        province: addressData.city,
+        code_zip: parseInt(addressData.postal_code),
+        road: '',
+        subdistrict: '',
+      },
     });
-
-    const savedAddress = await this.addressRepository.save(newAddress);
 
     return {
       id: savedAddress.id,
@@ -166,9 +183,9 @@ async getUserInfo(id: number) {
   }
 
   async updateUserAddress(addressId: number, userId: number, addressData: any) {
-    const address = await this.addressRepository.findOne({
+    const address = await this.prisma.address.findUnique({
       where: { id: addressId },
-      relations: ['addressOption', 'addressOption.user'],
+      include: { addressOption: { include: { user: true } } },
     });
 
     if (!address || address.addressOption.user.id !== userId) {
@@ -177,22 +194,25 @@ async getUserInfo(id: number) {
       );
     }
 
-    Object.assign(address, {
-      number: addressData.address_line1 ?? address.number,
-      address_detail: addressData.address_line2 ?? address.address_detail,
-      district: addressData.district ?? address.district,
-      province: addressData.city ?? address.province,
-      code_zip: addressData.postal_code
-        ? parseInt(addressData.postal_code)
-        : address.code_zip,
+    const savedAddress = await this.prisma.address.update({
+      where: { id: addressId },
+      data: {
+        number: addressData.address_line1 ?? address.number,
+        address_detail: addressData.address_line2 ?? address.address_detail,
+        district: addressData.district ?? address.district,
+        province: addressData.city ?? address.province,
+        code_zip: addressData.postal_code
+          ? parseInt(addressData.postal_code)
+          : address.code_zip,
+      },
     });
 
     if (addressData.recipient_name) {
-      address.addressOption.ao_name = addressData.recipient_name;
-      await this.addressOptionRepository.save(address.addressOption);
+      await this.prisma.addressOption.update({
+        where: { id: address.ao_id },
+        data: { ao_name: addressData.recipient_name },
+      });
     }
-
-    const savedAddress = await this.addressRepository.save(address);
 
     return {
       id: savedAddress.id,
@@ -209,9 +229,9 @@ async getUserInfo(id: number) {
   }
 
   async deleteUserAddress(addressId: number, userId: number) {
-    const address = await this.addressRepository.findOne({
+    const address = await this.prisma.address.findUnique({
       where: { id: addressId },
-      relations: ['addressOption', 'addressOption.user'],
+      include: { addressOption: { include: { user: true } } },
     });
 
     if (!address || address.addressOption.user.id !== userId) {
@@ -220,7 +240,7 @@ async getUserInfo(id: number) {
       );
     }
 
-    await this.addressRepository.remove(address);
+    await this.prisma.address.delete({ where: { id: addressId } });
     return { message: 'Address deleted successfully' };
   }
 
@@ -263,13 +283,20 @@ async getUserInfo(id: number) {
   }
 
   async getUserOrders(userId: number, limit = 10, offset = 0) {
-    const [orders, total] = await this.orderRepository.findAndCount({
-      where: { user: { id: userId } },
-      relations: ['order_items', 'order_items.product', 'payment'],
-      order: { created_at: 'DESC' },
-      skip: offset,
-      take: limit,
-    });
+    const [orders, total] = await this.prisma.$transaction([
+      this.prisma.order.findMany({
+        where: { user_id: userId },
+        include: {
+          user: true,
+          order_items: { include: { product: true } },
+          payment: true,
+        },
+        orderBy: { created_at: 'desc' },
+        skip: offset,
+        take: limit,
+      }),
+      this.prisma.order.count({ where: { user_id: userId } }),
+    ]);
 
     const formattedOrders = orders.map((order) => ({
       id: order.id,
@@ -284,7 +311,7 @@ async getUserInfo(id: number) {
         | 'completed'
         | 'cancelled',
       order_date: order.created_at,
-      items: order.order_items.map(orderItem => ({
+      items: order.order_items.map((orderItem) => ({
         id: orderItem.product.id,
         product_name: orderItem.product.product_name,
         quantity: orderItem.quantity,
