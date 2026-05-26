@@ -120,7 +120,7 @@ somaricha/
 │
 ├── server/                     # Backend API Module (NestJS)
 │   ├── prisma/
-│   │   └── schema.prisma       # Unified Prisma schema configuration
+│   │   └── schema.prisma       # Unified Prisma schema configuration (Prisma 7 format)
 │   ├── src/
 │   │   ├── address/            # Prisma controller, DTO, and service for Addresses
 │   │   ├── address_option/     # Configuration module for address labels (Home, Work, etc.)
@@ -129,7 +129,7 @@ somaricha/
 │   │   ├── health/             # Standard health check endpoint
 │   │   ├── order/              # Orders and Order-Items transaction APIs
 │   │   ├── payment/            # Payment gateway mock and receipt slips reviewer
-│   │   ├── prisma/             # Global Global module exporting PrismaService database interface
+│   │   ├── prisma/             # Global module exporting PrismaService database interface
 │   │   ├── product/            # Stevia tea beverage profiles management
 │   │   ├── user/               # Customer and Owner/Admin profiles
 │   │   ├── app.module.ts       # Global Application Module & global database registration
@@ -151,13 +151,27 @@ Before launching the application, configure your environments. Create `.env` fil
 ### Server Environment (`server/.env`)
 ```env
 PORT=3000
-DB_HOST=db                     # Use 'db' for Docker-Compose, 'localhost' for local development
-DB_PORT=5432
+
+# PostgreSQL Database Connection Parameters
+# Note: Use 'db' if running inside docker-compose, or 'localhost' / '127.0.0.1' for local development.
+# Standard port 5433 binds to the Docker PG container without conflict.
+DB_HOST=localhost
+DB_PORT=5433
 DB_USERNAME=somaricha_user
 DB_PASSWORD=somaricha_password
 DB_DATABASE=somaricha
+
+# Database SSL Connection Toggle (Set to 'true' for Supabase)
 DB_SSL=false
-DATABASE_URL="postgresql://somaricha_user:somaricha_password@localhost:5432/somaricha?schema=public"
+
+# Prisma Database Connection Strings (Prisma 7 standard)
+# DATABASE_URL: Pooler connection string (Port 6543 for Supabase PgBouncer)
+DATABASE_URL="postgresql://somaricha_user:somaricha_password@localhost:5433/somaricha?schema=public"
+
+# DIRECT_URL: Direct, non-pooler connection string (Port 5432 for Supabase direct)
+# Used by Prisma CLI for running schema migrations.
+DIRECT_URL="postgresql://somaricha_user:somaricha_password@localhost:5433/somaricha?schema=public"
+
 JWT_SECRET=super_secure_jwt_secret_key_123!
 ```
 
@@ -191,7 +205,7 @@ Access the applications at:
 ### Option 2: Running Locally for Development
 
 #### 1. Setup the Database
-Ensure a PostgreSQL server is running locally on port `5432`. Create a database named `somaricha`:
+Ensure a PostgreSQL server is running locally on port `5433` (or direct container). Create a database named `somaricha`:
 ```sql
 CREATE DATABASE somaricha;
 ```
@@ -232,6 +246,7 @@ The system was recently updated with core UI and API improvements:
 1. **Interactive Password Toggles:** Added absolute-positioned visual password eye icons (`FaEye`/`FaEyeSlash`) inside `Register.tsx` to toggle character readability.
 2. **Aligned Register Schema:** Fixed integration mismatches between client payloads and the database schema by mapping `username`, `email`, `user_name` (First name), and `user_lastname` (Last name) precisely to backend expectations.
 3. **Database Migration to PostgreSQL & Prisma v7:** Migrated database container to PostgreSQL 15, updated connection modules, swapped drivers (`mysql2` to `pg`), and completely replaced TypeORM with Prisma v7, utilizing modern database adapters (`@prisma/adapter-pg`) and new schema configurations (`prisma.config.ts`).
+4. **Supabase Support with SSL and Connection Pooler:** Fully configured connection parameters to support secure SSL handshakes (`DB_SSL=true`) and added separate pooled (`DATABASE_URL`) and direct (`DIRECT_URL`) configuration parameters complying with Prisma 7.
 
 ---
 

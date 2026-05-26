@@ -26,6 +26,7 @@ services:
       DB_PASSWORD: somaricha_password
       DB_DATABASE: somaricha
       DATABASE_URL: postgresql://somaricha_user:somaricha_password@db:5432/somaricha?schema=public
+      DIRECT_URL: postgresql://somaricha_user:somaricha_password@db:5432/somaricha?schema=public
       JWT_SECRET: super_secure_jwt_secret_key_123!
     ports:
       - "3000:3000"
