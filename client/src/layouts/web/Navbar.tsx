@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
-import { useCart } from "../../../context/CartContext";
+import { useCart } from "../../contexts/CartContext";
 
 const LogoImag = "/assets/SomariChaLogo.jpg";
 

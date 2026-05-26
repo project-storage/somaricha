@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductModule } from './product/product.module';
@@ -17,11 +18,18 @@ import { Auth } from './auth/entities/auth.entity';
 import { Order } from './order/entities/order.entity';
 import { OrderItem } from './order/entities/order-item.entity';
 
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { HealthController } from './health/health.controller';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // ✅ ทำให้ทุก Module ใช้ ENV ได้
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         type: 'mysql',
@@ -40,7 +48,11 @@ import { OrderItem } from './order/entities/order-item.entity';
           Order,
           OrderItem,
         ],
-        synchronize: false,
+        synchronize: true,
+        migrations: [
+          __dirname + '/migrations/**/*{.ts,.js}'
+        ],
+        migrationsRun: true,
         ssl:
           process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
       }),
@@ -52,6 +64,13 @@ import { OrderItem } from './order/entities/order-item.entity';
     AddressOptionModule,
     UserModule,
     AuthModule,
+  ],
+  controllers: [HealthController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

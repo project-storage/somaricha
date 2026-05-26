@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import productService, { type Product as ProductType, ProductStatus } from "../../../services/productService";
-import { useCart } from "../../../context/CartContext";
+import { useCart } from "../../../contexts/CartContext";
 
 // Define menu categories
 type MenuCategory = 'all' | 'fruit tea';

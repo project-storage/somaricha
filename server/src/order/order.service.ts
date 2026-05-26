@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, DataSource } from 'typeorm';
 import { Order, OrderStatus } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -24,74 +24,76 @@ export class OrderService {
     
     @InjectRepository(Address)
     private readonly addressRepo: Repository<Address>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(user: User, dto: CreateOrderDto) {
-    // Validate all products exist
-    const productIds = dto.items.map(item => item.product_id);
-    const products = await this.productRepo.findByIds(productIds);
-    
-    if (products.length !== productIds.length) {
-      // Find which products are missing
-      const foundProductIds = products.map(p => p.id);
-      const missingIds = productIds.filter(id => !foundProductIds.includes(id));
-      throw new NotFoundException(`Some products not found: ${missingIds.join(', ')}`);
-    }
-    
-    // Get the address for this order
-    const address = await this.addressRepo.findOne({ where: { id: dto.address_id } });
-    if (!address) {
-      throw new NotFoundException(`Address #${dto.address_id} not found`);
-    }
-    
-    // Create a map for quick product lookup
-    const productMap = new Map(products.map(p => [p.id, p]));
-    
-    // Validate all items and calculate total
-    let calculatedTotal = 0;
-    const orderItemsToCreate = dto.items.map(item => {
-      const product = productMap.get(item.product_id);
-      if (!product) {
-        throw new NotFoundException(`Product #${item.product_id} not found`);
+    return this.dataSource.transaction(async (manager) => {
+      // Validate all products exist using standard non-deprecated query
+      const productIds = dto.items.map(item => item.product_id);
+      const products = await manager.find(Product, {
+        where: { id: In(productIds) },
+      });
+      
+      if (products.length !== productIds.length) {
+        // Find which products are missing
+        const foundProductIds = products.map(p => p.id);
+        const missingIds = productIds.filter(id => !foundProductIds.includes(id));
+        throw new NotFoundException(`Some products not found: ${missingIds.join(', ')}`);
       }
       
-      // Use the price from the DTO (price at time of order) rather than current product price
-      const itemTotal = item.price * item.quantity;
-      calculatedTotal += itemTotal;
+      // Get the address for this order
+      const address = await manager.findOne(Address, { where: { id: dto.address_id } });
+      if (!address) {
+        throw new NotFoundException(`Address #${dto.address_id} not found`);
+      }
       
-      const orderItem = new OrderItem();
-      orderItem.product = product;
-      orderItem.quantity = item.quantity;
-      orderItem.price = item.price;
-      orderItem.total_price = itemTotal;
+      // Create a map for quick product lookup
+      const productMap = new Map(products.map(p => [p.id, p]));
       
-      return orderItem;
+      // Validate all items and calculate total
+      let calculatedTotal = 0;
+      const orderItemsToCreate = dto.items.map(item => {
+        const product = productMap.get(item.product_id);
+        if (!product) {
+          throw new NotFoundException(`Product #${item.product_id} not found`);
+        }
+        
+        const itemTotal = item.price * item.quantity;
+        calculatedTotal += itemTotal;
+        
+        const orderItem = new OrderItem();
+        orderItem.product = product;
+        orderItem.quantity = item.quantity;
+        orderItem.price = item.price;
+        orderItem.total_price = itemTotal;
+        
+        return orderItem;
+      });
+      
+      // Check if payment exists
+      let payment: Payment | null = null;
+      if (dto.payment_id) {
+        payment = await manager.findOne(Payment, { where: { id: dto.payment_id } });
+        if (!payment) throw new NotFoundException(`Payment #${dto.payment_id} not found`);
+      }
+
+      // Create the order
+      const order = manager.create(Order, {
+        user,
+        status: dto.status,
+        orderdatetime: dto.orderdatetime,
+        payment: payment ?? undefined,
+        address: address,
+        total_price: dto.total_price,
+        comemnt_star: dto.comemnt_star,
+        order_items: orderItemsToCreate,
+      });
+
+      const savedOrder = await manager.save(Order, order);
+      return { data: savedOrder };
     });
-    
-    // Note: dto.total_price may include additional costs like shipping, so we don't validate strictly
-    // In a production system, you might want to validate against subtotal only
-
-    // Check if payment exists
-    let payment: Payment | null = null;
-    if (dto.payment_id) {
-      payment = await this.paymentRepo.findOne({ where: { id: dto.payment_id } });
-      if (!payment) throw new NotFoundException(`Payment #${dto.payment_id} not found`);
-    }
-
-    // Create the order
-    const order = this.orderRepo.create({
-      user,
-      status: dto.status,
-      orderdatetime: dto.orderdatetime,
-      payment: payment ?? undefined,
-      address: address,
-      total_price: dto.total_price,
-      comemnt_star: dto.comemnt_star,
-      order_items: orderItemsToCreate,
-    });
-
-    const savedOrder = await this.orderRepo.save(order);
-    return { data: savedOrder };
   }
 
   async findAll(user: User) {

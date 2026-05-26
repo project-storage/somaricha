@@ -38,6 +38,7 @@ export class AuthService {
       user_name: dto.user_name,
       user_lastname: dto.user_lastname,
       email: dto.email,
+      tel: dto.tel,
       user_role: UserRole.USER,
     });
     await this.userRepo.save(user);
@@ -69,6 +70,7 @@ export class AuthService {
       user_name: dto.user_name,
       user_lastname: dto.user_lastname,
       email: dto.email,
+      tel: dto.tel,
       user_role: UserRole.OWNER,
     });
     await this.userRepo.save(user);

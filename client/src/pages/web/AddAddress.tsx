@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import userService from "../../services/userService";
 import addressOptionService from "../../services/addressOptionService";
 import addressService from "../../services/addressService";

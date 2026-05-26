@@ -5,7 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { FaShoppingCart } from "react-icons/fa";
 import productService, { type Product } from "../../../services/productService";
-import { useCart, type CartItem } from "../../../context/CartContext";
+import { useCart, type CartItem } from "../../../contexts/CartContext";
 
 const ProductSlider: React.FC = () => {
   // state สำหรับเก็บรายการสินค้า

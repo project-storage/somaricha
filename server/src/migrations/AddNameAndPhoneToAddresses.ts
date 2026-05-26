@@ -4,6 +4,13 @@ export class AddNameAndPhoneToAddresses1729454400000 implements MigrationInterfa
     name = 'AddNameAndPhoneToAddresses1729454400000'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        // Check if table exists first to avoid chicken-and-egg issues during synchronisation
+        const hasAddressesTable = await queryRunner.hasTable('addresses');
+        if (!hasAddressesTable) {
+            console.log('addresses table does not exist. Skipping column checks as schema synchronization will create it.');
+            return;
+        }
+        
         // Check if columns already exist before adding them
         const table = await queryRunner.query(`DESCRIBE addresses`);
         const columnNames = table.map((col: any) => col.Field);
@@ -24,6 +31,12 @@ export class AddNameAndPhoneToAddresses1729454400000 implements MigrationInterfa
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        const hasAddressesTable = await queryRunner.hasTable('addresses');
+        if (!hasAddressesTable) {
+            console.log('addresses table does not exist. Skipping down migration.');
+            return;
+        }
+
         const table = await queryRunner.query(`DESCRIBE addresses`);
         const columnNames = table.map((col: any) => col.Field);
         

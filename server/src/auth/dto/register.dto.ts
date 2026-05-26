@@ -21,4 +21,8 @@ export class RegisterDto {
   @ApiProperty({ example: 'john@example.com' })
   @IsEmail()
   email: string;
+
+  @ApiProperty({ example: '0812345678', required: false })
+  @IsString()
+  tel?: string;
 }

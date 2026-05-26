@@ -1,48 +1,59 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { lazy, Suspense } from "react";
 
 // Layouts
-import MainLayout from "./components/layouts/web/MainLayout";
-import AdminLayout from "./components/layouts/admin/AdminLayout";
+import MainLayout from "./layouts/web/MainLayout";
+import AdminLayout from "./layouts/admin/AdminLayout";
 
 // User Pages
-import HomePage from "./pages/web/HomePage";
-import Aboutme from "./pages/web/Aboutme";
-import Menu from "./pages/web/Menu";
-import Contact from "./pages/web/Contact";
-import Branch from "./pages/web/Branch";
-import FAQ from "./pages/web/FAQ";
-import Basket from "./pages/web/Basket";
-import Profile from "./pages/web/Profile";
-import Address from "./pages/web/Address";
-import AddAddress from "./pages/web/AddAddress";
-import EditAddress from "./pages/web/EditAddress";
-import Payment from "./pages/web/Payment";
-import HistoryOrders from "./pages/web/HistoryOrders";
-import Pay from "./pages/web/Pay";
-import OrderHistory from "./pages/web/OrderHistory";
-import OrderDetail from "./pages/web/OrderDetail";
-import AdminCompletedOrders from "./pages/admin/CompletedOrders";
+const HomePage = lazy(() => import("./pages/web/HomePage"));
+const Aboutme = lazy(() => import("./pages/web/Aboutme"));
+const Menu = lazy(() => import("./pages/web/Menu"));
+const Contact = lazy(() => import("./pages/web/Contact"));
+const Branch = lazy(() => import("./pages/web/Branch"));
+const FAQ = lazy(() => import("./pages/web/FAQ"));
+const Basket = lazy(() => import("./pages/web/Basket"));
+const Profile = lazy(() => import("./pages/web/Profile"));
+const Address = lazy(() => import("./pages/web/Address"));
+const AddAddress = lazy(() => import("./pages/web/AddAddress"));
+const EditAddress = lazy(() => import("./pages/web/EditAddress"));
+const Payment = lazy(() => import("./pages/web/Payment"));
+const Pay = lazy(() => import("./pages/web/Pay"));
+const OrderHistory = lazy(() => import("./pages/web/OrderHistory"));
+const OrderDetail = lazy(() => import("./pages/web/OrderDetail"));
+const AdminCompletedOrders = lazy(() => import("./pages/admin/CompletedOrders"));
 
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
+const Login = lazy(() => import("./pages/auth/Login"));
+const Register = lazy(() => import("./pages/auth/Register"));
+
 // Admin Pages
-import Dashboard from "./pages/admin/Dashboard";
-import Users from "./pages/admin/Users";
-import Orders from "./pages/admin/Orders";
-import Analytics from "./pages/admin/Analytics";
-import Settings from "./pages/admin/Settings";
-import Payments from "./pages/admin/Payments";
-import Addresses from "./pages/admin/Addresses";
-import AddressOptions from "./pages/admin/AddressOptions";
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const Users = lazy(() => import("./pages/admin/Users"));
+const Orders = lazy(() => import("./pages/admin/Orders"));
+const Analytics = lazy(() => import("./pages/admin/Analytics"));
+const Settings = lazy(() => import("./pages/admin/Settings"));
+const Payments = lazy(() => import("./pages/admin/Payments"));
+const Addresses = lazy(() => import("./pages/admin/Addresses"));
+const AddressOptions = lazy(() => import("./pages/admin/AddressOptions"));
+const ProductPage = lazy(() => import("./pages/admin/ProductPage"));
 
 import "./components/styles/custom.scss";
-import ProductPage from "./pages/admin/ProductPage";
 
+// Loading component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-12 h-12 border-4 border-[#8C6E63] border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-gray-500 font-semibold text-lg animate-pulse">Somaricha Loading...</p>
+    </div>
+  </div>
+);
 
 function App() {
   return (
     <Router>
-      <Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
         {/* Public Routes - No Layout */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -64,7 +75,6 @@ function App() {
           <Route path="/pay" element={<Pay />} />
           <Route path="/order-history" element={<OrderHistory />} />
           <Route path="/order-detail/:id" element={<OrderDetail />} />
-          <Route path="/history-orders" element={<HistoryOrders/>} />
         </Route>
 
         {/* ================= ADMIN LAYOUT ================= */}
@@ -82,6 +92,7 @@ function App() {
           <Route path="/admin/settings" element={<Settings />} />
         </Route>
       </Routes>
+     </Suspense>
     </Router>
   );
 }

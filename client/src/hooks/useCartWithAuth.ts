@@ -1,4 +1,4 @@
-import { useCart } from "../context/CartContext";
+import { useCart } from "../contexts/CartContext";
 import { checkAuthAndAlert } from "../services/authUtils";
 
 interface UseCartWithAuthReturn {

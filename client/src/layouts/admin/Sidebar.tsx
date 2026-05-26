@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { X, Home, Users, ShoppingCart, BarChart3, Settings, Box, CreditCard, MapPin } from 'lucide-react';
-import authService from '../../../services/authService';
+import authService from '../../services/authService';
 
 // กำหนด type สำหรับ props
 interface SidebarProps {

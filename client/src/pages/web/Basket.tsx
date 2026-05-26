@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaTrash, FaMinus, FaPlus, FaCheck } from "react-icons/fa";
-import { useCart } from "../../context/CartContext";
-import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../contexts/CartContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { checkAuthAndAlert } from "../../services/authUtils";
 import { BsBasket2Fill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";

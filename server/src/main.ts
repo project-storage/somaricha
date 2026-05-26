@@ -1,15 +1,46 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Security Headers
+  app.use(helmet({
+    contentSecurityPolicy: false, // Turn off CSP if hosting frontend assets under the same domain, or customise
+  }));
+
   app.setGlobalPrefix('api');
   app.enableCors({
-    origin: ['http://localhost:5173', 'https://somaricha.vercel.app'],
+    origin: [
+      'http://localhost',
+      'http://localhost:80',
+      'http://localhost:5173',
+      'https://somaricha.vercel.app',
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
+
+  // Global DTO Validation Pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
+
+  // Global Exception Handling & Response Enveloping
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(
+    new ResponseInterceptor(),
+    new LoggingInterceptor(),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Somaricha API')
