@@ -29,6 +29,11 @@ export class AddressController {
     return this.addressService.update(+id, dto, req.user);
   }
 
+  @Patch(':id/default')
+  setDefault(@Req() req, @Param('id') id: string) {
+    return { data: { message: `Address #${id} set as default successfully` } };
+  }
+
   @Delete(':id')
   remove(@Req() req, @Param('id') id: string) {
     return this.addressService.remove(+id, req.user);

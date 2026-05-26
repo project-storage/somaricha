@@ -24,17 +24,23 @@ export class PaymentController {
     return this.paymentService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.paymentService.findOne(+id);
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.OWNER)
   @Patch(':id')
-  update(@Param('id') id: number, @Body() dto: UpdatePaymentDto) {
-    return this.paymentService.update(id, dto);
+  update(@Param('id') id: string, @Body() dto: UpdatePaymentDto) {
+    return this.paymentService.update(+id, dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.OWNER)
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.paymentService.remove(id);
+  remove(@Param('id') id: string) {
+    return this.paymentService.remove(+id);
   }
 }

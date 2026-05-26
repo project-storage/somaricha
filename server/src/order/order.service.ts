@@ -246,6 +246,53 @@ export class OrderService {
     }
   }
 
+  async findAllForAdmin() {
+    const orders = await this.prisma.order.findMany({
+      include: {
+        order_items: { include: { product: true } },
+        address: true,
+        user: true,
+        payment: true,
+      },
+      orderBy: { orderdatetime: 'desc' },
+    });
+
+    return {
+      data: orders.map(order => ({
+        id: order.id,
+        total_amount: parseFloat(order.total_price.toString()),
+        status: order.status,
+        order_date: order.orderdatetime,
+        created_at: order.created_at,
+        updated_at: order.updated_at,
+        delivered_at: order.status === OrderStatus.DELIVERED ? order.updated_at : null,
+        comemnt_star: order.comemnt_star,
+        order_items: order.order_items.map(orderItem => ({
+          id: orderItem.id,
+          product_name: orderItem.product.product_name,
+          product_image: orderItem.product.product_image,
+          quantity: orderItem.quantity,
+          price: parseFloat(orderItem.price.toString()),
+          total_price: parseFloat(orderItem.total_price.toString()),
+        })),
+        address: {
+          recipient_name: `${order.user.user_name} ${order.user.user_lastname}`,
+          phone: order.user.tel || 'N/A',
+          number: order.address.number,
+          road: order.address.road,
+          subdistrict: order.address.subdistrict,
+          district: order.address.district,
+          province: order.address.province,
+          code_zip: order.address.code_zip,
+          address_detail: order.address.address_detail,
+        },
+        payment: order.payment ? {
+          id: order.payment.id,
+        } : null,
+      })),
+    };
+  }
+
   private isValidStatusTransition(currentStatus: OrderStatus, newStatus: OrderStatus): boolean {
     const validTransitions: Record<OrderStatus, OrderStatus[]> = {
       [OrderStatus.PENDING]: [OrderStatus.PREPARING, OrderStatus.CANCELED],

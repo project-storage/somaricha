@@ -34,6 +34,17 @@ export class OrderController {
     return this.orderService.findHistory(req.user);
   }
 
+  @UseGuards(AdminAuthGuard)
+  @Get('admin/all')
+  findAllForAdmin() {
+    return this.orderService.findAllForAdmin();
+  }
+
+  @Get('detail/:id')
+  findOneDetail(@Req() req, @Param('id') id: string) {
+    return this.orderService.findOneForDetails(+id, req.user);
+  }
+
   @Get(':id')
   findOne(@Req() req, @Param('id') id: string) {
     return this.orderService.findOneForDetails(+id, req.user);
@@ -47,6 +58,11 @@ export class OrderController {
   @Patch(':id/received')
   markAsReceived(@Req() req, @Param('id') id: string, @Body() dto: MarkOrderReceivedDto) {
     return this.orderService.markAsReceived(+id, req.user, dto.comemnt_star);
+  }
+
+  @Patch(':id/confirm-delivery')
+  confirmDelivery(@Req() req, @Param('id') id: string) {
+    return this.orderService.markAsReceived(+id, req.user);
   }
 
   // Admin endpoint to update order status
