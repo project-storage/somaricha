@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner, TableIndex } from "typeorm";
 
 export class AddIndexesForOptimization1729454500000 implements MigrationInterface {
     name = 'AddIndexesForOptimization1729454500000'
@@ -6,44 +6,52 @@ export class AddIndexesForOptimization1729454500000 implements MigrationInterfac
     public async up(queryRunner: QueryRunner): Promise<void> {
         try {
             // 1. Index on orders (user_id, status)
-            const orderIndexes = await queryRunner.query(`SHOW INDEX FROM \`orders\` WHERE Key_name = 'idx_orders_user_status'`);
-            if (orderIndexes.length === 0) {
-                await queryRunner.query(`CREATE INDEX \`idx_orders_user_status\` ON \`orders\` (\`user_id\`, \`status\`)`);
+            const table = await queryRunner.getTable('orders');
+            if (table && !table.indices.some(idx => idx.name === 'idx_orders_user_status')) {
+                await queryRunner.createIndex('orders', new TableIndex({
+                    name: 'idx_orders_user_status',
+                    columnNames: ['user_id', 'status']
+                }));
                 console.log('Created index idx_orders_user_status on orders table');
             }
         } catch (e) {
-            console.error('Error creating orders index, it may already exist or table may not exist:', e);
+            console.error('Error creating idx_orders_user_status index:', e);
         }
 
         try {
             // 2. Index on address_options (user_id)
-            const aoIndexes = await queryRunner.query(`SHOW INDEX FROM \`address_options\` WHERE Key_name = 'idx_address_options_user'`);
-            if (aoIndexes.length === 0) {
-                await queryRunner.query(`CREATE INDEX \`idx_address_options_user\` ON \`address_options\` (\`user_id\`)`);
+            const table = await queryRunner.getTable('address_options');
+            if (table && !table.indices.some(idx => idx.name === 'idx_address_options_user')) {
+                await queryRunner.createIndex('address_options', new TableIndex({
+                    name: 'idx_address_options_user',
+                    columnNames: ['user_id']
+                }));
                 console.log('Created index idx_address_options_user on address_options table');
             }
         } catch (e) {
-            console.error('Error creating address_options index, it may already exist or table may not exist:', e);
+            console.error('Error creating idx_address_options_user index:', e);
         }
 
         try {
             // 3. Index on addresses (ao_id)
-            const addrIndexes = await queryRunner.query(`SHOW INDEX FROM \`addresses\` WHERE Key_name = 'idx_addresses_ao'`);
-            if (addrIndexes.length === 0) {
-                await queryRunner.query(`CREATE INDEX \`idx_addresses_ao\` ON \`addresses\` (\`ao_id\`)`);
+            const table = await queryRunner.getTable('addresses');
+            if (table && !table.indices.some(idx => idx.name === 'idx_addresses_ao')) {
+                await queryRunner.createIndex('addresses', new TableIndex({
+                    name: 'idx_addresses_ao',
+                    columnNames: ['ao_id']
+                }));
                 console.log('Created index idx_addresses_ao on addresses table');
             }
         } catch (e) {
-            console.error('Error creating addresses index, it may already exist or table may not exist:', e);
+            console.error('Error creating idx_addresses_ao index:', e);
         }
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         try {
-            // Drop orders index
-            const orderIndexes = await queryRunner.query(`SHOW INDEX FROM \`orders\` WHERE Key_name = 'idx_orders_user_status'`);
-            if (orderIndexes.length > 0) {
-                await queryRunner.query(`DROP INDEX \`idx_orders_user_status\` ON \`orders\``);
+            const table = await queryRunner.getTable('orders');
+            if (table && table.indices.some(idx => idx.name === 'idx_orders_user_status')) {
+                await queryRunner.dropIndex('orders', 'idx_orders_user_status');
                 console.log('Dropped index idx_orders_user_status');
             }
         } catch (e) {
@@ -51,10 +59,9 @@ export class AddIndexesForOptimization1729454500000 implements MigrationInterfac
         }
 
         try {
-            // Drop address_options index
-            const aoIndexes = await queryRunner.query(`SHOW INDEX FROM \`address_options\` WHERE Key_name = 'idx_address_options_user'`);
-            if (aoIndexes.length > 0) {
-                await queryRunner.query(`DROP INDEX \`idx_address_options_user\` ON \`address_options\``);
+            const table = await queryRunner.getTable('address_options');
+            if (table && table.indices.some(idx => idx.name === 'idx_address_options_user')) {
+                await queryRunner.dropIndex('address_options', 'idx_address_options_user');
                 console.log('Dropped index idx_address_options_user');
             }
         } catch (e) {
@@ -62,10 +69,9 @@ export class AddIndexesForOptimization1729454500000 implements MigrationInterfac
         }
 
         try {
-            // Drop addresses index
-            const addrIndexes = await queryRunner.query(`SHOW INDEX FROM \`addresses\` WHERE Key_name = 'idx_addresses_ao'`);
-            if (addrIndexes.length > 0) {
-                await queryRunner.query(`DROP INDEX \`idx_addresses_ao\` ON \`addresses\``);
+            const table = await queryRunner.getTable('addresses');
+            if (table && table.indices.some(idx => idx.name === 'idx_addresses_ao')) {
+                await queryRunner.dropIndex('addresses', 'idx_addresses_ao');
                 console.log('Dropped index idx_addresses_ao');
             }
         } catch (e) {

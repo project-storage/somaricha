@@ -26,7 +26,7 @@ graph TD
         G["TypeORM Core Engine"]
     end
 
-    subgraph Database ["Data Layer (MySQL 8.0)"]
+    subgraph Database ["Data Layer (PostgreSQL 15)"]
         H[("somaricha DB")]
     end
 
@@ -85,7 +85,7 @@ graph TD
 ### Backend (Server)
 * **Core Framework:** NestJS v11 (TypeScript-first node framework)
 * **ORM:** TypeORM v0.3 (Data mapper pattern with high database decoupling)
-* **Database Driver:** `mysql2`
+* **Database Driver:** `pg` (PostgreSQL)
 * **API Documentation:** OpenAPI Swagger UI (persistent authorizations enabled at `/api`)
 * **Security:** Helmet, bcrypt (password hashing), passport-jwt
 * **Validation:** class-validator & class-transformer
@@ -136,7 +136,7 @@ somaricha/
 │   ├── Dockerfile              # Node NestJS server build
 │   └── package.json
 │
-└── docker-compose.yml          # Container orchestration (MySQL 8, NestJS API, React Web App)
+└── docker-compose.yml          # Container orchestration (PostgreSQL 15, NestJS API, React Web App)
 ```
 
 ---
@@ -149,7 +149,7 @@ Before launching the application, configure your environments. Create `.env` fil
 ```env
 PORT=3000
 DB_HOST=db                     # Use 'db' for Docker-Compose, 'localhost' for local development
-DB_PORT=3306
+DB_PORT=5432
 DB_USERNAME=somaricha_user
 DB_PASSWORD=somaricha_password
 DB_DATABASE=somaricha
@@ -184,7 +184,7 @@ Access the applications at:
 ### Option 2: Running Locally for Development
 
 #### 1. Setup the Database
-Ensure a MySQL server is running locally on port `3306`. Create a database named `somaricha`:
+Ensure a PostgreSQL server is running locally on port `5432`. Create a database named `somaricha`:
 ```sql
 CREATE DATABASE somaricha;
 ```
@@ -223,6 +223,7 @@ On clean database runs, the system seeds the following credentials with the pass
 The system was recently updated with core UI and API improvements:
 1. **Interactive Password Toggles:** Added absolute-positioned visual password eye icons (`FaEye`/`FaEyeSlash`) inside `Register.tsx` to toggle character readability.
 2. **Aligned Register Schema:** Fixed integration mismatches between client payloads and the database schema by mapping `username`, `email`, `user_name` (First name), and `user_lastname` (Last name) precisely to backend expectations.
+3. **Database Migration to PostgreSQL:** Migrated database container to PostgreSQL 15, updated connection modules, swapped drivers (`mysql2` to `pg`), and converted database migrations into cross-platform database-agnostic TypeORM queryRunner operations.
 
 ---
 

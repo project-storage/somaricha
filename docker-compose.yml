@@ -2,18 +2,17 @@ version: '3.8'
 
 services:
   db:
-    image: mysql:8.0
-    container_name: somaricha-mysql
+    image: postgres:15-alpine
+    container_name: somaricha-postgres
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: somaricha
-      MYSQL_USER: somaricha_user
-      MYSQL_PASSWORD: somaricha_password
+      POSTGRES_USER: somaricha_user
+      POSTGRES_PASSWORD: somaricha_password
+      POSTGRES_DB: somaricha
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
 
   api:
     build:
@@ -24,7 +23,7 @@ services:
     environment:
       PORT: 3000
       DB_HOST: db
-      DB_PORT: 3306
+      DB_PORT: 5432
       DB_USERNAME: somaricha_user
       DB_PASSWORD: somaricha_password
       DB_DATABASE: somaricha
@@ -48,4 +47,5 @@ services:
       - api
 
 volumes:
-  mysql_data:
+  postgres_data:
+
