@@ -13,11 +13,10 @@ const ContactLocation = () => {
         สามารถติดต่อเราได้ที่
       </h3>
 
-      <div className="flex justify-center gap-10 flex-wrap">
+      <div className="flex justify-center gap-10 flex-wrap px-6">
         {/* ฝั่งซ้าย - แผนที่ */}
         <div
-          className="border-[10px] border-[#8C6E63] rounded-lg overflow-hidden"
-          style={{ width: "500px", height: "500px" }}
+          className="border-[10px] border-[#8C6E63] rounded-lg overflow-hidden w-full max-w-[500px] aspect-square shadow-lg"
         >
           <iframe
             title="Contact Map"

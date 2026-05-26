@@ -31,6 +31,12 @@ export class Address {
   @Column({ type: 'varchar', length: 500, nullable: true })
   address_detail?: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  recipient_name?: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phone?: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 

@@ -117,16 +117,17 @@ const Address: React.FC = () => {
     // Check if user has address options, create one if not
     try {
       const addressOptionsResponse = await userService.getAddressOptions();
-      const userAddressOptions = Array.isArray(addressOptionsResponse.data) ? addressOptionsResponse.data : [];
+      const dataField = addressOptionsResponse.data?.data || addressOptionsResponse.data;
+      const userAddressOptions = Array.isArray(dataField) ? dataField : [];
       
       if (userAddressOptions.length === 0) {
         // Get current user to get user_id
         const userResponse = await userService.getMe();
-        const userId = userResponse.data.id;
+        const userId = userResponse.data?.data?.id || userResponse.data?.id;
         
         // Create a default address option for the user
         await addressOptionService.createAddressOption({
-          user_id: userId,
+          user_id: Number(userId),
           ao_name: "ที่อยู่เริ่มต้น"
         });
       }
@@ -160,31 +161,32 @@ const Address: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center py-12 px-4">
-      <h1 className="text-4xl font-bold text-black mb-12">Address</h1>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4">
+      <h1 className="text-3xl sm:text-4xl font-bold text-black mb-2">ที่อยู่ของฉัน</h1>
+      <p className="text-gray-500 mb-10 text-center">จัดการที่อยู่สำหรับการจัดส่งสินค้า</p>
       
-      <div className="flex flex-col items-center w-full max-w-[1200px]">
-        <div className="text-center mb-4 text-gray-700">
-          แสดง {addresses.length} ที่อยู่จากทั้งหมด
+      <div className="flex flex-col items-center w-full max-w-2xl">
+        <div className="text-center mb-6 text-gray-600 font-medium">
+          แสดง {addresses.length} ที่อยู่จากทั้งหมด (สูงสุด 3 ที่อยู่)
         </div>
         {addresses.length > 0 ? (
-          <div className="w-full max-w-[600px] space-y-6 flex flex-col items-center">
+          <div className="w-full space-y-6 flex flex-col items-center">
             {addresses.map((address) => (
               <div 
                 key={address.id} 
                 onClick={() => handleAddressClick(address)}
-                className="w-[800px] h-[120px] bg-white rounded-[25px] shadow-lg p-6 cursor-pointer flex items-center"
+                className="w-full h-auto min-h-[100px] bg-white rounded-[25px] shadow-md p-6 cursor-pointer flex items-center hover:shadow-lg hover:scale-[1.01] transition-all duration-300 border border-gray-100"
               >
-                <div className="text-black text-2xl mr-4">
+                <div className="text-[#8C6E63] text-xl mr-4 bg-orange-50 p-3 rounded-full shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                   </svg>
                 </div>
-                <div>
-                  <div className="text-black text-2xl">
+                <div className="min-w-0 flex-1">
+                  <div className="text-black text-lg sm:text-xl font-bold truncate">
                     {address.recipient_name || 'ชื่อผู้รับ'}
                   </div>
-                  <div className="text-[#747071] text-[14px]">
+                  <div className="text-gray-500 text-[13px] sm:text-[14px] mt-1 leading-relaxed">
                     {address.number} ถ. {address.road}, {address.subdistrict}, {address.district}, {address.province} {address.code_zip}
                   </div>
                 </div>
@@ -192,18 +194,19 @@ const Address: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center text-gray-600 py-12">
+          <div className="text-center text-gray-400 py-12 bg-white rounded-2xl w-full border border-gray-100 shadow-sm">
             คุณยังไม่มีที่อยู่ที่บันทึกไว้
           </div>
         )}
         
         <button 
           onClick={handleAddAddress}
-          className={`mt-8 w-[90px] h-[50px] bg-[#8C6E63] rounded-[30px] shadow-lg flex items-center justify-center transition-opacity duration-300 ${
+          className={`mt-10 w-[60px] h-[60px] bg-[#8C6E63] hover:bg-[#73584F] rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 ${
             addresses.length >= 3 ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}
+          aria-label="Add new address"
         >
-          <FiPlus size={20} color="white" />
+          <FiPlus size={24} color="white" />
         </button>
       </div>
     </div>

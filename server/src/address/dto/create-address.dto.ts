@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateAddressDto {
   @ApiProperty({ description: 'ID of the address option', example: '1' })
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
   ao_id: number;
 

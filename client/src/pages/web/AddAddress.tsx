@@ -83,7 +83,8 @@ const AddAddress: React.FC = () => {
       let userAddressOptions = [];
       try {
         const addressOptionsResponse = await userService.getAddressOptions();
-        userAddressOptions = Array.isArray(addressOptionsResponse.data) ? addressOptionsResponse.data : [];
+        const dataField = addressOptionsResponse.data?.data || addressOptionsResponse.data;
+        userAddressOptions = Array.isArray(dataField) ? dataField : [];
       } catch (error) {
         console.error("เกิดข้อผิดพลาดในการดึงตัวเลือกที่อยู่:", error);
         toast.error("ไม่สามารถดึงข้อมูลตัวเลือกที่อยู่ได้ โปรดลองอีกครั้ง");
@@ -96,14 +97,14 @@ const AddAddress: React.FC = () => {
         try {
           // Get current user to get user_id
           const userResponse = await userService.getMe();
-          const userId = userResponse.data.id;
+          const userId = userResponse.data?.data?.id || userResponse.data?.id;
           
           const defaultAddressOption = {
-            user_id: userId,
+            user_id: Number(userId),
             ao_name: formData.recipient_name || "ที่อยู่เริ่มต้น" // Use the recipient name as the address option name
           };
           const newAddressOptionResponse = await addressOptionService.createAddressOption(defaultAddressOption);
-          ao_id = newAddressOptionResponse.data.id; // Use the newly created address option ID
+          ao_id = newAddressOptionResponse.data?.data?.id || newAddressOptionResponse.data?.id; // Use the newly created address option ID
         } catch (error) {
           console.error("เกิดข้อผิดพลาดในการสร้างตัวเลือกที่อยู่:", error);
           toast.error("ไม่สามารถสร้างตัวเลือกที่อยู่ได้ โปรดลองอีกครั้ง");
@@ -287,27 +288,27 @@ const AddAddress: React.FC = () => {
       
       {/* Cancel Confirmation Dialog */}
       {showCancelDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white w-[400px] h-[250px] rounded-[25px] shadow-lg flex flex-col items-center justify-center p-6 relative">
-            <div className="w-15 h-15 bg-black rounded-full flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" viewBox="0 0 16 16">
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full max-w-[400px] h-auto min-h-[250px] rounded-[25px] shadow-2xl flex flex-col items-center justify-center p-6 relative border border-gray-100">
+            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 16 16">
                 <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
               </svg>
             </div>
             
-            <div className="text-26px font-bold mb-6">ยืนยันการยกเลิก</div>
+            <div className="text-[22px] font-bold mb-6 text-black text-center">ยืนยันการยกเลิก</div>
             
-            <div className="flex justify-between w-full px-12">
+            <div className="flex justify-between w-full px-6 gap-4">
               <button
                 onClick={cancelCancel}
-                className="text-18px font-bold text-black bg-transparent border-none"
+                className="text-[18px] font-bold text-gray-500 hover:text-black bg-transparent border-none py-2"
               >
                 ยกเลิก
               </button>
               
               <button
                 onClick={confirmCancel}
-                className="w-[120px] h-[40px] bg-[#8C6E63] text-white text-18px font-bold rounded-[25px]"
+                className="w-[120px] h-[45px] bg-[#8C6E63] hover:bg-[#73584F] text-white text-[18px] font-bold rounded-[25px] shadow-md transition-colors"
               >
                 ยืนยัน
               </button>

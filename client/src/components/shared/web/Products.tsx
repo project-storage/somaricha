@@ -110,23 +110,23 @@ const Products: React.FC = () => {
   return (
     <div className="flex flex-col md:flex-row">
       {/* Sidebar - Menu Categories */}
-      <div className="w-full md:w-64 p-4 bg-[#D6C0B3] min-h-screen">
-        <h2 className="text-2xl font-bold mb-6 text-center text-[#3E2522]">ประเภทเมนู</h2>
-        <ul className="space-y-3">
+      <div className="w-full md:w-64 p-4 bg-[#D6C0B3] min-h-0 md:min-h-screen shadow-md">
+        <h2 className="text-xl md:text-2xl font-bold mb-6 text-center text-[#3E2522]">ประเภทเมนู</h2>
+        <ul className="flex flex-row md:flex-col overflow-x-auto md:overflow-x-visible gap-2 pb-2 md:pb-0 md:space-y-3">
           {categories.map((category) => (
-            <li key={category}>
+            <li key={category} className="shrink-0 w-auto md:w-full">
               <button
-                className={`w-full text-left px-4 py-3 rounded-lg transition-colors duration-300 ${
+                className={`text-left px-4 py-3 rounded-lg transition-colors duration-300 w-full flex items-center md:justify-between ${
                   selectedCategory === category
                     ? "bg-[#8C6E63] text-white shadow-md"
-                    : "hover:bg-[#a88c7d] text-[#3E2522]"
+                    : "hover:bg-[#a88c7d] bg-[#ebd8cf] md:bg-transparent text-[#3E2522]"
                 }`}
                 onClick={() => setSelectedCategory(category)}
               >
-                <span className="font-medium">
+                <span className="font-semibold text-sm sm:text-base">
                   {categoryNames[category].th}
                 </span>
-                <span className="ml-2 text-sm">
+                <span className="ml-2 text-xs opacity-80 md:block hidden">
                   ({categoryNames[category].en})
                 </span>
               </button>
@@ -137,67 +137,67 @@ const Products: React.FC = () => {
 
       {/* Main Content - Products Grid */}
       <div className="flex-1 p-6">
-        <div className="flex justify-center items-center mb-4 gap-6">
-          <h1 className="text-[40px] font-bold">เมนู</h1>
-          <h1 className="text-[40px] font-bold">Menu</h1>
+        <div className="flex justify-center items-center mb-6 gap-6 text-center">
+          <h1 className="text-3xl sm:text-[40px] font-bold">เมนู</h1>
+          <h1 className="text-3xl sm:text-[40px] font-bold text-gray-400">Menu</h1>
         </div>
 
         {/* Category Header */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-semibold">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl font-semibold">
             <span className="text-[#8C6E63]">
               {categoryNames[selectedCategory].th}
             </span>
-            <span className="text-gray-600 ml-3">
+            <span className="text-gray-500 ml-3 text-lg sm:text-2xl">
               {categoryNames[selectedCategory].en}
             </span>
           </h2>
         </div>
 
         {/* Products Grid - 3 per row on desktop */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-4 flex flex-col justify-between h-full"
+              className="bg-white rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 p-6 flex flex-col justify-between h-full w-full max-w-[320px] border border-gray-100"
             >
               {/* Product Image */}
-              <div className="flex justify-center mb-4">
+              <div className="flex justify-center mb-4 bg-gray-50 rounded-xl p-4">
                 <img
                   src={product.image}
                   alt={product.nameTH}
-                  className="w-48 h-48 object-cover rounded-lg mx-auto"
+                  className="w-40 h-40 object-cover rounded-lg mx-auto hover:rotate-2 transition-transform duration-300"
                 />
               </div>
 
               {/* Product Name in Thai */}
-              <div className="text-lg font-bold mt-2 w-48 mx-auto truncate">
+              <div className="text-lg font-bold mt-2 w-full max-w-[240px] mx-auto truncate text-center text-[#3E2522]">
                 {product.nameTH}
               </div>
 
               {/* Product Name in English */}
-              <div className="text-sm text-gray-600 mb-2 w-48 mx-auto truncate">
+              <div className="text-sm text-gray-500 mb-4 w-full max-w-[240px] mx-auto truncate text-center">
                 {product.nameEN}
               </div>
 
               {/* Product Controls: Quantity, Price, Add to Cart */}
-              <div className="flex items-center justify-between w-60 mx-auto mt-auto pt-4">
+              <div className="flex items-center justify-between w-full max-w-[260px] mx-auto mt-auto pt-4 border-t border-gray-100">
                 {/* Quantity Controls */}
                 <div className="flex items-center gap-2">
                   {/* Decrease Quantity Button */}
                   <button
-                    className="w-8 h-8 bg-[#333333] text-white rounded-full flex items-center justify-center font-bold hover:bg-gray-600 transition-all duration-300 shadow-md"
+                    className="w-8 h-8 bg-[#333333] hover:bg-gray-600 text-white rounded-full flex items-center justify-center font-bold transition-all duration-300 shadow-md"
                     onClick={() => product.id && decreaseQty(product.id)}
                   >
                     -
                   </button>
                   {/* Display Current Quantity */}
-                  <span className="w-7 text-center text-sm">
+                  <span className="w-7 text-center font-bold text-sm text-[#3e2522]">
                     {product.quantity || 1}
                   </span>
                   {/* Increase Quantity Button */}
                   <button
-                    className="w-8 h-8 bg-[#333333] text-white rounded-full flex items-center justify-center font-bold hover:bg-gray-600 transition-all duration-300 shadow-md"
+                    className="w-8 h-8 bg-[#333333] hover:bg-gray-600 text-white rounded-full flex items-center justify-center font-bold transition-all duration-300 shadow-md"
                     onClick={() => product.id && increaseQty(product.id)}
                   >
                     +
@@ -205,16 +205,16 @@ const Products: React.FC = () => {
                 </div>
 
                 {/* Product Price */}
-                <p className="font-bold text-center min-w-[50px] text-sm m-0">
+                <p className="font-bold text-center text-base text-[#8C6E63] min-w-[50px] m-0">
                   {product.price}฿
                 </p>
 
                 {/* Add to Cart Button */}
                 <button
-                  className="w-15 h-8 bg-[#8C6E63] text-white rounded-full flex items-center justify-center text-sm font-bold hover:bg-[#D6C0B3] hover:scale-105 transition-all duration-300 shadow-md"
+                  className="w-10 h-8 bg-[#8C6E63] text-white rounded-full flex items-center justify-center hover:bg-[#73584F] hover:scale-110 transition-all duration-300 shadow-md"
                   onClick={() => addToCart(product)}
                 >
-                  <FaShoppingCart size={16} />
+                  <FaShoppingCart size={14} />
                 </button>
               </div>
             </div>

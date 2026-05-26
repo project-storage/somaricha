@@ -72,8 +72,6 @@ const ProductSlider: React.FC = () => {
   }, []);
 
   // การตั้งค่าสำหรับ component react-slick slider
-
-  // การตั้งค่าสำหรับ component react-slick slider
   const settings = {
     dots: true, // แสดงจุดนำทาง
     infinite: true, // วนลูปไม่สิ้นสุด
@@ -102,85 +100,85 @@ const ProductSlider: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="py-12 bg-white">
       {/* ส่วนหัวข้อที่แสดงชื่อเมนู */}
-      <div className="flex justify-center items-center mb-4 gap-6">
-        <h1 className="text-[40px] font-bold">เมนู</h1>
-        <h1 className="text-[40px] font-bold">Menu</h1>
+      <div className="flex justify-center items-center mb-6 gap-4 sm:gap-6 text-center px-4">
+        <h1 className="text-3xl sm:text-[40px] font-bold text-[#3E2522]">เมนู</h1>
+        <h1 className="text-3xl sm:text-[40px] font-bold text-gray-400">Menu</h1>
       </div>
       
       {/* คอนเทนเนอร์ของ slider สินค้าที่มีพื้นหลังสีขาว */}
-      <div className="p-5 bg-white">
+      <div className="px-4 sm:px-8 py-5">
         <Slider
           {...settings}
-          className="px-1 text-center mx-[1px]"
+          className="text-center"
         >
           {/* วนลูปผ่านรายการสินค้าเพื่อแสดงแต่ละ card ของสินค้า */}
           {products.map((product) => (
             <div
               key={product.id}
-              
+              className="py-4 px-2"
             >
               {/* ตัวคอนเทนเนอร์สินค้าที่มี hover effect */}
-              <div className="w-70 bg-white rounded-xl hover:shadow-xl transition-shadow duration-300 p-4 flex flex-col justify-between h-a">
+              <div className="w-full max-w-[280px] bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-xl hover:scale-[1.02] transition-all duration-300 p-5 flex flex-col justify-between min-h-[380px] mx-auto border border-gray-100">
                 {/* รูปภาพสินค้า */}
-                <div className="flex justify-center">
+                <div className="flex justify-center mb-3 bg-gray-50 rounded-xl p-3">
                   <img
                     src={product.image}
                     alt={product.nameTH}
-                    className="w-48 h-48 object-cover rounded-lg mx-auto mb-3"
+                    className="w-40 h-40 object-cover rounded-lg mx-auto"
                   />
                 </div>
                 
                 {/* ชื่อสินค้าภาษาไทย */}
-                <div className="text-lg font-bold mt-2 w-48 mx-auto truncate">
+                <div className="text-base sm:text-lg font-bold mt-2 w-full max-w-[200px] mx-auto truncate text-center text-[#3E2522]">
                   {product.nameTH}
                 </div>
                 
                 {/* ชื่อสินค้าภาษาอังกฤษ */}
-                <div className="text-sm text-gray-600 mb-2 w-48 mx-auto truncate">
+                <div className="text-xs sm:text-sm text-gray-500 mb-3 w-full max-w-[200px] mx-auto truncate text-center">
                   {product.nameEN}
                 </div>
 
                 {/* การควบคุมสินค้า: ปุ่มจำนวน, ราคา, และเพิ่มลงตะกร้า */}
                 <div
-                  className="flex items-center justify-between w-60 mx-auto mt-auto"
+                  className="flex items-center justify-between w-full max-w-[220px] mx-auto mt-auto pt-3 border-t border-gray-100"
                 >
                   {/* ปุ่มควบคุมจำนวน */}
                   <div
                     className="flex items-center gap-1"
                   >
-                    {/* ปุ่มลดจำนวน - ปุ่มกลมสีเทาเข้ม ขนาดเล็กลง */}
+                    {/* ปุ่มลดจำนวน */}
                     <button
-                      className="w-8 h-8 bg-[#333333] text-white rounded-full flex items-center justify-center font-bold hover:bg-gray-200 hover:scale-105 transition-all duration-300 shadow-md"
+                      className="w-7 h-7 bg-[#333333] hover:bg-gray-600 text-white rounded-full flex items-center justify-center font-bold transition-all duration-300 shadow-sm"
                       onClick={() => product.id && decreaseQty(product.id)}
                     >
                       -
                     </button>
                     {/* แสดงจำนวนปัจจุบัน */}
-                    <span className="w-7 text-center text-sm">{product.quantity}</span>
-                    {/* ปุ่มเพิ่มจำนวน - ปุ่มกลมสีเทาเข้ม ขนาดเล็กลง */}
+                    <span className="w-7 text-center text-xs sm:text-sm font-bold text-[#3e2522]">{product.quantity}</span>
+                    {/* ปุ่มเพิ่มจำนวน */}
                     <button
-                      className="w-8 h-8 bg-[#333333] text-white rounded-full flex items-center justify-center font-bold hover:bg-gray-200 hover:scale-105 transition-all duration-300 shadow-md"
+                      className="w-7 h-7 bg-[#333333] hover:bg-gray-600 text-white rounded-full flex items-center justify-center font-bold transition-all duration-300 shadow-sm"
                       onClick={() => product.id && increaseQty(product.id)}
                     >
                       +
                     </button>
                   </div>
 
-                  {/* แสดงราคาสินค้า ขนาดเล็กลงให้เหมาะสมกับ card */}
+                  {/* แสดงราคาสินค้า */}
                   <p
-                    className="font-bold text-center min-w-[50px] text-sm m-0"
+                    className="font-bold text-center text-sm sm:text-base text-[#8C6E63] min-w-[45px] m-0"
                   >
                     {product.price}฿
                   </p>
 
-                  {/* ปุ่มเพิ่มลงตะกร้า - ปุ่มสีน้ำตาลพร้อมไอคอนรถเข็น ขนาดเล็กลง */}
+                  {/* ปุ่มเพิ่มลงตะกร้า */}
                   <button
-                    className="w-15 h-8 bg-[#8C6E63] text-white rounded-full flex items-center justify-center text-sm font-bold hover:bg-[#D6C0B3] hover:scale-105 transition-all duration-300 shadow-md"
+                    className="w-10 h-7 bg-[#8C6E63] hover:bg-[#73584F] text-white rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-md hover:scale-105"
                     onClick={() => addToCart(product)}
                   >
-                    <FaShoppingCart size={16} />
+                    <FaShoppingCart size={12} />
                   </button>
                 </div>
               </div>

@@ -62,11 +62,12 @@ const Navbar: React.FC<NavbarProps> = ({ hideCartButton: propHideCartButton = fa
       {/* Navbar บน */}
       <nav className="bg-white px-6 py-4 flex items-center justify-between shadow-md w-full box-border">
         <Link to="/" onClick={() => setIsMenuOpen(false)}>
-          <img src={LogoImag} alt="Logo" className="h-[90px] cursor-pointer" />
+          <img src={LogoImag} alt="Logo" className="h-[60px] md:h-[90px] cursor-pointer transition-all duration-300" />
         </Link>
         <button
-          className="text-black focus:outline-none"
+          className="text-black focus:outline-none p-2 hover:bg-gray-100 rounded-lg transition-colors"
           onClick={() => setIsMenuOpen(true)}
+          aria-label="Open menu"
         >
           <svg
             className="w-7 h-7"
@@ -88,92 +89,155 @@ const Navbar: React.FC<NavbarProps> = ({ hideCartButton: propHideCartButton = fa
       <div
         className={`fixed top-0 right-0 h-full w-72 bg-white text-black z-50 transform ${
           isMenuOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300 ease-in-out shadow-lg`}
+        } transition-transform duration-300 ease-in-out shadow-lg flex flex-col`}
       >
-        <div className="flex justify-between items-center p-4">
-          <button onClick={() => setIsMenuOpen(false)}>✖</button>
+        <div className="flex justify-between items-center p-4 border-b border-gray-100">
+          <span className="font-bold text-lg text-[#8C6E63]">เมนูแนะนำ</span>
+          <button 
+            onClick={() => setIsMenuOpen(false)}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-xl"
+            aria-label="Close menu"
+          >
+            ✖
+          </button>
         </div>
 
-        <ul className="flex flex-col p-4 space-y-4 text-lg font-inter">
-          {isLoggedIn ? (
-            <>
+        <div className="flex-1 overflow-y-auto p-4">
+          <ul className="flex flex-col space-y-4 text-base font-inter">
+            {/* Primary Navigation Links - Mobile/Tablet only */}
+            <div className="md:hidden space-y-3 border-b border-gray-100 pb-4 mb-2">
+              <span className="text-xs uppercase tracking-wider text-gray-400 font-bold block mb-1">หน้าหลัก</span>
               <li>
-                <Link
-                  to="/profile"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  โปรไฟล์
+                <Link to="/" onClick={() => setIsMenuOpen(false)} className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors">
+                  หน้าหลัก
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/address"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  ที่อยู่จัดส่ง
+                <Link to="/about" onClick={() => setIsMenuOpen(false)} className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors">
+                  เกี่ยวกับ
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/payment"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  ช่องทางการชำระเงิน
+                <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors">
+                  สั่งเครื่องดื่ม/เบเกอร์รี่
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/order-history"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  ประวัติการสั่งซื้อ
+                <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors">
+                  ติดต่อเรา
                 </Link>
               </li>
-              {role === "owner" && (
+              <li>
+                <Link to="/branch" onClick={() => setIsMenuOpen(false)} className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors">
+                  สาขาใกล้คุณ
+                </Link>
+              </li>
+              <li>
+                <Link to="/faq" onClick={() => setIsMenuOpen(false)} className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors">
+                  คำถามที่พบบ่อย
+                </Link>
+              </li>
+            </div>
+
+            {/* Account Specific Links */}
+            <div className="space-y-3">
+              <span className="text-xs uppercase tracking-wider text-gray-400 font-bold block mb-1">บัญชีผู้ใช้</span>
+              {isLoggedIn ? (
                 <>
                   <li>
                     <Link
-                      to="/admin/dashboard"
+                      to="/profile"
                       onClick={() => setIsMenuOpen(false)}
+                      className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors"
                     >
-                      Admin Dashboard
+                      โปรไฟล์
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to="/manage-orders"
+                      to="/address"
                       onClick={() => setIsMenuOpen(false)}
+                      className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors"
                     >
-                      จัดการออเดอร์
+                      ที่อยู่จัดส่ง
                     </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/payment"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors"
+                    >
+                      ช่องทางการชำระเงิน
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/order-history"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors"
+                    >
+                      ประวัติการสั่งซื้อ
+                    </Link>
+                  </li>
+                  {role === "owner" && (
+                    <>
+                      <li>
+                        <Link
+                          to="/admin/dashboard"
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block py-1 px-2 rounded-lg bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors font-medium"
+                        >
+                          Admin Dashboard
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/manage-orders"
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block py-1 px-2 rounded-lg hover:bg-gray-50 hover:text-[#8C6E63] transition-colors"
+                        >
+                          จัดการออเดอร์
+                        </Link>
+                      </li>
+                    </>
+                  )}
+                  <li className="pt-2 border-t border-gray-100 mt-2">
+                    <button 
+                      onClick={logout} 
+                      className="w-full text-left py-2 px-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors font-medium"
+                    >
+                      ออกจากระบบ
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <button 
+                      onClick={goToLogin} 
+                      className="w-full text-left py-2 px-2 rounded-lg hover:bg-gray-50 text-black transition-colors font-medium"
+                    >
+                      เข้าสู่ระบบ
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      onClick={goToRegister} 
+                      className="w-full text-left py-2 px-2 rounded-lg bg-[#8C6E63] text-white hover:bg-[#73584F] transition-colors font-medium text-center shadow-sm"
+                    >
+                      สมัครสมาชิก
+                    </button>
                   </li>
                 </>
               )}
-              <li>
-                <button onClick={logout} className="text-red-600">
-                  ออกจากระบบ
-                </button>
-              </li>
-            </>
-          ) : (
-            <>
-              <li>
-                <button onClick={goToLogin} className="text-black">
-                  เข้าสู่ระบบ
-                </button>
-              </li>
-              <li>
-                <button onClick={goToRegister} className="text-black">
-                  สมัครสมาชิก
-                </button>
-              </li>
-            </>
-          )}
-        </ul>
+            </div>
+          </ul>
+        </div>
       </div>
 
       {/* Navbar ล่าง */}
-      <nav className="bg-black p-4 flex justify-center text-white h-13 shadow-lg w-full box-border">
+      <nav className="bg-black p-4 hidden md:flex justify-center text-white h-13 shadow-lg w-full box-border">
         <ul className="flex space-x-6 text-[18px] text-white">
           <li>
             <Link to="/" className="hover:text-gray-300">

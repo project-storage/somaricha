@@ -20,6 +20,7 @@ import { OrderItem } from './order/entities/order-item.entity';
 
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { HealthController } from './health/health.controller';
+import { SeederService } from './seeder.service';
 
 @Module({
   imports: [
@@ -57,6 +58,16 @@ import { HealthController } from './health/health.controller';
           process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
       }),
     }),
+    TypeOrmModule.forFeature([
+      Product,
+      Payment,
+      Address,
+      AddressOption,
+      User,
+      Auth,
+      Order,
+      OrderItem,
+    ]),
     ProductModule,
     PaymentModule,
     OrderModule,
@@ -71,6 +82,7 @@ import { HealthController } from './health/health.controller';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    SeederService,
   ],
 })
 export class AppModule {}

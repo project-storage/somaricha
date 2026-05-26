@@ -280,51 +280,48 @@ const Pay: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50 pb-[160px] sm:pb-[110px]">
       {/* Header */}
-      <div className="text-center mt-6">
-        <h1 className="text-[40px] font-bold text-black">ชำระเงิน</h1>
-        <p className="text-[20px] font-normal text-black">กดสั่งซื้อเพื่อชำระเงิน</p>
+      <div className="text-center pt-8 px-4">
+        <h1 className="text-3xl sm:text-[40px] font-bold text-black mb-2">ชำระเงิน</h1>
+        <p className="text-base sm:text-[20px] font-normal text-gray-600">กดสั่งซื้อเพื่อชำระเงิน</p>
       </div>
 
       {/* Address Section */}
-      <div className="px-6 mt-8">
+      <div className="px-4 sm:px-6 mt-8 w-full max-w-5xl mx-auto">
         <h2 className="text-xl font-bold text-black mb-4">ที่อยู่จัดส่ง</h2>
         
         {selectedAddress ? (
-          <div className="flex items-center bg-white h-[111px] w-full max-w-[1085px] mx-auto shadow-[0_13px_19px_rgba(0,0,0,0.25)] rounded-[25px] px-[30px] py-[20px]">
-            <div className="text-black text-2xl mr-4">
+          <div className="flex flex-col sm:flex-row items-center bg-white h-auto min-h-[111px] w-full shadow-[0_13px_19px_rgba(0,0,0,0.15)] rounded-[25px] p-5 sm:px-[30px] gap-4 hover:shadow-md transition-shadow">
+            <div className="text-[#8C6E63] text-2xl shrink-0 bg-orange-50 p-3 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
               </svg>
             </div>
-            <div className="flex-1">
-              <div className="flex items-start">
-                <div className="flex-1">
-                  <div className="text-[20px] font-medium text-black">
-                    {selectedAddress.recipient_name || 'ชื่อผู้รับ'} - {selectedAddress.phone || 'ไม่มีเบอร์โทร'}
-                  </div>
-                  <div className="text-gray-600 text-[14px]">
-                    {selectedAddress.number} ถ. {selectedAddress.road}, {selectedAddress.subdistrict}, 
-                    {selectedAddress.district}, {selectedAddress.province} {selectedAddress.code_zip}
-                    {selectedAddress.address_detail && ` - ${selectedAddress.address_detail}`}
-                  </div>
-                </div>
+            <div className="flex-1 text-center sm:text-left">
+              <div className="text-[18px] sm:text-[20px] font-semibold text-black">
+                {selectedAddress.recipient_name || 'ชื่อผู้รับ'} - {selectedAddress.phone || 'ไม่มีเบอร์โทร'}
+              </div>
+              <div className="text-gray-500 text-[14px] mt-1 leading-relaxed">
+                {selectedAddress.number} ถ. {selectedAddress.road}, {selectedAddress.subdistrict}, 
+                {selectedAddress.district}, {selectedAddress.province} {selectedAddress.code_zip}
+                {selectedAddress.address_detail && ` - ${selectedAddress.address_detail}`}
               </div>
             </div>
             <button 
               onClick={handleAddressChange}
-              className="ml-4 h-[40px] w-[40px] flex items-center justify-center rounded-full bg-white border border-[#8C6E63]"
+              className="h-[40px] w-[40px] flex items-center justify-center rounded-full bg-white border border-[#8C6E63] hover:bg-[#8C6E63] hover:text-white transition-colors shrink-0 shadow-sm"
+              aria-label="Change address"
             >
-              <FaCheck className="text-[#8C6E63]" />
+              <FaCheck className="text-current" />
             </button>
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-gray-500 bg-white rounded-[25px] shadow-sm border border-gray-100">
             ยังไม่มีที่อยู่จัดส่ง
             <button 
               onClick={handleAddressChange}
-              className="mt-2 text-[#8C6E63] underline"
+              className="mt-2 block mx-auto text-[#8C6E63] underline font-bold hover:text-[#73584F]"
             >
               เพิ่มที่อยู่
             </button>
@@ -333,110 +330,113 @@ const Pay: React.FC = () => {
       </div>
 
       {/* Cart Items */}
-      <div className="px-6 mt-8">
+      <div className="px-4 sm:px-6 mt-8 w-full max-w-5xl mx-auto">
         <h2 className="text-xl font-bold text-black mb-4">รายการสั่งซื้อ</h2>
         {cart.items.length > 0 ? (
           <div className="flex flex-col gap-6">
             {cart.items.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center bg-white h-[111px] w-full max-w-[1085px] mx-auto shadow-[0_13px_19px_rgba(0,0,0,0.25)] rounded-[20px] px-[30px] gap-6"
+                className="flex flex-col sm:flex-row items-center bg-white h-auto sm:h-[111px] w-full shadow-[0_13px_19px_rgba(0,0,0,0.15)] rounded-[20px] p-4 sm:px-[30px] gap-4 sm:gap-6 hover:shadow-lg transition-shadow"
               >
                 {/* Image */}
                 <img
                   src={item.image}
                   alt={item.nameTH}
-                  className="h-[111px] w-[111px] object-cover rounded-lg"
+                  className="h-[100px] w-[100px] sm:h-[90px] sm:w-[90px] object-cover rounded-xl shrink-0"
                 />
 
                 {/* Name */}
-                <div className="flex flex-col">
-                  <span className="text-[20px] font-semibold text-black leading-none">
+                <div className="flex flex-col text-center sm:text-left flex-1 min-w-0 w-full">
+                  <span className="text-[20px] sm:text-[22px] font-semibold text-black leading-tight truncate">
                     {item.nameTH}
                   </span>
-                  <span className="text-[16px] font-medium text-gray-700">
+                  <span className="text-[14px] sm:text-[16px] font-medium text-gray-500 truncate mt-1">
                     {item.nameEN}
                   </span>
                 </div>
 
-                {/* Quantity */}
-                <div className="flex items-center gap-4 ml-auto">
-                  <button
-                    onClick={() => handleQuantity(item.id, "dec")}
-                    className="h-[35px] w-[35px] flex items-center justify-center rounded-full bg-[#333333] text-white text-xl"
-                  >
-                    <FaMinus />
-                  </button>
-                  <input
-                    type="text"
-                    value={item.quantity}
-                    onChange={(e) => handleInputChange(item.id, e.target.value)}
-                    onFocus={(e) => e.target.select()}
-                    className="w-[40px] h-[30px] text-center text-[18px] font-bold text-black border-none focus:outline-none bg-transparent focus:bg-gray-100 rounded"
-                  />
-                  <button
-                    onClick={() => handleQuantity(item.id, "inc")}
-                    className="h-[35px] w-[35px] flex items-center justify-center rounded-full bg-[#333333] text-white text-xl"
-                  >
-                    <FaPlus />
-                  </button>
-                </div>
+                {/* Controls and Price */}
+                <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0">
+                  {/* Quantity */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleQuantity(item.id, "dec")}
+                      className="h-[32px] w-[32px] flex items-center justify-center rounded-full bg-[#333333] hover:bg-gray-600 text-white text-base transition-colors shadow-sm"
+                    >
+                      <FaMinus size={10} />
+                    </button>
+                    <input
+                      type="text"
+                      value={item.quantity}
+                      onChange={(e) => handleInputChange(item.id, e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                      className="w-[40px] h-[30px] text-center text-[16px] sm:text-[18px] font-bold text-black border-none focus:outline-none bg-transparent"
+                    />
+                    <button
+                      onClick={() => handleQuantity(item.id, "inc")}
+                      className="h-[32px] w-[32px] flex items-center justify-center rounded-full bg-[#333333] hover:bg-gray-600 text-white text-base transition-colors shadow-sm"
+                    >
+                      <FaPlus size={10} />
+                    </button>
+                  </div>
 
-                {/* Price */}
-                <div className="text-[20px] font-medium text-black ml-6">
-                  {item.price * item.quantity} บาท
+                  {/* Price */}
+                  <div className="text-[18px] sm:text-[20px] font-bold text-black min-w-[90px] text-right">
+                    {item.price * item.quantity} ฿
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-[200px]">
-            <p className="text-gray-500 text-[18px] font-medium">ไม่มีสินค้าอยู่ในตระกร้า</p>
+          <div className="flex flex-col items-center justify-center h-[200px] bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <p className="text-gray-500 text-[18px] font-semibold">ไม่มีสินค้าอยู่ในตะกร้า</p>
             {!authContext.isLoggedIn && (
-              <p className="text-gray-400 text-[16px] mt-2">กรุณาเข้าสู่ระบบเพื่อจัดการสินค้าในตระกร้า</p>
+              <p className="text-gray-400 text-[14px] mt-2">กรุณาเข้าสู่ระบบเพื่อจัดการสินค้าในตะกร้า</p>
             )}
           </div>
         )}
       </div>
 
       {/* Shipping Methods */}
-      <div className="px-6 mt-8">
+      <div className="px-4 sm:px-6 mt-8 w-full max-w-5xl mx-auto">
         <h2 className="text-xl font-bold text-black mb-4">รูปแบบการจัดส่ง</h2>
-        <div className="flex justify-center space-x-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
           {shippingOptions.map(option => (
             <div 
               key={option.id}
               onClick={() => handleShippingSelect(option.id)}
-              className={`w-[300px] h-[100px] bg-white rounded-[25px] shadow-lg p-4 cursor-pointer flex flex-col justify-center items-center border-2 ${
-                selectedShipping === option.id ? 'border-[#3E2522]' : 'border-transparent'
+              className={`w-full min-h-[100px] bg-white rounded-[25px] shadow-md p-4 cursor-pointer flex flex-col justify-center items-center border-2 transition-all hover:shadow-lg ${
+                selectedShipping === option.id ? 'border-[#3E2522] bg-[#FFF2DF]' : 'border-transparent'
               }`}
             >
-              <div className="font-bold text-black">{option.name}</div>
-              <div className="text-gray-600 text-sm">{option.description}</div>
-              <div className="text-gray-600 text-sm mt-1">฿{option.price}</div>
+              <div className="font-bold text-black text-[16px]">{option.name}</div>
+              <div className="text-gray-500 text-sm mt-1">{option.description}</div>
+              <div className="text-[#8C6E63] font-bold text-sm mt-1">฿{option.price}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* Payment Methods */}
-      <div className="px-6 mt-8">
+      <div className="px-4 sm:px-6 mt-8 w-full max-w-5xl mx-auto">
         <h2 className="text-xl font-bold text-black mb-4">ช่องทางการชำระเงิน</h2>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {paymentOptions.map(option => (
             <div 
               key={option.id}
               onClick={() => handlePaymentSelect(option.id)}
-              className={`w-full h-[100px] bg-white rounded-[25px] shadow-lg p-6 cursor-pointer flex items-center ${
-                selectedPayment === option.id ? 'border-2 border-[#3E2522]' : ''
+              className={`w-full min-h-[80px] sm:h-[100px] bg-white rounded-[25px] shadow-md p-6 cursor-pointer flex items-center border-2 transition-all hover:shadow-lg ${
+                selectedPayment === option.id ? 'border-[#3E2522] bg-[#FFF2DF]' : 'border-transparent'
               }`}
             >
-              <div className="text-black text-2xl mr-4">
+              <div className="text-[#8C6E63] text-2xl mr-4 bg-orange-50 p-3 rounded-full shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
                   <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                 </svg>
               </div>
-              <div className="text-black text-2xl">
+              <div className="text-black font-semibold text-lg sm:text-2xl">
                 {option.name}
               </div>
             </div>
@@ -445,51 +445,54 @@ const Pay: React.FC = () => {
       </div>
 
       {/* Order Summary */}
-      <div className="px-6 mt-8 mb-24">
+      <div className="px-4 sm:px-6 mt-8 mb-24 w-full max-w-5xl mx-auto">
         <h2 className="text-xl font-bold text-black mb-4">สรุปรายการ</h2>
-        <div className="bg-gray-50 rounded-[25px] p-6">
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-black">ราคาสินค้า</span>
-              <span className="text-black">฿{calculateSubtotal().toFixed(2)}</span>
+        <div className="bg-white rounded-[25px] p-6 shadow-md border border-gray-100">
+          <div className="space-y-3">
+            <div className="flex justify-between text-base sm:text-lg">
+              <span className="text-gray-600">ราคาสินค้า</span>
+              <span className="text-black font-semibold">฿{calculateSubtotal().toFixed(2)}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-black">ค่าจัดส่ง</span>
-              <span className="text-black">฿{calculateShippingCost().toFixed(2)}</span>
+            <div className="flex justify-between text-base sm:text-lg">
+              <span className="text-gray-600">ค่าจัดส่ง</span>
+              <span className="text-black font-semibold">฿{calculateShippingCost().toFixed(2)}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-black">ส่วนลด</span>
-              <span className="text-black">฿0.00</span>
+            <div className="flex justify-between text-base sm:text-lg">
+              <span className="text-gray-600">ส่วนลด</span>
+              <span className="text-black font-semibold">฿0.00</span>
             </div>
-            <div className="flex justify-between pt-2 border-t border-gray-300">
-              <span className="text-xl font-bold text-black">ยอดที่ต้องชำระทั้งหมด</span>
-              <span className="text-xl font-bold text-black">฿{calculateTotal().toFixed(2)}</span>
+            <div className="flex justify-between pt-3 border-t border-gray-200">
+              <span className="text-lg sm:text-xl font-bold text-black">ยอดที่ต้องชำระทั้งหมด</span>
+              <span className="text-lg sm:text-xl font-bold text-[#8C6E63]">฿{calculateTotal().toFixed(2)}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="fixed bottom-0 left-0 w-full h-[90px] bg-white shadow-[-3px_-13px_43.5px_rgba(0,0,0,0.25)] flex items-center justify-between px-10">
-        {/* Left back button */}
-        <button 
-          onClick={() => navigate(-1)}
-          className="h-[60px] w-[60px] rounded-full flex items-center justify-center bg-gray-200"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M3.86 8.753l5.482 4.796c.646.566 1.658.106 1.285-.753l-4.04-7.127c-.373-.86-.034-1.67 1.004-1.67H14.5c.6 0 1 .4 1 1s-.4 1-1 1h-7.5c-.18 0-.343.038-.48.104l4.04 7.127c.373.86-.03 1.67-1.004 1.67H7.5c-.6 0-1-.4-1-1s.4-1 1-1h2.5c.18 0 .343-.038.48-.104l-5.482-4.796z"/>
-          </svg>
-        </button>
+      <div className="fixed bottom-0 left-0 w-full min-h-[90px] py-4 bg-white shadow-[-3px_-13px_43.5px_rgba(0,0,0,0.15)] flex flex-col sm:flex-row items-center justify-between px-6 sm:px-10 gap-4 z-40 border-t border-gray-100">
+        <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+          {/* Left back button */}
+          <button 
+            onClick={() => navigate(-1)}
+            className="h-[50px] w-[50px] rounded-full flex items-center justify-center bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors shrink-0 shadow-sm"
+            aria-label="Go back"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+              <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+          </button>
 
-        {/* Center text */}
-        <div className="text-[20px] font-normal text-black">
-          {!authContext.isLoggedIn ? "กรุณาเข้าสู่ระบบเพื่อจัดการตระกร้าสินค้า" : `จำนวน ${getTotalItems()} รายการ รวมราคาสินค้า ${calculateTotal()} บาท`}
+          {/* Center text */}
+          <div className="text-[16px] sm:text-[18px] font-bold text-black text-center sm:text-left flex-1 sm:flex-initial">
+            {!authContext.isLoggedIn ? "กรุณาเข้าสู่ระบบเพื่อจัดการตะกร้าสินค้า" : `จำนวน ${getTotalItems()} รายการ รวมราคาสินค้า ${calculateTotal()} บาท`}
+          </div>
         </div>
 
         {/* Right button */}
         <button
-          className={`h-[50px] w-[190px] rounded-[50px] text-[20px] font-bold text-white ${
-            cart.items.length > 0 ? "bg-[#8C6E63]" : (!authContext.isLoggedIn ? "bg-gray-400" : "bg-gray-400")
+          className={`h-[50px] w-full sm:w-[190px] rounded-[50px] text-[18px] sm:text-[20px] font-bold text-white transition-all duration-300 shadow-md ${
+            cart.items.length > 0 ? "bg-[#8C6E63] hover:bg-[#73584F]" : "bg-gray-400"
           }`}
           onClick={!authContext.isLoggedIn ? () => window.location.href = "/login" : handleConfirmOrder}
           disabled={cart.items.length === 0 && authContext.isLoggedIn}

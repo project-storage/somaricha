@@ -94,123 +94,127 @@ const Basket: React.FC = () => {
 
   return (
     <>
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col pb-[160px] sm:pb-[110px] bg-gray-50">
       {/* Header */}
-      <div className="text-center mt-6">
-        <h1 className="text-[40px] font-bold text-black">
-          ตะกร้า  Basket
+      <div className="text-center mt-8 px-4">
+        <h1 className="text-3xl sm:text-[40px] font-bold text-black mb-2">
+          ตะกร้าสินค้า Basket
         </h1>
-        <p className="text-[20px] font-normal text-black">
+        <p className="text-base sm:text-[20px] font-normal text-gray-600">
           กดสั่งซื้อเพื่อชำระเงิน
         </p>
       </div>
 
       {/* Trash Icon */}
-      <div className="flex mt-4">
-        <div className="flex justify-end w-full">
-          <button
-            onClick={() => setDeleteMode(!deleteMode)}
-            className="h-[40px] w-[40px] flex items-center justify-center rounded-full bg-white"
-          >
-            <FaTrash className={`${deleteMode ? 'text-red-600' : 'text-black'} text-[30px]`} />
-          </button>
-        </div>
+      <div className="flex mt-4 px-6 max-w-5xl w-full mx-auto justify-end">
+        <button
+          onClick={() => setDeleteMode(!deleteMode)}
+          className="h-[40px] w-[40px] flex items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 transition-colors"
+          aria-label="Toggle delete mode"
+        >
+          <FaTrash className={`${deleteMode ? 'text-red-600' : 'text-black'} text-[20px]`} />
+        </button>
       </div>
 
       {/* Product List */}
-      <div className="flex flex-col gap-6 px-6 mt-8">
+      <div className="flex flex-col gap-6 px-4 sm:px-6 mt-6 w-full max-w-5xl mx-auto">
         {products.length > 0 ? (
           products.map((product) => (
             <div
               key={product.id}
-              className="flex items-center bg-white h-[111px] w-[1085px] mx-auto shadow-[0_13px_19px_rgba(0,0,0,0.25)] rounded-[20px] px-[30px] gap-6"
+              className="flex flex-col sm:flex-row items-center bg-white h-auto sm:h-[111px] w-full shadow-[0_13px_19px_rgba(0,0,0,0.15)] rounded-[20px] p-4 sm:px-[30px] gap-4 sm:gap-6 hover:shadow-lg transition-shadow"
             >
               {/* Image */}
               <img
                 src={product.image}
                 alt={product.nameTh}
-                className="h-[111px] w-[111px] object-cover rounded-lg"
+                className="h-[100px] w-[100px] sm:h-[90px] sm:w-[90px] object-cover rounded-xl shrink-0"
               />
 
               {/* Name */}
-              <div className="flex flex-col">
-                <span className="text-[30px] font-semibold text-black leading-none">
+              <div className="flex flex-col text-center sm:text-left flex-1 min-w-0 w-full">
+                <span className="text-[20px] sm:text-[24px] font-semibold text-black leading-tight truncate">
                   {product.nameTh}
                 </span>
-                <span className="text-[20px] font-medium text-gray-700">
+                <span className="text-[14px] sm:text-[16px] font-medium text-gray-500 truncate mt-1">
                   {product.nameEn}
                 </span>
               </div>
 
-              {/* Quantity */}
-              <div className="flex items-center gap-4 ml-auto">
-                <button
-                  onClick={() => handleQuantity(product.id, "dec")}
-                  className="h-[35px] w-[35px] flex items-center justify-center rounded-full bg-[#333333] text-white text-xl"
-                >
-                  <FaMinus />
-                </button>
-                <input
-                  type="text"
-                  value={product.quantity}
-                  onChange={(e) => handleInputChange(product.id, e.target.value)}
-                  onFocus={(e) => e.target.select()}
-                  className="w-[40px] h-[30px] text-center text-[18px] font-bold text-black border-none focus:outline-none bg-transparent focus:bg-gray-100 rounded"
-                />
-                <button
-                  onClick={() => handleQuantity(product.id, "inc")}
-                  className="h-[35px] w-[35px] flex items-center justify-center rounded-full bg-[#333333] text-white text-xl"
-                >
-                  <FaPlus />
-                </button>
-              </div>
-
-              {/* Price */}
-              <div className="text-[20px] font-medium text-black ml-6">
-                {product.price * product.quantity} บาท
-              </div>
-
-              {/* Check block (when delete mode) */}
-              {deleteMode && (
+              {/* Controls and Price */}
+              <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0">
+                {/* Quantity */}
+                <div className="flex items-center gap-2">
                   <button
-                  onClick={() => handleSelect(product.id)}
-                  className={`ml-6 h-[30px] w-[30px] flex items-center justify-center border-2 rounded-[10px] ${
-                    selected.includes(product.id)
-                    ? "bg-black text-white"
-                    : "border-black"
-                  }`}
+                    onClick={() => handleQuantity(product.id, "dec")}
+                    className="h-[32px] w-[32px] flex items-center justify-center rounded-full bg-[#333333] hover:bg-gray-600 text-white text-base transition-colors shadow-sm"
                   >
-                  {selected.includes(product.id) && <FaCheck />}
+                    <FaMinus size={10} />
                   </button>
-              )}
+                  <input
+                    type="text"
+                    value={product.quantity}
+                    onChange={(e) => handleInputChange(product.id, e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    className="w-[40px] h-[30px] text-center text-[16px] sm:text-[18px] font-bold text-black border-none focus:outline-none bg-transparent"
+                  />
+                  <button
+                    onClick={() => handleQuantity(product.id, "inc")}
+                    className="h-[32px] w-[32px] flex items-center justify-center rounded-full bg-[#333333] hover:bg-gray-600 text-white text-base transition-colors shadow-sm"
+                  >
+                    <FaPlus size={10} />
+                  </button>
+                </div>
+
+                {/* Price */}
+                <div className="text-[18px] sm:text-[20px] font-bold text-black min-w-[90px] text-right">
+                  {product.price * product.quantity} ฿
+                </div>
+
+                {/* Check block (when delete mode) */}
+                {deleteMode && (
+                  <button
+                    onClick={() => handleSelect(product.id)}
+                    className={`h-[30px] w-[30px] flex items-center justify-center border-2 rounded-[10px] shrink-0 transition-colors ${
+                      selected.includes(product.id)
+                      ? "bg-black border-black text-white"
+                      : "border-gray-400"
+                    }`}
+                  >
+                    {selected.includes(product.id) && <FaCheck size={12} />}
+                  </button>
+                )}
+              </div>
             </div>
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center h-[200px]">
-            <p className="text-gray-500 text-[18px] font-medium">ไม่มีสินค้าอยู่ในตระกร้า</p>
+          <div className="flex flex-col items-center justify-center h-[250px] bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <p className="text-gray-500 text-[18px] font-semibold text-center">ไม่มีสินค้าอยู่ในตะกร้า</p>
             {!isLoggedIn && (
-              <p className="text-gray-400 text-[16px] mt-2">กรุณาเข้าสู่ระบบเพื่อจัดการสินค้าในตระกร้า</p>
+              <p className="text-gray-400 text-[14px] mt-2 text-center">กรุณาเข้าสู่ระบบเพื่อจัดการสินค้าในตะกร้า</p>
             )}
           </div>
         )}
       </div>
 
       {/* Bottom Bar */}
-      <div className="fixed bottom-0 left-0 w-full h-[90px] bg-white shadow-[-3px_-13px_43.5px_rgba(0,0,0,0.25)] flex items-center justify-between px-10">
-        {/* Left icon */}
-        <div className="h-[60px] w-[60px] rounded-full flex items-center justify-center">
-          <BsBasket2Fill />
-        </div>
+      <div className="fixed bottom-0 left-0 w-full min-h-[90px] py-4 bg-white shadow-[-3px_-13px_43.5px_rgba(0,0,0,0.15)] flex flex-col sm:flex-row items-center justify-between px-6 sm:px-10 gap-4 z-40 border-t border-gray-100">
+        <div className="flex items-center gap-4 w-full sm:w-auto justify-center sm:justify-start">
+          {/* Left icon */}
+          <div className="h-[50px] w-[50px] rounded-full flex items-center justify-center bg-gray-50 text-2xl shrink-0 text-[#8C6E63]">
+            <BsBasket2Fill />
+          </div>
 
-        {/* Center text */}
-        <div className="text-[20px] font-normal text-black">
-          {!isLoggedIn ? "กรุณาเข้าสู่ระบบเพื่อจัดการตระกร้าสินค้า" : `จำนวน ${getTotalItems()} รายการ รวมราคาสินค้า ${getTotalPrice()} บาท`}
+          {/* Center text */}
+          <div className="text-[16px] sm:text-[18px] font-bold text-black text-center sm:text-left">
+            {!isLoggedIn ? "กรุณาเข้าสู่ระบบเพื่อจัดการตะกร้าสินค้า" : `จำนวน ${getTotalItems()} รายการ รวมราคาสินค้า ${getTotalPrice()} บาท`}
+          </div>
         </div>
 
         {/* Right button */}
         <button
-          className={`h-[50px] w-[190px] rounded-[50px] text-[20px] font-bold text-white ${
-            deleteMode ? "bg-red-600" : (products.length > 0 ? "bg-[#8C6E63]" : (!isLoggedIn ? "bg-gray-400" : "bg-gray-400"))
+          className={`h-[50px] w-full sm:w-[190px] rounded-[50px] text-[18px] sm:text-[20px] font-bold text-white transition-all duration-300 shadow-md ${
+            deleteMode ? "bg-red-600 hover:bg-red-700" : (products.length > 0 ? "bg-[#8C6E63] hover:bg-[#73584F]" : "bg-gray-400")
           }`}
           onClick={!isLoggedIn ? () => window.location.href = "/login" : (deleteMode ? handleDelete : () => navigate('/pay'))}
           disabled={products.length === 0 && !deleteMode && isLoggedIn}

@@ -32,8 +32,8 @@ const Branch: React.FC<BranchProps> = ({
       </div>
 
       {/* Search */}
-      <div className="flex items-center bg-white w-[288px] h-[55px] rounded-[25px] shadow-md px-4 mb-10">
-        <FaSearch className="text-gray-500 mr-2" />
+      <div className="flex items-center bg-white w-full max-w-[288px] h-[55px] rounded-[25px] shadow-md px-4 mb-10 border border-gray-100">
+        <FaSearch className="text-gray-400 mr-2" />
         <input
           type="text"
           placeholder="Search"
@@ -42,31 +42,31 @@ const Branch: React.FC<BranchProps> = ({
       </div>
 
       {/* Branch cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 w-full max-w-6xl justify-items-center px-4">
         {branches.map((branch, idx) => (
           <div
             key={idx}
-            className="w-[350px] h-[300px] bg-white rounded-[25px] shadow-[10px_28px_39.1px_rgba(0,0,0,0.25)] flex flex-col items-center p-6"
+            className="w-full max-w-[350px] h-auto min-h-[300px] pb-6 bg-white rounded-[25px] shadow-[10px_28px_39.1px_rgba(0,0,0,0.15)] flex flex-col items-center p-6 border border-gray-100 hover:shadow-xl transition-all duration-300"
           >
             {/* Image */}
             <img
               src={branch.image}
               alt={branch.name}
-              className="w-[300px] h-[175px] rounded-[15px] object-cover mb-4"
+              className="w-full max-w-[300px] h-[175px] aspect-[300/175] rounded-[15px] object-cover mb-4"
             />
 
             {/* Branch Name */}
-            <h2 className="text-[20px] font-semibold text-black mb-3 text-center">
+            <h2 className="text-[20px] font-bold text-black mb-3 text-center">
               {branch.name}
             </h2>
 
             {/* Address + Time */}
-            <div className="flex items-center justify-between w-full px-10">
-              <div className="flex items-center font-bold text-gray-700 text-[14px]">
-                <FaMapMarkerAlt className="text-black mr-2" />
-                <span>{branch.address}</span>
+            <div className="flex items-center justify-between w-full px-4 sm:px-6 mt-auto">
+              <div className="flex items-center font-semibold text-gray-600 text-[14px]">
+                <FaMapMarkerAlt className="text-black mr-2 shrink-0" />
+                <span className="truncate">{branch.address}</span>
               </div>
-              <p className="text-gray-600 font-bold text-[14px]">{branch.time}</p>
+              <p className="text-gray-500 font-semibold text-[14px] shrink-0">{branch.time}</p>
             </div>
           </div>
         ))}

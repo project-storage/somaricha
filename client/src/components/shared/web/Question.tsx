@@ -62,13 +62,13 @@ const Question: React.FC<QuestionProps> = ({
         value={newQuestion}
         onChange={(e) => setNewQuestion(e.target.value)}
         placeholder="เพิ่มคำถาม"
-        className="w-[940px] h-[50px] rounded-[25px] border border-gray-300 px-4 py-3 text-[16px] font-bold text-[#3E2522] placeholder-[#B9B9B9] resize-none mb-8"
+        className="w-full max-w-[940px] h-[60px] rounded-[25px] border border-gray-300 px-6 py-4 text-[16px] font-bold text-[#3E2522] placeholder-[#B9B9B9] resize-none mb-8 outline-none focus:border-[#8C6E63] transition-colors"
       />
 
       {/* Confirm Button */}
       <button
         onClick={handleAddQuestion}
-        className="w-[230px] h-[50px] bg-[#8C6E63] text-white text-[16px] font-semibold rounded-[30px] shadow-md hover:opacity-90 transition"
+        className="w-[230px] h-[50px] bg-[#8C6E63] text-white text-[16px] font-semibold rounded-[30px] shadow-md hover:opacity-90 hover:scale-105 transition duration-300"
       >
         ยืนยัน
       </button>

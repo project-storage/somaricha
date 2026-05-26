@@ -112,7 +112,7 @@ const deleteUser = (id: number) => {
 
 // AddressOption functions
 const getAddressOptions = () => {
-  return http.get('api/address-options');
+  return http.get('address-options');
 };
 
 // Address management functions
