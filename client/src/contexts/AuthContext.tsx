@@ -20,15 +20,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     if (token) {
       setIsLoggedIn(true);
-      setUserRole(role);
+      setUserRole(role ? role.toLowerCase() : null);
     }
   }, []);
 
   const login = (token: string, role: string) => {
+    const lowerRole = (role || '').toLowerCase();
     localStorage.setItem('access_token', token);
-    localStorage.setItem('user_role', role);
+    localStorage.setItem('user_role', lowerRole);
     setIsLoggedIn(true);
-    setUserRole(role);
+    setUserRole(lowerRole);
   };
 
   const logout = () => {

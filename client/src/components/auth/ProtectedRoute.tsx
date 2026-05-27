@@ -20,9 +20,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Redirect if user doesn't have required role
-  if (userRole && allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-    // If user doesn't have required role, redirect to home or show unauthorized page
-    return <Navigate to="/" replace />;
+  if (userRole && allowedRoles.length > 0) {
+    const lowerRole = userRole.toLowerCase();
+    const lowerAllowedRoles = allowedRoles.map(r => r.toLowerCase());
+    if (!lowerAllowedRoles.includes(lowerRole)) {
+      // If user doesn't have required role, redirect to home or show unauthorized page
+      return <Navigate to="/" replace />;
+    }
   }
 
   return <>{children}</>;

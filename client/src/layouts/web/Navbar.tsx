@@ -25,7 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideCartButton: propHideCartButton = fa
 
     if (token) {
       setIsLoggedIn(true);
-      setRole(userRole);
+      setRole(userRole ? userRole.toLowerCase() : null);
     } else {
       setIsLoggedIn(false);
       setRole(null);

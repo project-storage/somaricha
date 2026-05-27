@@ -261,7 +261,7 @@ const createOrder = async (orderData: CreateOrderDto) => {
 // Function to check if current user is admin (needs to be exported separately)
 const checkIfAdminUser = (): boolean => {
   const userRole = localStorage.getItem('user_role');
-  return userRole === 'owner';
+  return (userRole || '').toLowerCase() === 'owner';
 };
 
 // Modified getAllOrders to return all orders for admin users

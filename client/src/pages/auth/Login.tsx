@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FaUser, FaKey, FaFacebook, FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import authService from "../../services/authService";
 import { useNavigate } from "react-router";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface LoginData {
   username: string;
@@ -15,6 +16,7 @@ const Login = () => {
   });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
   
   // State for password visibility
   const [showPassword, setShowPassword] = useState(false);
@@ -47,9 +49,8 @@ const Login = () => {
         throw new Error("Invalid response format from server");
       }
 
-      // Save token & role
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("user_role", user_role);
+      // Save token & role through auth context
+      login(access_token, user_role);
 
       // Redirect by role
       switch (user_role.toLowerCase()) {

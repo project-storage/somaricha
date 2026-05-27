@@ -71,7 +71,7 @@ const Analytics: React.FC = () => {
       );
 
       // Filter customers (role 'user')
-      const customersList = users.filter((u: any) => u.user_role === 'user');
+      const customersList = users.filter((u: any) => (u.user_role || '').toLowerCase() === 'user');
 
       setSummary({
         totalSales: totalSalesSum,
