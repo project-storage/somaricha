@@ -10,6 +10,7 @@ const Payments: React.FC = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editPayment, setEditPayment] = useState<Payment | null>(null);
+  const [viewPayment, setViewPayment] = useState<Payment | null>(null);
   const [form, setForm] = useState<Omit<CreatePaymentDto, 'id'>>({
     payment_name: PaymentStatus.ONLY_CASE,
   });
@@ -133,7 +134,7 @@ const Payments: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         <button 
                           className="p-1 hover:bg-gray-100 rounded"
-                          onClick={() => console.log('View payment details not implemented yet')}
+                          onClick={() => setViewPayment(payment)}
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -161,7 +162,7 @@ const Payments: React.FC = () => {
 
       {/* Payment Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 ">
+        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 bg-black bg-opacity-40">
           <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg animate-fadeIn">
             <h3 className="text-xl font-bold mb-4">
               {editPayment ? 'แก้ไขช่องทางการชำระเงิน' : 'เพิ่มช่องทางการชำระเงิน'}
@@ -193,6 +194,43 @@ const Payments: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Details Modal */}
+      {viewPayment && (
+        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg animate-fadeIn">
+            <h3 className="text-xl font-bold mb-4">รายละเอียดช่องทางการชำระเงิน</h3>
+            <div className="space-y-3 mb-6">
+              <p className="text-gray-700"><span className="font-semibold">ID:</span> {viewPayment.id}</p>
+              <p className="text-gray-700">
+                <span className="font-semibold">ชื่อช่องทาง:</span>{' '}
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(viewPayment.payment_name)}`}>
+                  {viewPayment.payment_name}
+                </span>
+              </p>
+              {viewPayment.created_at && (
+                <p className="text-gray-700">
+                  <span className="font-semibold">สร้างเมื่อ:</span> {new Date(viewPayment.created_at).toLocaleString('th-TH')}
+                </p>
+              )}
+              {viewPayment.updated_at && (
+                <p className="text-gray-700">
+                  <span className="font-semibold">แก้ไขล่าสุดเมื่อ:</span> {new Date(viewPayment.updated_at).toLocaleString('th-TH')}
+                </p>
+              )}
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition"
+                onClick={() => setViewPayment(null)}
+              >
+                ปิด
+              </button>
+            </div>
           </div>
         </div>
       )}

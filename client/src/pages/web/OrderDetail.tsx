@@ -39,8 +39,10 @@ const OrderDetail: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const authContext = useAuth();
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<(Order & { comemnt_star?: number }) | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [rating, setRating] = useState(5);
 
   useEffect(() => {
     if (authContext.isLoggedIn && id) {
@@ -78,7 +80,7 @@ const OrderDetail: React.FC = () => {
       } else {
         // Try to load from localStorage if API fails
         const localOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
-        const localOrder = localOrders.find((o: Order) => o.id === orderId);
+        const localOrder = localOrders.find((o: any) => o.id === orderId);
         if (localOrder) {
           setOrder(localOrder);
         } else {
@@ -93,7 +95,7 @@ const OrderDetail: React.FC = () => {
       try {
         const orderId = parseInt(id || '');
         const localOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
-        const localOrder = localOrders.find((o: Order) => o.id === orderId);
+        const localOrder = localOrders.find((o: any) => o.id === orderId);
         
         if (localOrder) {
           setOrder(localOrder);
@@ -128,12 +130,13 @@ const OrderDetail: React.FC = () => {
     }
   };
 
-  const handleConfirmDelivery = async () => {
+  const handleConfirmDelivery = async (stars: number) => {
     if (!order) return;
     
     try {
-      await orderService.confirmDelivery(order.id);
-      toast.success("ยืนยันการรับสินค้าเรียบร้อย");
+      await orderService.markAsReceived(order.id, stars);
+      toast.success("ยืนยันการรับสินค้าและให้คะแนนเรียบร้อย");
+      setShowRatingModal(false);
       // Refresh the order
       fetchOrderDetail();
     } catch (error) {
@@ -314,12 +317,45 @@ const OrderDetail: React.FC = () => {
           </div>
         </div>
 
+        {/* Rating Display */}
+        {order.comemnt_star !== undefined && order.comemnt_star !== null && (
+          <div className="mb-8 p-6 bg-yellow-50 border border-yellow-100 rounded-xl text-center shadow-sm">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">คะแนนความพึงพอใจของคุณ</h3>
+            <div className="flex justify-center gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span key={star} className="text-3xl text-yellow-500">
+                  {star <= (order.comemnt_star || 0) ? "★" : "☆"}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Retroactive Rating Option */}
+        {(order.status === 'delivered' || order.status === 'completed') && (order.comemnt_star === undefined || order.comemnt_star === null) && (
+          <div className="mb-8 p-6 bg-yellow-50 border border-yellow-100 rounded-xl text-center shadow-sm">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">คุณยังไม่ได้ให้คะแนนคำสั่งซื้อนี้</h3>
+            <button
+              onClick={() => {
+                setRating(5);
+                setShowRatingModal(true);
+              }}
+              className="px-6 py-2 bg-[#8C6E63] text-white rounded-[25px] font-bold shadow hover:bg-opacity-90 transition-opacity"
+            >
+              ให้คะแนนความพึงพอใจ
+            </button>
+          </div>
+        )}
+
         {/* Action Button */}
         {order.status === 'shipping' && (
           <div className="mb-8 text-center">
             <button
-              onClick={handleConfirmDelivery}
-              className="px-8 py-3 bg-[#8C6E63] text-white rounded-[25px] font-bold"
+              onClick={() => {
+                setRating(5);
+                setShowRatingModal(true);
+              }}
+              className="px-8 py-3 bg-[#8C6E63] text-white rounded-[25px] font-bold shadow-md hover:bg-opacity-95 transition-all duration-300"
             >
               ได้รับสินค้าแล้ว
             </button>
@@ -327,15 +363,60 @@ const OrderDetail: React.FC = () => {
         )}
 
         {/* Back Button */}
-        <div className="text-center">
+        <div className="text-center mb-10">
           <button 
             onClick={() => navigate('/order-history')}
-            className="px-6 py-2 bg-gray-500 text-white rounded-lg"
+            className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors shadow-sm"
           >
             กลับไปยังประวัติการสั่งซื้อ
           </button>
         </div>
       </div>
+
+      {/* Rating Dialog Modal */}
+      {showRatingModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white w-full max-w-[450px] rounded-[25px] shadow-2xl flex flex-col items-center p-8 relative border border-gray-100">
+            <div className="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mb-4 text-3xl shadow-sm">
+              ★
+            </div>
+            
+            <h3 className="text-2xl font-bold mb-2 text-black text-center">ให้คะแนนคำสั่งซื้อ</h3>
+            <p className="text-gray-500 text-center mb-6 text-sm">ความพึงพอใจของคุณต่อเครื่องดื่ม Somaricha</p>
+            
+            <div className="flex gap-2 mb-8 justify-center">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  className="text-4xl text-yellow-500 focus:outline-none hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+                >
+                  {star <= rating ? "★" : "☆"}
+                </button>
+              ))}
+            </div>
+            
+            <div className="flex justify-between w-full px-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setShowRatingModal(false)}
+                className="text-[16px] font-bold text-gray-500 hover:text-black bg-transparent border-none py-2 cursor-pointer transition-colors"
+              >
+                ยกเลิก
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => handleConfirmDelivery(rating)}
+                className="px-6 py-3 bg-[#8C6E63] hover:bg-[#73584F] text-white text-[16px] font-bold rounded-[25px] shadow-md transition-all duration-300 cursor-pointer"
+              >
+                ยืนยันการรับและให้คะแนน
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

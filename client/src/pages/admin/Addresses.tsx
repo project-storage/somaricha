@@ -9,6 +9,7 @@ const Addresses: React.FC = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editAddress, setEditAddress] = useState<Address | null>(null);
+  const [viewAddress, setViewAddress] = useState<Address | null>(null);
   const [form, setForm] = useState<Omit<CreateAddressDto, 'id'>>({
     ao_id: 0,
     number: '',
@@ -150,7 +151,7 @@ const Addresses: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         <button 
                           className="p-1 hover:bg-gray-100 rounded"
-                          onClick={() => console.log('View address details not implemented yet')}
+                          onClick={() => setViewAddress(address)}
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -178,7 +179,7 @@ const Addresses: React.FC = () => {
 
       {/* Address Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 bg-black">
+        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 bg-black bg-opacity-40">
           <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg animate-fadeIn">
             <h3 className="text-xl font-bold mb-4">
               {editAddress ? 'แก้ไขที่อยู่' : 'เพิ่มที่อยู่'}
@@ -262,6 +263,36 @@ const Addresses: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Details Modal */}
+      {viewAddress && (
+        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg animate-fadeIn">
+            <h3 className="text-xl font-bold mb-4">รายละเอียดที่อยู่</h3>
+            <div className="space-y-3 mb-6">
+              <p className="text-gray-700"><span className="font-semibold">ID:</span> {viewAddress.id}</p>
+              <p className="text-gray-700"><span className="font-semibold">Address Option ID:</span> {viewAddress.ao_id}</p>
+              <p className="text-gray-700"><span className="font-semibold">ชื่อผู้รับ:</span> {viewAddress.recipient_name || '-'}</p>
+              <p className="text-gray-700"><span className="font-semibold">เบอร์โทรศัพท์:</span> {viewAddress.phone || '-'}</p>
+              <p className="text-gray-700">
+                <span className="font-semibold">ที่อยู่:</span> {viewAddress.number} ถ. {viewAddress.road}, {viewAddress.subdistrict}, {viewAddress.district}, {viewAddress.province} {viewAddress.code_zip}
+              </p>
+              {viewAddress.address_detail && (
+                <p className="text-gray-700"><span className="font-semibold">รายละเอียดเพิ่มเติม:</span> {viewAddress.address_detail}</p>
+              )}
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition"
+                onClick={() => setViewAddress(null)}
+              >
+                ปิด
+              </button>
+            </div>
           </div>
         </div>
       )}

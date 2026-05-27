@@ -9,6 +9,7 @@ const AddressOptions: React.FC = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editAddressOption, setEditAddressOption] = useState<AddressOption | null>(null);
+  const [viewAddressOption, setViewAddressOption] = useState<AddressOption | null>(null);
   const [form, setForm] = useState<Omit<CreateAddressOptionDto, 'id'>>({
     user_id: 0,
     ao_name: '',
@@ -120,7 +121,7 @@ const AddressOptions: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         <button 
                           className="p-1 hover:bg-gray-100 rounded"
-                          onClick={() => console.log('View address option details not implemented yet')}
+                          onClick={() => setViewAddressOption(addressOption)}
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -148,7 +149,7 @@ const AddressOptions: React.FC = () => {
 
       {/* Address Option Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 bg-black">
+        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 bg-black bg-opacity-40">
           <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg animate-fadeIn">
             <h3 className="text-xl font-bold mb-4">
               {editAddressOption ? 'แก้ไขตัวเลือกที่อยู่' : 'เพิ่มตัวเลือกที่อยู่'}
@@ -187,6 +188,34 @@ const AddressOptions: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Details Modal */}
+      {viewAddressOption && (
+        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg animate-fadeIn">
+            <h3 className="text-xl font-bold mb-4">รายละเอียดตัวเลือกที่อยู่</h3>
+            <div className="space-y-3 mb-6">
+              <p className="text-gray-700"><span className="font-semibold">ID:</span> {viewAddressOption.id}</p>
+              <p className="text-gray-700"><span className="font-semibold">User ID:</span> {viewAddressOption.user_id}</p>
+              <p className="text-gray-700"><span className="font-semibold">ชื่อตัวเลือก:</span> {viewAddressOption.ao_name}</p>
+              {viewAddressOption.createdAt && (
+                <p className="text-gray-700">
+                  <span className="font-semibold">สร้างเมื่อ:</span> {new Date(viewAddressOption.createdAt).toLocaleString('th-TH')}
+                </p>
+              )}
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition"
+                onClick={() => setViewAddressOption(null)}
+              >
+                ปิด
+              </button>
+            </div>
           </div>
         </div>
       )}

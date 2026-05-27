@@ -23,6 +23,8 @@ export class AddressService {
         province: dto.province,
         code_zip: dto.code_zip,
         address_detail: dto.address_detail,
+        recipient_name: (dto as any).recipient_name,
+        phone: (dto as any).phone,
       },
     });
     return { data: saved };
@@ -57,6 +59,8 @@ export class AddressService {
         province: dto.province,
         code_zip: dto.code_zip,
         address_detail: dto.address_detail,
+        recipient_name: dto.recipient_name,
+        phone: dto.phone,
       },
     });
     return { data: updated };

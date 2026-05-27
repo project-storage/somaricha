@@ -65,6 +65,7 @@ export interface FullOrder {
   created_at: string;
   updated_at?: string;
   delivered_at?: string;
+  comemnt_star?: number;
 }
 
 export interface CreateOrderDto {
@@ -520,7 +521,13 @@ const getOrderDetail = async (id: number) => {
 
 const updateOrder = async (id: number, orderData: UpdateOrderDto) => {
   try {
-    const response = await http.patch(`${baseUrl}/${id}`, orderData);
+    let response;
+    // If the user is an admin and only updating status, call the admin status endpoint
+    if (checkIfAdminUser() && orderData.status !== undefined) {
+      response = await http.patch(`${baseUrl}/${id}/status`, { status: orderData.status });
+    } else {
+      response = await http.patch(`${baseUrl}/${id}`, orderData);
+    }
     return response;
   } catch (error) {
     console.warn("Failed to update order on server, updating local order");
@@ -534,6 +541,31 @@ const updateOrder = async (id: number, orderData: UpdateOrderDto) => {
       data: {
         success: true,
         message: "Order updated successfully (locally)"
+      },
+      status: 200
+    };
+  }
+};
+
+const markAsReceived = async (id: number, commentStar: number) => {
+  try {
+    const response = await http.patch(`${baseUrl}/${id}/received`, { comemnt_star: commentStar });
+    return response;
+  } catch (error) {
+    console.warn("Failed to mark received on server, updating local order");
+    updateLocalOrderStatus(id, OrderStatus.DELIVERED);
+    
+    // Update local order rating
+    const orders = getLocalOrders();
+    const orderIndex = orders.findIndex(order => order.id === id);
+    if (orderIndex !== -1) {
+      orders[orderIndex].comemnt_star = commentStar;
+      localStorage.setItem('local_orders', JSON.stringify(orders));
+    }
+    return {
+      data: {
+        success: true,
+        message: "Order marked as received with rating (locally)"
       },
       status: 200
     };
@@ -568,6 +600,7 @@ const orderService = {
   getOrderHistory,
   getOrderDetail,
   updateOrder,
+  markAsReceived,
   confirmDelivery,
   deleteOrder,
 };

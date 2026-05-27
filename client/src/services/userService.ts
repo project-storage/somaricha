@@ -137,6 +137,19 @@ const setDefaultAddress = (id: number) => {
   return http.patch(`${addressBaseUrl}/${id}/default`, {});
 };
 
+const getProfile = () => {
+  return http.get(`${baseUrl}/profile`);
+};
+
+const updateProfile = (profileData: any) => {
+  // If user sets a phone number, map it to the backend expected field 'tel'
+  const payload = {
+    ...profileData,
+    tel: profileData.phone !== undefined ? profileData.phone : profileData.tel
+  };
+  return http.patch(`${baseUrl}/profile`, payload);
+};
+
 const userService = {
   getMe,
   getAllUsers,
@@ -149,6 +162,8 @@ const userService = {
   updateAddress,
   deleteAddress,
   setDefaultAddress,
+  getProfile,
+  updateProfile,
 };
 
 export default userService;

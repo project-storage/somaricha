@@ -42,4 +42,14 @@ export class UpdateAddressDto extends PartialType(CreateAddressDto) {
   @IsString()
   @IsOptional()
   address_detail?: string;
+
+  @ApiProperty({ description: 'Recipient Name', example: 'John Doe', required: false })
+  @IsString()
+  @IsOptional()
+  recipient_name?: string;
+
+  @ApiProperty({ description: 'Recipient Phone', example: '0812345678', required: false })
+  @IsString()
+  @IsOptional()
+  phone?: string;
 }
