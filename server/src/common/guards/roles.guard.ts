@@ -15,6 +15,12 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles) return true; // ไม่มี roles -> อนุญาตทั้งหมด
 
     const { user } = context.switchToHttp().getRequest();
-    return requiredRoles.includes(user.user_role);
+    if (!user || !user.user_role) return false;
+
+    // Perform case-insensitive check to avoid mismatches between DTO ('owner' / 'user') and Prisma Client ('OWNER' / 'USER')
+    const userRoleLower = user.user_role.toLowerCase();
+    return requiredRoles
+      .map((role) => role.toLowerCase())
+      .includes(userRoleLower);
   }
 }

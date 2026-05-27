@@ -8,9 +8,10 @@ export class AdminAuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    const user: User = request.user;
+    const user: any = request.user;
+    if (!user || !user.user_role) return false;
     
-    // Check if user role is OWNER (admin)
-    return user.user_role === UserRole.OWNER;
+    // Check if user role is OWNER (admin) with robust case-insensitive matching
+    return user.user_role.toLowerCase() === 'owner';
   }
 }

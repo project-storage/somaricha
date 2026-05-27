@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Req, BadRequestException } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -14,14 +14,20 @@ export class OrderController {
 
   @Post()
   async create(@Req() req, @Body() createOrderDto: CreateOrderDto) {
-    // Override user_id from the authenticated user, not from the request body
     const user = req.user;
+    const addressId = createOrderDto.address_id || createOrderDto.address_option;
+    if (!addressId) {
+      throw new BadRequestException('address_id or address_option is required');
+    }
+
     const dto = {
       ...createOrderDto,
-      user_id: user.id, // Ensure the user_id comes from the JWT token, not the request body
+      user_id: user.id,
+      address_id: addressId,
+      orderdatetime: createOrderDto.orderdatetime ? new Date(createOrderDto.orderdatetime) : new Date(),
     };
     
-    return this.orderService.create(user, dto);
+    return this.orderService.create(user, dto as any);
   }
 
   @Get()

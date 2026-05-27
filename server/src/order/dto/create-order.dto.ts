@@ -28,18 +28,20 @@ class OrderItemDto {
 }
 
 export class CreateOrderDto {
-  @ApiProperty({ description: 'ID of the user', example: 1 })
+  @ApiProperty({ description: 'ID of the user', example: 1, required: false })
   @IsInt()
-  @IsNotEmpty()
-  user_id: number;
+  @IsOptional()
+  user_id?: number;
 
   @ApiProperty({ description: 'Status of the order', enum: OrderStatus, example: OrderStatus.PENDING })
   @IsEnum(OrderStatus)
   status: OrderStatus;
 
-  @ApiProperty({ description: 'Date and time of order', example: '2025-09-10T12:00:00Z' })
+  @ApiProperty({ description: 'Date and time of order', example: '2025-09-10T12:00:00Z', required: false })
   @IsDate()
-  orderdatetime: Date;
+  @Type(() => Date)
+  @IsOptional()
+  orderdatetime?: Date;
 
   @ApiProperty({ description: 'Payment ID', example: 1 })
   @IsInt()
@@ -51,10 +53,15 @@ export class CreateOrderDto {
   @IsNotEmpty()
   total_price: number;
 
-  @ApiProperty({ description: 'Address ID', example: 1 })
+  @ApiProperty({ description: 'Address ID', example: 1, required: false })
   @IsInt()
-  @IsNotEmpty()
-  address_id: number;
+  @IsOptional()
+  address_id?: number;
+
+  @ApiProperty({ description: 'Address Option ID (Alternative)', example: 1, required: false })
+  @IsInt()
+  @IsOptional()
+  address_option?: number;
 
   @ApiProperty({ description: 'Comment star rating (1-5)', example: 5, required: false })
   @IsInt()
